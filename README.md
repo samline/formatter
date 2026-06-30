@@ -111,7 +111,9 @@ format('4111111111111111', 'creditCardType')
 | `'creditCard'` | Brand-aware grouping | `'4111 1111 1111 1111'`, digits-only raw |
 | `'creditCardType'` | Returns the card brand name | Brand string, digits-only raw from input |
 
-For the full options reference and per-type behavior, see:
+## Documentation
+
+Full API reference, guides, and examples are available at **[samline.github.io/formatter](https://samline.github.io/formatter)**.
 
 | Doc | Purpose |
 | --- | --- |

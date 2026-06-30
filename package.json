@@ -64,7 +64,7 @@
   "bugs": {
     "url": "https://github.com/samline/formatter/issues"
   },
-  "homepage": "https://github.com/samline/formatter#readme",
+  "homepage": "https://samline.github.io/formatter",
   "dependencies": {
     "cleave-zen": "^0.0.17",
     "libphonenumber-js": "^1.13.7"
