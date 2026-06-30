@@ -146,4 +146,137 @@ describe('regex', () => {
       }
     })
   })
+
+  // ─── New rich validations (common ones) ─────────────────────────────────
+
+  describe('url', () => {
+    it('matches a https URL', () => {
+      expect(regex.url.pattern.test('https://example.com')).toBe(true)
+    })
+    it('matches with path and query', () => {
+      expect(regex.url.pattern.test('https://example.com/path?x=1')).toBe(true)
+    })
+    it('rejects missing protocol', () => {
+      expect(regex.url.pattern.test('example.com')).toBe(false)
+    })
+  })
+
+  describe('ipv4', () => {
+    it('matches a valid IPv4', () => {
+      expect(regex.ipv4.pattern.test('192.168.1.1')).toBe(true)
+    })
+    it('rejects 999', () => {
+      expect(regex.ipv4.pattern.test('192.168.1.999')).toBe(false)
+    })
+  })
+
+  describe('uuid', () => {
+    it('matches a UUID v4', () => {
+      expect(regex.uuid.pattern.test('550e8400-e29b-41d4-a716-446655440000')).toBe(true)
+    })
+    it('rejects malformed UUID', () => {
+      expect(regex.uuid.pattern.test('not-a-uuid')).toBe(false)
+    })
+  })
+
+  describe('postalCode', () => {
+    it('matches a 5-digit ZIP', () => {
+      expect(regex.postalCode.pattern.test('90210')).toBe(true)
+    })
+    it('rejects 4 digits', () => {
+      expect(regex.postalCode.pattern.test('1234')).toBe(false)
+    })
+  })
+
+  describe('time24', () => {
+    it('matches 14:30', () => {
+      expect(regex.time24.pattern.test('14:30')).toBe(true)
+    })
+    it('rejects 25:00', () => {
+      expect(regex.time24.pattern.test('25:00')).toBe(false)
+    })
+  })
+
+  describe('slug', () => {
+    it('matches a slug', () => {
+      expect(regex.slug.pattern.test('hello-world-123')).toBe(true)
+    })
+    it('rejects spaces', () => {
+      expect(regex.slug.pattern.test('hello world')).toBe(false)
+    })
+  })
+
+  // ─── Parametric / callable API ──────────────────────────────────────────
+
+  describe('parametric: digits()', () => {
+    it('accepts a single number for exact length', () => {
+      expect(regex.digits(7).pattern.test('1234567')).toBe(true)
+      expect(regex.digits(7).pattern.test('123')).toBe(false)
+      expect(regex.digits(7).errorMessage).toContain('7')
+    })
+    it('accepts { length }', () => {
+      expect(regex.digits({ length: 16 }).pattern.test('1234567890123456')).toBe(true)
+    })
+    it('accepts { min, max }', () => {
+      expect(regex.digits({ min: 5, max: 10 }).pattern.test('12345')).toBe(true)
+      expect(regex.digits({ min: 5, max: 10 }).pattern.test('1234')).toBe(false)
+    })
+  })
+
+  describe('parametric: phone()', () => {
+    it('still exposes static .pattern (backward compatible)', () => {
+      expect(regex.phone.pattern.test('5512345678')).toBe(true)
+    })
+    it('accepts { length }', () => {
+      expect(regex.phone({ length: 7 }).pattern.test('1234567')).toBe(true)
+      expect(regex.phone({ length: 7 }).pattern.test('5512345678')).toBe(false)
+    })
+  })
+
+  describe('parametric: creditCard()', () => {
+    it('still exposes static .pattern', () => {
+      expect(regex.creditCard.pattern.test('4111111111111111')).toBe(true)
+    })
+    it('accepts { min, max }', () => {
+      expect(regex.creditCard({ min: 13, max: 19 }).pattern.test('4111111111111')).toBe(true)
+    })
+  })
+
+  describe('parametric: url()', () => {
+    it('accepts { protocol: "https" }', () => {
+      expect(regex.url({ protocol: 'https' }).pattern.test('https://x.com')).toBe(true)
+      expect(regex.url({ protocol: 'https' }).pattern.test('ftp://x.com')).toBe(false)
+    })
+  })
+
+  describe('parametric: password()', () => {
+    it('matches with default rules', () => {
+      expect(regex.password().pattern.test('Passw0rd')).toBe(true)
+    })
+    it('accepts custom rules', () => {
+      const r = regex.password({ min: 12, special: true })
+      expect(r.pattern.test('MyP@ssw0rd!!')).toBe(true)
+      expect(r.pattern.test('short')).toBe(false)
+    })
+  })
+
+  // ─── Custom regex support ──────────────────────────────────────────────
+
+  describe('custom regex', () => {
+    it('accepts positional (pattern, message)', () => {
+      const r = regex.custom(/^[A-Z]{3}\d{3}$/, 'Invalid code')
+      expect(r.pattern.test('ABC123')).toBe(true)
+      expect(r.pattern.test('abc123')).toBe(false)
+      expect(r.errorMessage).toBe('Invalid code')
+    })
+    it('accepts object form', () => {
+      const r = regex.custom({ pattern: /^\d+$/, errorMessage: 'Numbers only' })
+      expect(r.pattern.test('123')).toBe(true)
+      expect(r.errorMessage).toBe('Numbers only')
+    })
+    it('has default message when not provided', () => {
+      const r = regex.custom(/^\d+$/)
+      expect(typeof r.errorMessage).toBe('string')
+    })
+  })
 })
