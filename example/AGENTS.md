@@ -23,13 +23,16 @@ docs/
 │   ├── content.config.ts    ← Starlight frontmatter schema, don't edit
 │   └── content/
 │       └── docs/
-│           ├── index.md                 ← homepage
-│           ├── getting-started.md       ← install & first example
+│           ├── index.mdx                ← homepage
+│           ├── getting-started.mdx      ← install & first example
 │           └── reference/
 │               ├── index.md
 │               ├── configuration.md
 │               ├── api.md
-│               └── examples.md
+│               ├── regex.md
+│               ├── typescript.md
+│               ├── browser.md
+│               └── examples.mdx
 ├── public/
 │   └── favicon.svg
 └── .github/
@@ -55,11 +58,11 @@ Required fields:
 
 | Field              | Example                                  |
 | ------------------ | ---------------------------------------- |
-| `title`            | `Cleave Zen`                             |
-| `description`      | `Lightweight input mask library`         |
-| `tagline`          | `Mask numbers, dates & more in 1KB`      |
+| `title`            | `Formatter`                              |
+| `description`      | `Lightweight input formatter library`    |
+| `tagline`          | `Format inputs in one call`              |
 | `github owner`     | `sam`                                    |
-| `github repo`      | `cleave-zen`                             |
+| `github repo`      | `formatter`                              |
 | branch name        | `main` (default)                         |
 
 ### Step 2 — Edit `site.config.mjs` only
@@ -67,11 +70,11 @@ Required fields:
 Open **`site.config.mjs`** and replace each placeholder:
 
 ```js
-title: 'Cleave Zen',                                   // ← was 'My Package Docs'
-description: 'Lightweight input mask library',         // ← 1–2 sentence tagline
+title: 'Formatter',                                   // ← was '@samline/formatter'
+description: 'Lightweight input formatter library',   // ← 1–2 sentence tagline
 site: 'https://sam.github.io',                         // ← owner only
-base: '/cleave-zen',                                   // ← repo name as /repo
-editLinkBaseUrl: 'https://github.com/sam/cleave-zen/edit/main/',
+base: '/formatter',                                   // ← repo name as /repo
+editLinkBaseUrl: 'https://github.com/samline/formatter/edit/main/',
 ```
 
 **Never** touch `astro.config.mjs` — it reads everything from
@@ -104,7 +107,11 @@ placeholder already shows — only the actual content changes.
 | `getting-started.mdx`                 | Installation + first runnable example.                        |
 | `reference/index.md`                  | Auto-collected in `Reference` sidebar group.                  |
 | `reference/configuration.md`         | Every option / default / reason.                              |
-| `reference/api.md`                    | Function-by-function reference with signatures and examples.  |
+| `reference/api.md`                   | Function-by-function reference with signatures and examples.  |
+| `reference/regex.md`                  | Validation patterns and error messages.                       |
+| `reference/typescript.md`            | TypeScript types and usage.                                   |
+| `reference/browser.md`                | Browser IIFE bundle usage.                                   |
+| `reference/examples.mdx`              | End-to-end recipes for common scenarios.                      |
 | `reference/examples.mdx`              | End-to-end recipes for common scenarios.                      |
 
 > **`.md` vs `.mdx`** — use `.md` for prose + tables only, `.mdx` the

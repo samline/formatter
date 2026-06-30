@@ -42,17 +42,28 @@ const siteConfig = defineSiteConfig({
 		'https://github.com/samline/formatter/edit/main/',
 
 	// ---- Sidebar -----------------------------------------------------------
-	// Define the navigation tree here. Leave it empty to auto-generate
-	// from `src/content/docs/`. See ./site.config.mjs for the full schema.
-	//
-	//   sidebar: [
-	//     { label: 'Guide', items: [{ slug: 'getting-started' }] },
-	//     {
-	//       label: 'Reference',
-	//       items: [{ autogenerate: { directory: 'reference' } }],
-	//     },
-	//   ],
-	sidebar: [],
+	// Explicit navigation tree so the order is stable across builds.
+	sidebar: [
+		{
+			label: 'Guide',
+			items: [{ slug: 'getting-started' }],
+		},
+		{
+			label: 'Reference',
+			items: [
+				{ slug: 'reference' },
+				{ slug: 'reference/configuration' },
+				{ slug: 'reference/api' },
+				{ slug: 'reference/regex' },
+				{ slug: 'reference/typescript' },
+				{ slug: 'reference/browser' },
+			],
+		},
+		{
+			label: 'Examples',
+			items: [{ slug: 'reference/examples' }],
+		},
+	],
 
 	// ---- Social links (optional) -----------------------------------------
 	// Icon names must match the icons listed at:
