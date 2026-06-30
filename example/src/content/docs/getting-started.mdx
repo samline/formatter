@@ -1,0 +1,107 @@
+---
+title: Getting started
+description: Install @samline/formatter and run your first example in under five minutes.
+sidebar:
+  order: 1
+---
+
+import { Card, CardGrid, Tabs, TabItem } from '@astrojs/starlight/components';
+
+This page walks you through installing **@samline/formatter** and running a working example. By the end you'll have a running project and a clear understanding of where to look next.
+
+## Prerequisites
+
+- **Node.js 20+** when bundling (the package targets ES2020).
+- A package manager — `npm`, `pnpm`, `yarn`, or `bun` — whichever your team prefers.
+
+## Install
+
+<Tabs syncKey="package-manager">
+	<TabItem label="npm">
+		```bash
+		npm install @samline/formatter
+		```
+	</TabItem>
+	<TabItem label="pnpm">
+		```bash
+		pnpm add @samline/formatter
+		```
+	</TabItem>
+	<TabItem label="yarn">
+		```bash
+		yarn add @samline/formatter
+		```
+	</TabItem>
+	<TabItem label="bun">
+		```bash
+		bun add @samline/formatter
+		```
+	</TabItem>
+</Tabs>
+
+## Quick start
+
+```ts title="src/index.ts"
+import { format } from '@samline/formatter'
+
+// Phone (Mexico by default, space-delimited)
+format('5512345678', 'phone')
+// => { formatted: '55 1234 5678', raw: '5512345678', type: 'phone' }
+
+// Numeral (thousand separators)
+format('1234567', 'numeral')
+// => { formatted: '1,234,567', raw: '1234567', type: 'numeral' }
+
+// Date (raw Y-m-d → display d/m/Y)
+format('2026-05-12', 'date')
+// => { formatted: '12/05/2026', raw: '2026-05-12', type: 'date' }
+
+// Credit card (grouped by brand, digits-only raw)
+format('4111111111111111', 'creditCard')
+// => { formatted: '4111 1111 1111 1111', raw: '4111111111111111', type: 'creditCard' }
+
+// Card brand detection
+format('4111111111111111', 'creditCardType')
+// => { formatted: 'visa', raw: '4111111111111111', type: 'creditCardType' }
+```
+
+:::tip[Two outputs in one call]
+Every call returns a `FormatterResult` with `formatted` (display) and `raw` (backend). Pair the visible `<input>` with a hidden input and mirror `raw` into it so the form submission always carries the canonical value.
+:::
+
+## Browser usage (no bundler)
+
+Drop the pre-bundled IIFE into any HTML page and call `window.Formatter.format(...)`.
+
+```html
+<script src="https://unpkg.com/@samline/formatter@1.0.0/dist/browser/global.global.js"></script>
+<script>
+  const { formatted, raw } = window.Formatter.format('5512345678', 'phone')
+  console.log(formatted) // '55 1234 5678'
+  console.log(raw)       // '5512345678'
+</script>
+```
+
+> Pin the version in production. The browser bundle ships both `cleave-zen` and `libphonenumber-js` bundled in (~250 KB unminified).
+
+## What's next?
+
+<CardGrid>
+	<Card title="Configuration" icon="setting">
+		Explore every option, with defaults and runtime impact.
+
+		[Configuration →](/formatter/reference/configuration/)
+	</Card>
+
+	<Card title="API reference" icon="open-book">
+		Function-by-function documentation with TypeScript signatures.
+
+		[API reference →](/formatter/reference/api/)
+	</Card>
+
+	<Card title="Examples" icon="puzzle">
+		End-to-end examples covering common real-world scenarios.
+
+		[Browse examples →](/formatter/reference/examples/)
+	</Card>
+</CardGrid>

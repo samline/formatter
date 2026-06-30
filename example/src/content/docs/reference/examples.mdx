@@ -1,0 +1,235 @@
+---
+title: Examples
+description: End-to-end examples for common real-world scenarios.
+sidebar:
+  order: 5
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+These examples are deliberately copy-pasteable. Each one lives in a single file so it's easy to drop into a project and adapt.
+
+## Minimal wiring
+
+<Tabs syncKey="runtime">
+	<TabItem label="Node">
+
+		```ts title="src/format.ts"
+		import { format } from '@samline/formatter'
+
+		const result = format('5512345678', 'phone')
+		console.log(result.formatted) // '55 1234 5678'
+		console.log(result.raw)       // '5512345678'
+		```
+
+	</TabItem>
+
+	<TabItem label="Browser">
+
+		```html title="index.html"
+		<input id="phone" type="text" inputmode="tel" autocomplete="tel">
+		<input id="phone_raw" type="hidden" name="phone_raw">
+
+		<script type="module">
+		  import { format } from 'https://unpkg.com/@samline/formatter@1.0.0/dist/index.js'
+
+		  const input  = document.getElementById('phone')
+		  const hidden = document.getElementById('phone_raw')
+
+		  input.addEventListener('input', () => {
+		    const { formatted, raw } = format(input.value, 'phone')
+		    input.value  = formatted
+		    hidden.value = raw
+		  })
+		</script>
+		```
+
+	</TabItem>
+
+	<TabItem label="TypeScript">
+
+		```ts title="src/format.ts"
+		import { format, isFormatType, type FormatType } from '@samline/formatter'
+
+		function safeFormat(value: string, raw: string): string {
+		  const type: FormatType = isFormatType(raw) ? raw : 'general'
+		  return format(value, type).formatted
+		}
+
+		console.log(safeFormat('5512345678', 'phone')) // '55 1234 5678'
+		```
+
+	</TabItem>
+</Tabs>
+
+## Recipe: phone with country selector
+
+A common real-world form lets the user pick a country and format the phone accordingly. Drive `country` off the selector's value.
+
+```ts title="src/phone.ts"
+import { format } from '@samline/formatter'
+
+const COUNTRY_CODES = ['MX', 'US', 'AR', 'ES'] as const
+type Country = (typeof COUNTRY_CODES)[number]
+
+export function attachPhoneInput(
+  input: HTMLInputElement,
+  hidden: HTMLInputElement,
+  country: Country
+) {
+  input.addEventListener('input', () => {
+    const { formatted, raw } = format(input.value, 'phone', { country })
+    input.value  = formatted
+    hidden.value = raw
+  })
+}
+```
+
+```html title="index.html"
+<select id="country">
+  <option value="MX">Mexico (+52)</option>
+  <option value="US">United States (+1)</option>
+  <option value="AR">Argentina (+54)</option>
+  <option value="ES">Spain (+34)</option>
+</select>
+
+<input id="phone" type="text" inputmode="tel" autocomplete="tel">
+<input id="phone_raw" type="hidden" name="phone_raw">
+
+<script type="module">
+  import { attachPhoneInput } from './phone.ts'
+  const select = document.getElementById('country')
+  const input  = document.getElementById('phone')
+  const hidden = document.getElementById('phone_raw')
+
+  const wire = () => attachPhoneInput(input, hidden, select.value)
+  select.addEventListener('change', wire)
+  wire()
+</script>
+```
+
+## Recipe: credit card with brand detection
+
+Use `creditCardType` to detect the brand and `creditCard` to format the number. The brand name goes into a hidden field so the server can pick the right processor without re-running detection.
+
+```ts title="src/card.ts"
+import { format } from '@samline/formatter'
+
+export function attachCardInput(
+  number: HTMLInputElement,
+  brandHidden: HTMLInputElement,
+  numberHidden: HTMLInputElement
+) {
+  number.addEventListener('input', () => {
+    const typed = format(number.value, 'creditCardType')
+    const full  = format(number.value, 'creditCard')
+    number.value       = full.formatted
+    numberHidden.value = full.raw
+    brandHidden.value  = typed.formatted  // e.g. 'visa', 'mastercard', 'amex'
+  })
+}
+```
+
+```html title="index.html"
+<input id="card_number" type="text" inputmode="numeric" autocomplete="cc-number">
+<input id="card_brand" type="hidden" name="card_brand">
+<input id="card_number_raw" type="hidden" name="card_number_raw">
+<p id="card_brand_label">Brand: —</p>
+
+<script type="module">
+  import { attachCardInput } from './card.ts'
+  const number      = document.getElementById('card_number')
+  const brandHidden = document.getElementById('card_brand')
+  const numHidden   = document.getElementById('card_number_raw')
+  const label       = document.getElementById('card_brand_label')
+
+  attachCardInput(number, brandHidden, numHidden)
+  number.addEventListener('input', () => {
+    label.textContent = `Brand: ${brandHidden.value || '—'}`
+  })
+</script>
+```
+
+## Recipe: currency input with prefix
+
+Drive an `<input>` that displays `$1,234.50` while the form submits the digits-only `1234.50`.
+
+```ts title="src/currency.ts"
+import { format } from '@samline/formatter'
+
+export function attachCurrencyInput(input: HTMLInputElement, hidden: HTMLInputElement) {
+  input.addEventListener('input', () => {
+    const { formatted, raw } = format(input.value, 'numeral', {
+      prefix: '$',
+      numeralDecimalScale: 2,
+      numeralDecimalMark: '.'
+    })
+    input.value  = formatted
+    hidden.value = raw
+  })
+}
+```
+
+## Recipe: date input that accepts both raw and formatted
+
+The `date` format accepts raw `Y-m-d` and emits the display pattern. Wire it to `<input type="date">` (which always emits raw) and you'll get a human-friendly display via a sibling element — useful when the form should send `2026-05-12` but show `12/05/2026` in the UI.
+
+```ts title="src/date.ts"
+import { format } from '@samline/formatter'
+
+export function attachDateInput(
+  native: HTMLInputElement,
+  display: HTMLElement,
+  hidden: HTMLInputElement
+) {
+  const sync = () => {
+    const { formatted, raw } = format(native.value, 'date', {
+      datePattern: ['d', 'm', 'Y'],
+      delimiter: '/'
+    })
+    display.textContent = formatted || '—'
+    hidden.value        = raw
+  }
+
+  native.addEventListener('input', sync)
+  sync()
+}
+```
+
+## Recipe: validating with `regex`
+
+Pair `format` with the bundled `regex` object so the error message you show the user matches what the validator checks.
+
+```ts title="src/validate.ts"
+import { format, regex } from '@samline/formatter'
+
+export function validateCardNumber(value: string): string | null {
+  return regex.creditCard.pattern.test(value)
+    ? null
+    : regex.creditCard.errorMessage
+}
+
+export function validateEmail(value: string): string | null {
+  return regex.email.pattern.test(value)
+    ? null
+    : regex.email.errorMessage
+}
+
+// Combine with format to keep the visible field, hidden field, and error
+// state in sync.
+export function attachEmailField(
+  input: HTMLInputElement,
+  hidden: HTMLInputElement,
+  error: HTMLElement
+) {
+  input.addEventListener('input', () => {
+    const { formatted, raw } = format(input.value, 'general', {
+      blocks: [64],
+      delimiter: ''
+    })
+    input.value       = formatted
+    hidden.value      = raw
+    error.textContent = validateEmail(raw) ?? ''
+  })
+}
+```

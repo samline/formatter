@@ -1,0 +1,64 @@
+---
+title: '@samline/formatter'
+description: 'Lightweight, framework-agnostic input formatter that returns split formatted/raw outputs for phones, numerals, dates, times, and credit cards.'
+template: doc
+hero:
+  tagline: 'Format inputs in one call. Get a display-ready string and a backend-ready string from a single, pure function.'
+  actions:
+    - text: Get started
+      link: /formatter/getting-started/
+      icon: right-arrow
+      variant: primary
+    - text: View on GitHub
+      link: 'https://github.com/samline/formatter'
+      icon: external
+      variant: minimal
+---
+
+import { Card, CardGrid } from '@astrojs/starlight/components';
+
+A pure input formatter that returns **two strings at once** — a display-ready `formatted` value and a backend-ready `raw` value. No DOM, no I/O, no state. Works in Node, React, Vue, Svelte, Shopify themes, or anywhere JavaScript runs.
+
+```ts
+import { format } from '@samline/formatter'
+
+format('5512345678', 'phone')
+// => { formatted: '55 1234 5678', raw: '5512345678', type: 'phone' }
+```
+
+## Why @samline/formatter?
+
+- **One function, two outputs** — `formatted` for the visible `<input>`, `raw` for the hidden field. Never re-parse formatted text on the server.
+- **Framework-agnostic** — Plain JS, no React/Vue/Svelte adapter. Wire it into whatever you already use.
+- **Pure** — Deterministic. No DOM reads/writes, no globals, no `Date.now()`. Safe to call on every keystroke.
+- **Typed** — First-class TypeScript with `FormatType`, `FormatOptions`, and `FormatterResult` exported.
+- **Validation built-in** — Bundled `regex` object pairs every common pattern with a ready-to-use error message.
+- **Tiny core** — Built on `cleave-zen` and `libphonenumber-js`. Optional browser IIFE ships with both dependencies bundled.
+
+## Next steps
+
+<CardGrid>
+	<Card title="Installation" icon="pencil-line">
+		Install via npm, pnpm, yarn, or bun, or drop the browser IIFE into a `<script>` tag.
+
+		[Get started →](/formatter/getting-started)
+	</Card>
+
+	<Card title="API reference" icon="open-book">
+		Every public function, type, and constant documented with concrete examples.
+
+		[Browse the reference →](/formatter/reference/api/)
+	</Card>
+
+	<Card title="Configuration" icon="setting">
+		Every option, with defaults and per-`formatType` behavior.
+
+		[Configuration →](/formatter/reference/configuration/)
+	</Card>
+
+	<Card title="Examples" icon="puzzle">
+		End-to-end recipes for common form scenarios.
+
+		[Browse examples →](/formatter/reference/examples/)
+	</Card>
+</CardGrid>
