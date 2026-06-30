@@ -1,0 +1,79 @@
+{
+  "name": "@samline/formatter",
+  "version": "1.0.0",
+  "description": "Lightweight, framework-agnostic input formatter (phone, numeral, date, time, credit card, general) that returns split formatted/raw outputs.",
+  "type": "module",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "sideEffects": false,
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./vanilla": {
+      "types": "./dist/vanilla/index.d.ts",
+      "import": "./dist/vanilla/index.js",
+      "require": "./dist/vanilla/index.cjs"
+    },
+    "./browser": {
+      "types": "./dist/browser/global.d.ts",
+      "default": "./dist/browser/global.global.js"
+    }
+  },
+  "scripts": {
+    "clean": "rm -rf dist coverage",
+    "build": "tsup --config tsup.config.ts",
+    "dev": "tsup --config tsup.config.ts --watch",
+    "pack:check": "npm pack --dry-run",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "prepublishOnly": "npm run clean && npm run build && npm run typecheck && npm test"
+  },
+  "keywords": [
+    "formatter",
+    "input",
+    "phone",
+    "numeral",
+    "date",
+    "time",
+    "credit-card",
+    "format",
+    "mask",
+    "cleave",
+    "libphonenumber"
+  ],
+  "author": "samline",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/samline/formatter.git"
+  },
+  "bugs": {
+    "url": "https://github.com/samline/formatter/issues"
+  },
+  "homepage": "https://github.com/samline/formatter#readme",
+  "dependencies": {
+    "cleave-zen": "^0.0.17",
+    "libphonenumber-js": "^1.13.7"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "jsdom": "^26.1.0",
+    "tsup": "^8.5.0",
+    "typescript": "^5.8.3",
+    "vitest": "^3.1.1"
+  }
+}
