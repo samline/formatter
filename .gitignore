@@ -13,6 +13,7 @@ Thumbs.db
 .idea/
 .vscode/
 *.swp
+*.swo
 
 # Logs
 *.log
@@ -28,3 +29,10 @@ bun-debug.log*
 
 # Bun legacy binary lockfile (the modern text lockfile is `bun.lock` and IS tracked)
 bun.lockb
+
+# Auto-generated
+skills-lock.json
+
+# Local files
+.local/
+AGENTS.md
