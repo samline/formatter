@@ -60,7 +60,13 @@ type FormatOptions = Partial<
   dateRawPatternDelimiter?: string
   timeRawPattern?: TimePatternType
   timeRawPatternDelimiter?: string
+  /** @deprecated Prefer the dedicated `suffix` option. */
   tailPrefix?: boolean
+  prefixMode?: 'lock' | 'passthrough'
+  rawPrefix?: boolean
+  suffix?: string
+  suffixMode?: 'lock' | 'passthrough'
+  rawSuffix?: boolean
 }
 ```
 

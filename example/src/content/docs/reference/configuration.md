@@ -17,7 +17,7 @@ function format(
 ): FormatterResult
 ```
 
-Internally `FormatOptions` is the intersection of [`cleave-zen`](https://github.com/FirstWhack/cleave-zen)'s per-type option interfaces plus a few package-specific extras (`country`, `dateRawPattern`, `timeRawPattern`, `tailPrefix`). Only the fields relevant to your `formatType` are read; everything else is ignored.
+Internally `FormatOptions` is the intersection of [`cleave-zen`](https://github.com/FirstWhack/cleave-zen)'s per-type option interfaces plus a few package-specific extras (`country`, `dateRawPattern`, `timeRawPattern`, `prefixMode`, `rawPrefix`, `suffix`, `suffixMode`, `rawSuffix`, `tailPrefix`). Only the fields relevant to your `formatType` are read; everything else is ignored.
 
 ## Common fields
 
@@ -28,8 +28,8 @@ These apply to most format types.
 | `country` | `string` (ISO 3166-1 alpha-2) | `'MX'` for phone, `''` otherwise | `phone` | Passed to `libphonenumber-js`'s `AsYouType`. |
 | `delimiter` | `string` | phone: `' '`; others: `cleave-zen` default | all | Single-character separator for the formatted display. |
 | `delimiters` | `string[]` | `[]` | `general`, `numeral` | Additional separators (e.g. `[' ', '-']`). |
-| `prefix` | `string` | `''` | `general`, `numeral` | Prepended to the display; stripped before raw computation. |
-| `tailPrefix` | `boolean` | `false` | `general`, `numeral` | When `true`, `prefix` is treated as a suffix (stripped from the end). |
+| `prefix` | `string` | `''` | `general`, `numeral` | Prepended to the display. See [Prefix & suffix on `general`](#prefix--suffix-on-general) for how the formatter manages it (including `prefixMode` and `rawPrefix`). |
+| `tailPrefix` | `boolean` | `false` | `general`, `numeral` | **Legacy**: when `true` (and `suffix` is not provided), `prefix` is treated as a suffix (stripped from the end). Prefer the new dedicated `suffix` option for new code. |
 
 ## `general`
 
@@ -44,6 +44,105 @@ Block-based masking with custom `delimiter` / `delimiters`. Pair with `blocks` t
 | `numericOnly` | `boolean` | `false` | Strip non-digit characters. |
 | `uppercase` | `boolean` | `false` | Force uppercase. |
 | `lowercase` | `boolean` | `false` | Force lowercase. |
+| `prefixMode` | `'lock' \| 'passthrough'` | `'lock'` | `'lock'` (default) auto-prepends the configured `prefix`; `'passthrough'` reflects whatever the user has typed of the prefix instead (so `E` sticks for a configured `EASY`). See [Prefix & suffix on `general`](#prefix--suffix-on-general). |
+| `rawPrefix` | `boolean` | `false` | When `true`, the `raw` mirror includes the configured `prefix`. Default `false` (digits-only). |
+| `suffix` | `string` | `''` | Tail decoration appended at the end of the display (e.g. `' USD'`, `'-END'`). Independent from `prefix`; can differ from it. |
+| `suffixMode` | `'lock' \| 'passthrough'` | `'lock'` | `'lock'` (default) auto-appends the configured `suffix`; `'passthrough'` reflects whatever the user has typed of the suffix instead. |
+| `rawSuffix` | `boolean` | `false` | When `true`, the `raw` mirror includes the configured `suffix`. Default `false`. |
+
+### Prefix & suffix on `general`
+
+`general` formats can decorate the visible value with a head (`prefix`) and/or a tail (`suffix`). The formatter manages both entirely on its own — it never delegates prefix handling to `cleave-zen` (whose internal `stripPrefix` discards any input that doesn't already start with the configured prefix, freezing the field at the literal prefix).
+
+#### `prefixMode` — how the user interacts with the head decoration
+
+- `'lock'` (default): the user types only the body; the formatter auto-prepends the configured `prefix` on every call. If the input happens to start with the prefix (paste case), the prefix is stripped before processing.
+- `'passthrough'`: the user types (or pastes) the prefix themselves. Every keystroke that matches the prefix sticks, so `E`, `EA`, `EAS`, `EASY` all stay in the field until you type past it.
+
+```ts
+// Auto-prepend `EASY`, user types only the 9 digits
+format('123456789', 'general', { blocks: [13], prefix: 'EASY' })
+// => { formatted: 'EASY123456789', raw: '123456789', type: 'general' }
+
+// User types the prefix themselves character by character
+format('EASY1', 'general', {
+  blocks: [13],
+  prefix: 'EASY',
+  prefixMode: 'passthrough'
+})
+// => { formatted: 'EASY1', raw: '1', type: 'general' }
+```
+
+#### `suffixMode` — how the user interacts with the tail decoration
+
+Mirror image of `prefixMode`. `'lock'` (default) auto-appends the configured `suffix`; `'passthrough'` lets the user type it character by character.
+
+```ts
+format('123456789', 'general', { blocks: [12], suffix: 'USD' })
+// => { formatted: '123456789USD', raw: '123456789', type: 'general' }
+
+format('12345US', 'general', {
+  blocks: [12],
+  suffix: 'USD',
+  suffixMode: 'passthrough'
+})
+// => { formatted: '12345US', raw: '12345', type: 'general' }
+```
+
+#### `rawPrefix` / `rawSuffix` — what the `raw` mirror contains
+
+The default `raw` value is the digits-only body the user typed. Opt in with `rawPrefix: true` / `rawSuffix: true` when the backend needs the canonical value with the decoration included:
+
+```ts
+// Backend wants the canonical identifier
+format('123456789', 'general', {
+  blocks: [13],
+  prefix: 'EASY',
+  rawPrefix: true
+})
+// => { formatted: 'EASY123456789', raw: 'EASY123456789', type: 'general' }
+
+// Both ends canonical
+format('12345', 'general', {
+  blocks: [11],
+  prefix: 'PRE-',
+  suffix: '-END',
+  rawPrefix: true,
+  rawSuffix: true
+})
+// => { formatted: 'PRE-12345-END', raw: 'PRE-12345-END', type: 'general' }
+```
+
+#### `prefix` + `suffix` combined
+
+The two decorations are independent — different head and tail, different modes, different raw flags:
+
+```ts
+format('12345', 'general', {
+  blocks: [11],
+  prefix: 'PRE-',
+  suffix: '-END'
+})
+// => { formatted: 'PRE-12345-END', raw: '12345', type: 'general' }
+```
+
+#### Backwards compatibility: `tailPrefix`
+
+The historical `prefix + tailPrefix: true` shape (where `prefix` was repurposed as a tail decoration) is preserved for existing callers. When both `suffix` and `prefix + tailPrefix: true` are provided, the new `suffix` wins:
+
+```ts
+// Legacy shape still works
+format('123456789', 'general', { prefix: 'USD', tailPrefix: true })
+// => { formatted: '123456789USD', raw: '123456789', type: 'general' }
+
+// `suffix` wins when both are set
+format('12345', 'general', {
+  prefix: 'X',
+  tailPrefix: true,
+  suffix: 'OK'
+})
+// => { formatted: 'X12345OK', raw: '12345', type: 'general' }
+```
 
 ## `numeral`
 
@@ -140,6 +239,24 @@ format('20260512', 'date', {
 // Numeral with prefix and tailPrefix (suffix)
 format('100', 'numeral', { prefix: '$', tailPrefix: true })
 // => { formatted: '100$', raw: '100', type: 'numeral' }
+
+// general with auto-prepended prefix and canonical raw
+format('123456789', 'general', {
+  blocks: [13],
+  prefix: 'EASY',
+  rawPrefix: true
+})
+// => { formatted: 'EASY123456789', raw: 'EASY123456789', type: 'general' }
+
+// general with head + tail decorations (independent)
+format('12345', 'general', {
+  blocks: [11],
+  prefix: 'PRE-',
+  suffix: '-END',
+  rawPrefix: true,
+  rawSuffix: true
+})
+// => { formatted: 'PRE-12345-END', raw: 'PRE-12345-END', type: 'general' }
 ```
 
 For the underlying option semantics, see [`cleave-zen`'s docs](https://github.com/FirstWhack/cleave-zen).

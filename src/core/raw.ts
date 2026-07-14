@@ -28,7 +28,69 @@ type ExtraFormatOptions = {
   dateRawPatternDelimiter?: string
   timeRawPattern?: TimePatternType
   timeRawPatternDelimiter?: string
+  /**
+   * @deprecated Use `suffix` instead. When `true` (and `suffix` is not
+   * provided), `prefix` is repurposed as a tail decoration. Prefer the
+   * dedicated `suffix` option which is independent of `prefix`.
+   */
   tailPrefix?: boolean
+  /**
+   * Controls how the `prefix` option is applied to `general` formats.
+   *
+   * - `'lock'` (default): the user types only the suffix; the formatter
+   *   re-prepends the configured prefix on every call. If the input
+   *   happens to start with the prefix (paste case), the prefix is
+   *   stripped before processing the suffix. Use this for cases like
+   *   `EASY123456789` where the prefix is auto-decorated onto the digits.
+   * - `'passthrough'`: the user types (or pastes) the prefix themselves
+   *   alongside the suffix. The formatter lets every keystroke stick,
+   *   including partial-prefix typing such as `E` for a configured prefix
+   *   `EASY`. Useful when the prefix lives in the data the user is
+   *   transcribing and shouldn't be auto-replaced.
+   */
+  prefixMode?: 'lock' | 'passthrough'
+  /**
+   * Whether the `raw` mirror includes the configured `prefix`.
+   *
+   * - `false` (default): `raw` excludes the prefix and returns only the
+   *   digits / typed suffix (matches the historical `getRawValue` shape).
+   *   Use when the backend expects a digits-only canonical value.
+   * - `true`: `raw` includes the prefix, producing a fully-canonical
+   *   value such as `EASY123456789` ready to ship to a backend that
+   *   expects the prefix as part of the identifier.
+   */
+  rawPrefix?: boolean
+  /**
+   * Tail decoration appended at the end of the displayed `general` value
+   * (e.g. `' USD'` or `'-END'`). Symmetric with `prefix`: the formatter
+   * handles it on its own instead of delegating to cleave-zen (whose
+   * `tailPrefix` hack only reuses the `prefix` string).
+   *
+   * When both `suffix` and `prefix + tailPrefix: true` are configured,
+   * `suffix` wins.
+   */
+  suffix?: string
+  /**
+   * Controls how the `suffix` option is applied to `general` formats.
+   * Mirrors `prefixMode`:
+   *
+   * - `'lock'` (default): the user types only the body; the formatter
+   *   auto-appends the configured suffix on every call.
+   * - `'passthrough'`: the user types (or pastes) the suffix themselves
+   *   alongside the body. The formatter lets every keystroke stick,
+   *   including partial-suffix typing such as `U` for a configured suffix
+   *   `USD`.
+   */
+  suffixMode?: 'lock' | 'passthrough'
+  /**
+   * Whether the `raw` mirror includes the configured `suffix`. Mirrors
+   * `rawPrefix`:
+   *
+   * - `false` (default): `raw` excludes the suffix.
+   * - `true`: `raw` includes the suffix, producing a fully-canonical
+   *   `prefix + body + suffix` value ready to ship to a backend.
+   */
+  rawSuffix?: boolean
 }
 
 export type FormatOptions = Partial<
@@ -167,7 +229,13 @@ export const getDateValueFromRaw = (
   value: string,
   options: FormatOptions = {}
 ): string => {
-  const sourcePattern = options.dateRawPattern ?? DEFAULT_DATE_RAW_PATTERN
+  // When the caller only customises `datePattern` (display), mirror that
+  // pattern as the raw source pattern. This keeps the round-trip self-
+  // consistent for the common case where the user types in display order
+  // and the backend wants the same order. See getDateRawValue for the
+  // inverse direction.
+  const sourcePattern =
+    options.dateRawPattern ?? options.datePattern ?? DEFAULT_DATE_RAW_PATTERN
   const targetPattern = options.datePattern ?? DEFAULT_DATE_PATTERN
 
   return formatDateSegments(
@@ -204,10 +272,15 @@ const getDateRawValue = (
   value: string,
   options: FormatOptions = {}
 ): string => {
+  // Mirror the raw pattern to `datePattern` when the caller didn't set it,
+  // and mirror `delimiter` to `dateRawPatternDelimiter`. Keeps the
+  // display ↔ raw round-trip self-consistent for callers that only
+  // configure `datePattern` + `delimiter`.
   const sourcePattern = options.datePattern ?? DEFAULT_DATE_PATTERN
-  const targetPattern = options.dateRawPattern ?? DEFAULT_DATE_RAW_PATTERN
+  const targetPattern =
+    options.dateRawPattern ?? options.datePattern ?? DEFAULT_DATE_RAW_PATTERN
   const delimiter =
-    options.dateRawPatternDelimiter ?? DEFAULT_DATE_RAW_PATTERN_DELIMITER
+    options.dateRawPatternDelimiter ?? options.delimiter ?? DEFAULT_DATE_RAW_PATTERN_DELIMITER
 
   return formatDateSegments(
     getDateSegments(value, sourcePattern),

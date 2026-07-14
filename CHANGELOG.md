@@ -5,6 +5,49 @@ All notable changes to `@samline/formatter` are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.1] - 2026-07-14
+
+### Added
+
+- **`general` + `prefix` is now fully formatter-managed.** The formatter used
+  to delegate `prefix` handling to `cleave-zen`'s `stripPrefix`, which
+  discards any input that doesn't already start with the configured prefix
+  and freezes the field at the literal prefix. We now manage the prefix on
+  the formatter's side: `lock` mode (default) auto-prepends the configured
+  prefix and lets the user type only the suffix; `passthrough` mode
+  reflects whatever the user has typed of the prefix instead. Both modes
+  let input flow through to the suffix on every keystroke instead of
+  snapping the field to the prefix.
+- **`rawPrefix: boolean`** option for `general` formats. When `true`, the
+  `raw` mirror includes the configured prefix (so a `prefix: 'EASY'` field
+  with `rawPrefix: true` mirrors `EASY123456789`, ready to ship to a
+  backend that expects the canonical identifier). Defaults to `false` so
+  the historical "digits only" raw mirror is preserved unless the caller
+  opts in.
+- **`suffix`, `suffixMode` and `rawSuffix` for `general` formats.**
+  Symmetric with `prefix` / `prefixMode` / `rawPrefix`: the formatter now
+  manages a dedicated tail decoration independent of the head. `suffix`
+  strings can be wholly different from `prefix` (e.g.
+  `prefix: 'PRE-'`, `suffix: '-END'` for a `PRE-12345-END` field).
+  `suffixMode: 'lock'` auto-appends the configured suffix (default);
+  `suffixMode: 'passthrough'` lets the user type it character-by-character.
+  `rawSuffix: true` adds the suffix to the `raw` mirror, independent of
+  `rawPrefix`. Backwards compatible: the historical
+  `prefix + tailPrefix: true` shape continues to work; `suffix` takes
+  precedence when both are provided.
+
+### Fixed
+
+- **`format('date')` round-trip self-consistency.** When callers customise
+  `datePattern` (or its `delimiter`) without also setting `dateRawPattern`
+  and `dateRawPatternDelimiter`, the formatted display and the raw mirror no
+  longer diverge silently. Both now derive from the display pattern /
+  delimiter when the raw options are absent, so a single configuration such
+  as `{ datePattern: ['d', 'm', 'Y'], delimiter: '/' }` round-trips
+  `15/09/1989` ↔ `15/09/1989` end-to-end. Callers who need the historical
+  asymmetric `Y-m-d` raw output can still opt in by passing
+  `dateRawPattern` and `dateRawPatternDelimiter` explicitly.
+
 ## [1.1.0] - 2026-06-29
 
 ### Added

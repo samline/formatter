@@ -31,7 +31,7 @@ These examples are deliberately copy-pasteable. Each one lives in a single file 
 		<input id="phone_raw" type="hidden" name="phone_raw">
 
 		<script type="module">
-		  import { format } from 'https://unpkg.com/@samline/formatter@1.1.0/dist/index.js'
+		  import { format } from 'https://unpkg.com/@samline/formatter@1.1.1/dist/index.js'
 
 		  const input  = document.getElementById('phone')
 		  const hidden = document.getElementById('phone_raw')
@@ -230,6 +230,101 @@ export function attachEmailField(
     input.value       = formatted
     hidden.value      = raw
     error.textContent = validateEmail(raw) ?? ''
+  })
+}
+```
+
+## Recipe: serial number with auto-prepended prefix
+
+A common pattern is an identifier with a fixed prefix that the user shouldn't have to retype (e.g. `EASY123456789`). Drive the visible input with `prefix` + `blocks`, and ship the canonical value (with prefix) to the backend via `rawPrefix: true`.
+
+```ts title="src/serial.ts"
+import { format } from '@samline/formatter'
+
+export function attachSerialInput(
+  input: HTMLInputElement,
+  hidden: HTMLInputElement
+) {
+  input.addEventListener('input', () => {
+    const { formatted, raw } = format(input.value, 'general', {
+      blocks: [13],          // 4-char prefix slot + 9-digit body slot
+      prefix: 'EASY',
+      rawPrefix: true        // ship the canonical identifier
+    })
+    input.value  = formatted
+    hidden.value = raw       // => 'EASY123456789' ready for the backend
+  })
+}
+```
+
+## Recipe: prefix the user must type themselves
+
+When the prefix lives in the data the user is transcribing (not in your database), let them drive the prefix character-by-character with `prefixMode: 'passthrough'`. Each matching character sticks; the field never snaps back to the literal prefix.
+
+```ts title="src/serial-passthrough.ts"
+import { format } from '@samline/formatter'
+
+export function attachSerialInputPassthrough(
+  input: HTMLInputElement,
+  hidden: HTMLInputElement
+) {
+  input.addEventListener('input', () => {
+    const { formatted, raw } = format(input.value, 'general', {
+      blocks: [13],
+      prefix: 'EASY',
+      prefixMode: 'passthrough',
+      rawPrefix: true
+    })
+    input.value  = formatted
+    hidden.value = raw       // echoes the canonical value
+  })
+}
+```
+
+## Recipe: independent head and tail decorations
+
+`prefix` and `suffix` are independent. Combine them for codes like `PRE-12345-END` where both ends carry meaning.
+
+```ts title="src/code.ts"
+import { format } from '@samline/formatter'
+
+export function attachCodeInput(
+  input: HTMLInputElement,
+  hidden: HTMLInputElement
+) {
+  input.addEventListener('input', () => {
+    const { formatted, raw } = format(input.value, 'general', {
+      blocks: [11],
+      prefix: 'PRE-',
+      suffix: '-END',
+      rawPrefix: true,
+      rawSuffix: true
+    })
+    input.value  = formatted
+    hidden.value = raw       // => 'PRE-12345-END'
+  })
+}
+```
+
+## Recipe: currency-style suffix with `suffix`
+
+For prices like `100 USD`, use the new dedicated `suffix` option (instead of the legacy `prefix + tailPrefix` hack). `rawSuffix: true` ships the canonical `100 USD` to the backend when needed.
+
+```ts title="src/price.ts"
+import { format } from '@samline/formatter'
+
+export function attachPriceInput(
+  input: HTMLInputElement,
+  hidden: HTMLInputElement
+) {
+  input.addEventListener('input', () => {
+    const { formatted, raw } = format(input.value, 'general', {
+      blocks: [12],
+      suffix: 'USD',
+      suffixMode: 'lock'    // default; user types only the digits
+    })
+    input.value  = formatted
+    hidden.value = raw       // digits-only by default
   })
 }
 ```
