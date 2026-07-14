@@ -203,10 +203,43 @@ export const format = (
       const displayedTail = effSuffix ? (typedTail || effSuffix) : ''
       const formatted = displayedHead + bodyFormatted + displayedTail
 
-      // Raw mirror: independent flags for head and tail. The body part is
-      // always included; the affixes are added only when the caller
+      // Raw mirror: independent flags for head and tail. The body part
+      // is always included; the affixes are added only when the caller
       // opts in.
+      //
+      // When the caller opts into a canonical raw (`rawPrefix: true` or
+      // `rawSuffix: true`), derive the body from `bodyFormatted` —
+      // which has already been through `cleave-zen.formatGeneral` and
+      // therefore inherits `numericOnly` / case transformations — and
+      // strip the display delimiter. This produces a clean, canonical
+      // value ready to ship to a backend even when the user fat-fingers
+      // letters into the field. Without the canonical flags, `raw`
+      // continues to mirror the user's typed input verbatim, matching
+      // the historical `getRawValue` shape.
+      const wantsCanonicalRaw =
+        (runtime.rawPrefix === true && effPrefix) ||
+        (runtime.rawSuffix === true && effSuffix)
+
       let raw = body
+      if (wantsCanonicalRaw) {
+        const delimiterChars = runtime.delimiter ?? ''
+        const escapedDelimiter = delimiterChars.replace(
+          /[.*+?^${}()|[\]\\]/g,
+          '\\$&'
+        )
+        let cleaned = bodyFormatted.replace(
+          new RegExp(`[${escapedDelimiter}\\s]`, 'g'),
+          ''
+        )
+        // Defensive belt — `bodyFormatted` already went through
+        // `cleave-zen` with `numericOnly: true`, but apply it again so
+        // the canonical raw is digits-only when the caller asked for
+        // digits-only (catches any edge case where cleave-zen leaves a
+        // stray character behind, e.g. for future cleave-zen releases).
+        if (runtime.numericOnly) cleaned = cleaned.replace(/\D/g, '')
+        raw = cleaned
+      }
+
       if (runtime.rawPrefix === true && effPrefix) {
         raw = displayedHead + raw
       }

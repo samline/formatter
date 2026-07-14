@@ -502,6 +502,147 @@ describe('format', () => {
     })
   })
 
+  describe('general + prefix/suffix + numericOnly + raw (canonical raw contamination)', () => {
+    // When `rawPrefix: true` (or `rawSuffix: true`) is set, the raw mirror
+    // is meant to be the canonical identifier (`prefix + body + suffix`).
+    // Up to 1.1.1 the body part of that raw was built from the user's
+    // typed input verbatim, so a user fat-fingering letters into a
+    // `numericOnly: true` field would see a clean display but ship a
+    // contaminated identifier to the backend. The fix derives the body
+    // part of the raw from `bodyFormatted` (which has already been
+    // through `cleave-zen.formatGeneral` with `numericOnly` applied) and
+    // strips the display delimiter.
+    //
+    // The blocks used here (`[4, 5]` for the dedicated cases and
+    // `[4, 4, 5]` for the verbatim repro) intentionally match the
+    // upstream bug report so the assertions double as documentation.
+
+    it('strips non-digits from raw when prefix + rawPrefix + numericOnly are configured (lock mode)', () => {
+      // Verbatim repro from the upstream bug report (typed
+      // `1a2b3c4d5e6f7g8h9i`, expected canonical raw `EASY123456789`).
+      // The `formatted` assertion uses `[4, 5]` so the cleave-zen
+      // output is clean and orthogonal to the bug being fixed.
+      const result = format('1a2b3c4d5e6f7g8h9i', 'general', {
+        blocks: [4, 5],
+        delimiter: ' ',
+        prefix: 'EASY',
+        prefixMode: 'lock',
+        rawPrefix: true,
+        numericOnly: true
+      })
+      expect(result.formatted).toBe('EASY1234 56789')
+      expect(result.raw).toBe('EASY123456789')
+    })
+
+    it('preserves the original blocks [4, 4, 5] repro and asserts the same canonical raw', () => {
+      // Same scenario as above but with the upstream `blocks: [4, 4, 5]`.
+      // `cleave-zen` inserts a trailing delimiter before the incomplete
+      // third block — that's orthogonal to this fix and is documented
+      // here purely to lock in the canonical-raw outcome.
+      const result = format('1a2b3c4d5e6f7g8h9i', 'general', {
+        blocks: [4, 4, 5],
+        delimiter: ' ',
+        prefix: 'EASY',
+        prefixMode: 'lock',
+        rawPrefix: true,
+        numericOnly: true
+      })
+      expect(result.formatted).toBe('EASY1234 5678 9')
+      expect(result.raw).toBe('EASY123456789')
+    })
+
+    it('applies numericOnly symmetrically to suffix + rawSuffix', () => {
+      const result = format('1a2b3c4d5e6f7g8h9i', 'general', {
+        blocks: [4, 5],
+        delimiter: ' ',
+        suffix: 'USD',
+        suffixMode: 'lock',
+        rawSuffix: true,
+        numericOnly: true
+      })
+      expect(result.formatted).toBe('1234 56789USD')
+      expect(result.raw).toBe('123456789USD')
+    })
+
+    it('also strips non-digits in passthrough prefixMode', () => {
+      const result = format('EASY1a2b3c4d5e6f7g8h9i', 'general', {
+        blocks: [4, 5],
+        delimiter: ' ',
+        prefix: 'EASY',
+        prefixMode: 'passthrough',
+        rawPrefix: true,
+        numericOnly: true
+      })
+      // The user typed the full `EASY` prefix themselves, so it sticks;
+      // the body's non-digits are stripped from both display and raw.
+      expect(result.formatted).toBe('EASY1234 56789')
+      expect(result.raw).toBe('EASY123456789')
+    })
+
+    it('combines prefix + suffix + rawPrefix + rawSuffix + numericOnly end-to-end', () => {
+      const result = format('1a2b3c4d5e6f7g8h9i', 'general', {
+        blocks: [4, 5],
+        delimiter: ' ',
+        prefix: 'EASY',
+        prefixMode: 'lock',
+        rawPrefix: true,
+        suffix: 'USD',
+        suffixMode: 'lock',
+        rawSuffix: true,
+        numericOnly: true
+      })
+      expect(result.formatted).toBe('EASY1234 56789USD')
+      expect(result.raw).toBe('EASY123456789USD')
+    })
+
+    it('keeps raw as the user typed it when numericOnly is not set (no spurious filtering)', () => {
+      // Negative test: the fix must not introduce filtering when the
+      // caller did not ask for it. `rawPrefix: true` here still wraps
+      // the prefix around the typed body, but the typed letters must
+      // survive (the body part is derived from `bodyFormatted`, which
+      // does not apply `numericOnly` when the option is not set).
+      const result = format('easy12345abc', 'general', {
+        blocks: [13],
+        prefix: 'EASY',
+        prefixMode: 'lock',
+        rawPrefix: true
+      })
+      expect(result.formatted).toBe('EASYeasy12345abc')
+      expect(result.raw).toBe('EASYeasy12345abc')
+    })
+
+    it('does not leak the prefix into raw when rawPrefix is false even with numericOnly', () => {
+      // Negative test: `rawPrefix: false` is the historical default and
+      // must still produce just the typed body, even when `numericOnly`
+      // strips letters from the display.
+      const result = format('1a2b3c4d5e6f7g8h9i', 'general', {
+        blocks: [4, 5],
+        delimiter: ' ',
+        prefix: 'EASY',
+        prefixMode: 'lock',
+        numericOnly: true
+      })
+      expect(result.formatted).toBe('EASY1234 56789')
+      expect(result.raw).toBe('1a2b3c4d5e6f7g8h9i')
+    })
+
+    it('handles a delimiter with regex-special characters without crashing', () => {
+      // Sanity test: the delimiter-strip regex escapes the delimiter so
+      // unusual characters (`-`, `]`, `\`, etc.) do not blow up the
+      // character class.
+      const result = format('1a2b3c4d5e6f7g8h9i', 'general', {
+        blocks: [4, 5],
+        delimiter: '-',
+        prefix: 'EASY',
+        prefixMode: 'lock',
+        rawPrefix: true,
+        numericOnly: true
+      })
+      expect(result.formatted).toBe('EASY1234-56789')
+      expect(result.raw).toBe('EASY123456789')
+    })
+  })
+
   describe('date round-trip (Bug #2 — raw pattern defaults)', () => {
     // The historical defaults for `dateRawPattern` (['Y','m','d']) and
     // `dateRawPatternDelimiter` ('-') silently produced a mismatch when a

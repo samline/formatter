@@ -5,6 +5,25 @@ All notable changes to `@samline/formatter` are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.2] - 2026-07-14
+
+### Fixed
+
+- **`numericOnly` / `uppercase` / `lowercase` not applied to the `raw` mirror when `prefix` / `suffix` are configured and `rawPrefix` / `rawSuffix` are set.** Up to 1.1.1, the `formatted` value went through `cleave-zen.formatGeneral` (which honours `numericOnly` and the case transforms), but the body part of the `raw` mirror was built from the user's *typed* input verbatim. A user fat-fingering letters into a `numericOnly: true` field would see a clean display but ship a contaminated canonical identifier (e.g. `EASY1a2b3c4d5e6f7g8h9i`) to the backend. The fix derives the body part of the raw from `bodyFormatted` (with the display delimiter stripped) only when the caller has opted into a canonical raw via `rawPrefix: true` / `rawSuffix: true`; callers who keep the historical default (`rawPrefix: false` / `rawSuffix: false`) see no change. The defensive `numericOnly` strip is still applied so the canonical raw is digits-only when the caller asked for digits-only.
+
+  ```ts
+  // Repro from the upstream bug report — now fixed.
+  format('1a2b3c4d5e6f7g8h9i', 'general', {
+    blocks: [4, 5],
+    delimiter: ' ',
+    prefix: 'EASY',
+    prefixMode: 'lock',
+    rawPrefix: true,
+    numericOnly: true
+  })
+  // => { formatted: 'EASY1234 56789', raw: 'EASY123456789', type: 'general' }
+  ```
+
 ## [1.1.1] - 2026-07-14
 
 ### Added

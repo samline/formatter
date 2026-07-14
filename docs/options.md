@@ -99,6 +99,23 @@ format('12345', 'general', {
 // => { formatted: 'PRE-12345-END', raw: 'PRE-12345-END', type: 'general' }
 ```
 
+When `rawPrefix` / `rawSuffix` is set, the body part of `raw` is derived from the *formatted* body (with the display delimiter stripped) rather than from the user's typed input verbatim. This means `numericOnly` and the case transforms (`uppercase` / `lowercase`) are honoured in the canonical raw too — a user fat-fingering letters into a `numericOnly: true` field no longer ships a contaminated identifier to the backend.
+
+```ts
+// Fat-fingered input — display is clean AND the canonical raw is clean.
+format('1a2b3c4d5e6f7g8h9i', 'general', {
+  blocks: [4, 5],
+  delimiter: ' ',
+  prefix: 'EASY',
+  prefixMode: 'lock',
+  rawPrefix: true,
+  numericOnly: true
+})
+// => { formatted: 'EASY1234 56789', raw: 'EASY123456789', type: 'general' }
+```
+
+Callers who keep the historical default (`rawPrefix: false` / `rawSuffix: false`) see no change: `raw` continues to mirror the user's typed input verbatim, including any characters that `numericOnly` would have stripped from the display.
+
 #### `prefix` + `suffix` combined
 
 The two decorations are independent — different head and tail, different modes, different raw flags:
