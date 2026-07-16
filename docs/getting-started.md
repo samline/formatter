@@ -65,3 +65,34 @@ input.addEventListener('input', () => {
 ```
 
 That's it. The visible field shows `'55 1234 5678'`; the hidden field sends `'5512345678'`. Same pattern works for every other `formatType`.
+
+## Common gotcha — `'date'` / `'time'` input interpretation
+
+The `format()` function is called on every keystroke, and the value it receives is whatever the user just typed into the visible field — i.e. **the value is in display order**, not in raw order. This matches how every realistic input listener works (you bind `format()` to an `input` event and the event's `target.value` is the visible string).
+
+As of **v1.2.0**, the default `interpretInputAs` is `'display'` for `'date'` and `'time'` types. This means `format()` passes the value through to `cleave-zen` without rearranging, and the digits end up in the right positions for the display pattern you configured. The legacy default (treating the input as raw order) is still available via the opt-in `interpretInputAs: 'raw'` for callers that need the round-trip semantics — e.g. when wiring `setValue('birth_date', '19890915')` from a pre-existing backend contract.
+
+```ts
+// ✅ Default (v1.2.0+): user typing in the field
+input.addEventListener('input', () => {
+  const { formatted, raw } = format(input.value, 'date', {
+    datePattern: ['d', 'm', 'Y'],
+    delimiter: '/',
+    dateRawPattern: ['Y', 'm', 'd'],
+    dateRawPatternDelimiter: ''
+  })
+  // Typing `15091989` → visible `15/09/1989`, raw `19890915`
+})
+
+// ✅ Round-trip from a backend value (opt-in to legacy semantics)
+const result = format('19890915', 'date', {
+  datePattern: ['d', 'm', 'Y'],
+  delimiter: '/',
+  dateRawPattern: ['Y', 'm', 'd'],
+  dateRawPatternDelimiter: '',
+  interpretInputAs: 'raw'
+})
+// => { formatted: '15/09/1989', raw: '19890915', type: 'date' }
+```
+
+> **Pre-1.2.0 behaviour:** the default was equivalent to `interpretInputAs: 'raw'`. If you upgrade and find that `'date'` / `'time'` fields look scrambled, the most likely cause is a consumer passing a raw-formatted string to `format()` from somewhere other than the input event listener (e.g. a `setValue` from a backend). Add `interpretInputAs: 'raw'` to those call sites, or use a dedicated `setValue` / `prefill` helper that handles the round-trip correctly.

@@ -4,7 +4,7 @@ import { regex } from '../../src/core/regex'
 
 describe('browser global bundle', () => {
   it('exposes the Formatter global with format, regex, and version', () => {
-    expect(Formatter.version).toBe('1.1.2')
+    expect(Formatter.version).toBe('1.2.0')
     expect(typeof Formatter.format).toBe('function')
     expect(Formatter.regex).toBe(regex)
   })

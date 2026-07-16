@@ -117,8 +117,19 @@ const formatValue = (
 
 /**
  * Internal: pre-process `value` before passing it to the per-type formatter.
- * Date and time inputs are first converted from raw to the display pattern
- * (so users can type either formatted or raw and still get sensible output).
+ *
+ * For `date` and `time`, the caller is presumed to be driving `format()` from
+ * an `input` event listener — the value is whatever the user just typed
+ * into the visible field, which is in display order (the user types what
+ * they see). The default `interpretInputAs: 'display'` therefore returns
+ * the value verbatim and lets `cleave-zen` re-segment the digits into
+ * `datePattern` / `timePattern` order.
+ *
+ * Callers that pass a raw-formatted value (e.g. `setValue('birth_date',
+ * '19890915')` from a pre-existing API contract) can opt into the legacy
+ * round-trip rearrangement with `interpretInputAs: 'raw'`. Without that
+ * opt-in, the digits would be mis-segmented whenever `datePattern` and
+ * `dateRawPattern` (or `timePattern` and `timeRawPattern`) differ.
  */
 const getValueForFormatting = (
   value: string,
@@ -126,11 +137,17 @@ const getValueForFormatting = (
   options: RuntimeOptions
 ): string => {
   if (formatType === 'date') {
-    return getDateValueFromRaw(value, options)
+    if (options.interpretInputAs === 'raw') {
+      return getDateValueFromRaw(value, options)
+    }
+    return value
   }
 
   if (formatType === 'time') {
-    return getTimeValueFromRaw(value, options)
+    if (options.interpretInputAs === 'raw') {
+      return getTimeValueFromRaw(value, options)
+    }
+    return value
   }
 
   return value

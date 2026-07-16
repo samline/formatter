@@ -163,18 +163,20 @@ format('12345', 'general', {
 
 | Field | Type | Default | Notes |
 | --- | --- | --- | --- |
-| `datePattern` | `DatePatternType` (`['d', 'm', 'Y'] \| …`) | `['d', 'm', 'Y']` | Display pattern (input is always treated as raw `Y-m-d`). |
-| `dateRawPattern` | `DatePatternType` | `['Y', 'm', 'd']` | Pattern used by `getRawValue` to derive the raw value from the formatted display. |
-| `dateRawPatternDelimiter` | `string` | `'-'` | Delimiter used in the raw value. |
+| `datePattern` | `DatePatternType` (`['d', 'm', 'Y'] \| …`) | `['d', 'm', 'Y']` | Display pattern. With the default `interpretInputAs: 'display'`, `format()` treats the input as already in display order — this matches the live-keystroke use case from `@samline/forms` and any other caller that wires `format()` to an `input` event listener. To opt into the legacy raw-input interpretation (useful for `setValue` / `prefill` round-trips where the value is already in raw form, e.g. `setValue('birth_date', '19890915')`), pass `interpretInputAs: 'raw'` and the input will be segmented by `dateRawPattern` and re-emitted in `datePattern` order. |
+| `dateRawPattern` | `DatePatternType` | `['Y', 'm', 'd']` | Pattern used by `getRawValue` to derive the raw value from the formatted display. The raw is rearranged into this order and re-emitted with `dateRawPatternDelimiter`. |
+| `dateRawPatternDelimiter` | `string` | `'-'` | Delimiter used in the raw value. Falls back to `delimiter` (the display delimiter) when not set, mirroring the 1.1.1 fix for the round-trip self-consistency story. |
+| `interpretInputAs` | `'display' \| 'raw'` | `'display'` | How `format()` interprets `'date'` inputs during live-keystroke preprocessing. See the `datePattern` row for context. Defaults to `'display'` because the typical caller is an input event listener that receives the visible field's value (display order) on every keystroke. |
 | `dateMin` / `dateMax` | `string` | `''` | Optional bounds (`'YYYY-MM-DD'`). |
 
 ### `time`
 
 | Field | Type | Default | Notes |
 | --- | --- | --- | --- |
-| `timePattern` | `TimePatternType` (`['h', 'm', 's'] \| …`) | `['h', 'm', 's']` | Display pattern (input is always treated as raw `h:m`). |
+| `timePattern` | `TimePatternType` (`['h', 'm', 's'] \| …`) | `['h', 'm', 's']` | Display pattern. With the default `interpretInputAs: 'display'`, `format()` treats the input as already in display order — same reasoning as the `datePattern` row above. Pass `interpretInputAs: 'raw'` to opt into the legacy raw-input interpretation. |
 | `timeRawPattern` | `TimePatternType` | `['h', 'm']` | Pattern used by `getRawValue` to derive the raw value from the formatted display. |
-| `timeRawPatternDelimiter` | `string` | `':'` | Delimiter used in the raw value. |
+| `timeRawPatternDelimiter` | `string` | `':'` | Delimiter used in the raw value. Falls back to `delimiter` (the display delimiter) when not set — same as the `dateRawPatternDelimiter` story. |
+| `interpretInputAs` | `'display' \| 'raw'` | `'display'` | How `format()` interprets `'time'` inputs during live-keystroke preprocessing. Symmetric with the `date` option. |
 | `timeFormat` | `'12' \| '24'` | `'24'` | 12-hour or 24-hour clock. |
 
 ### `creditCard`

@@ -91,6 +91,30 @@ type ExtraFormatOptions = {
    *   `prefix + body + suffix` value ready to ship to a backend.
    */
   rawSuffix?: boolean
+  /**
+   * Controls how `format()` interprets a `'date'` or `'time'` input during
+   * the live-keystroke preprocessing step (the call that runs before
+   * cleave-zen's `formatDate` / `formatTime`).
+   *
+   * - `'display'` (default, recommended): the input is treated as already in
+   *   display order. Live keystrokes arrive in display order because the
+   *   user is typing what they see, so this matches the realistic case for
+   *   `@samline/forms` integrations and any other caller that wires `format()`
+   *   to an `input` event listener.
+   * - `'raw'` (legacy, opt-in): the input is treated as raw-formatted,
+   *   segmented according to `dateRawPattern` / `timeRawPattern`, and
+   *   re-emitted in `datePattern` / `timePattern` order. Use this only when
+   *   the caller knows the value is already in raw form (e.g. a
+   *   `setValue('birth_date', '19890915')` from a pre-existing API
+   *   contract). Without this option, `format()` would otherwise mangle
+   *   the digits when `datePattern` and `dateRawPattern` differ.
+   *
+   * The `getRawValue()` round-trip path (the inverse direction, used by
+   * `format()`'s own `raw` mirror) is unaffected by this option — it
+   * always uses `dateRawPattern` / `timeRawPattern` to derive the raw
+   * value from the formatted display.
+   */
+  interpretInputAs?: 'display' | 'raw'
 }
 
 export type FormatOptions = Partial<
@@ -224,6 +248,11 @@ const formatTimeSegments = (
  * expected to pass the result through `cleave-zen`'s `formatDate` (or an
  * equivalent) to add the configured delimiter. The source pattern is
  * `dateRawPattern`; the target pattern is `datePattern`.
+ *
+ * This is the **legacy round-trip helper**. It is exported because it is
+ * useful in isolation, but `format()` no longer calls it by default — see
+ * `interpretInputAs` in `FormatOptions` for the live-keystroke preprocessing
+ * step.
  */
 export const getDateValueFromRaw = (
   value: string,
@@ -253,6 +282,11 @@ export const getDateValueFromRaw = (
  * equivalent) to add the configured delimiter and pad missing segments.
  * The source pattern is `timeRawPattern`; the target pattern is
  * `timePattern`.
+ *
+ * This is the **legacy round-trip helper**. It is exported because it is
+ * useful in isolation, but `format()` no longer calls it by default — see
+ * `interpretInputAs` in `FormatOptions` for the live-keystroke preprocessing
+ * step.
  */
 export const getTimeValueFromRaw = (
   value: string,
@@ -293,11 +327,16 @@ const getTimeRawValue = (
   value: string,
   options: FormatOptions = {}
 ): string => {
+  // Mirror the raw pattern to `timePattern` when the caller didn't set it,
+  // and mirror `delimiter` to `timeRawPatternDelimiter`. Keeps the
+  // display ↔ raw round-trip self-consistent for callers that only
+  // configure `timePattern` + `delimiter`. (Matches the 1.1.1 fix that
+  // was applied to `getDateRawValue` but never ported to the time branch.)
   const sourcePattern = options.timePattern ?? DEFAULT_TIME_PATTERN
   const targetPattern =
     options.timeRawPattern ?? options.timePattern ?? DEFAULT_TIME_RAW_PATTERN
   const delimiter =
-    options.timeRawPatternDelimiter ?? DEFAULT_TIME_RAW_PATTERN_DELIMITER
+    options.timeRawPatternDelimiter ?? options.delimiter ?? DEFAULT_TIME_RAW_PATTERN_DELIMITER
 
   return formatTimeSegments(
     getTimeSegments(value, sourcePattern),

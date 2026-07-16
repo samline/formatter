@@ -66,6 +66,33 @@ describe('getRawValue', () => {
     it('converts h/m/s to h/m', () => {
       expect(getRawValue('14:30:00', 'time')).toBe('14:30')
     })
+
+    it('derives the raw delimiter from the display delimiter when timeRawPatternDelimiter is not set', () => {
+      // Mirrors the 1.1.1 fix for date: `getTimeRawValue` now falls back
+      // to `options.delimiter` (the display delimiter) when
+      // `timeRawPatternDelimiter` is not set, so a single
+      // `{ timePattern, timeRawPattern, delimiter }` configuration
+      // round-trips consistently. Previously the raw would use the
+      // default `:` regardless of the configured display delimiter.
+      expect(
+        getRawValue('14-30-00', 'time', {
+          timePattern: ['h', 'm', 's'],
+          timeRawPattern: ['h', 'm'],
+          delimiter: '-'
+        })
+      ).toBe('14-30')
+    })
+
+    it('explicit timeRawPatternDelimiter still wins over the display delimiter', () => {
+      expect(
+        getRawValue('14-30-00', 'time', {
+          timePattern: ['h', 'm', 's'],
+          timeRawPattern: ['h', 'm'],
+          delimiter: '-',
+          timeRawPatternDelimiter: ':'
+        })
+      ).toBe('14:30')
+    })
   })
 
   describe('unknown formatType', () => {

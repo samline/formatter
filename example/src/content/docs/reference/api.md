@@ -154,11 +154,11 @@ interface FormatterGlobal {
 ```
 
 ```html
-<script src="https://unpkg.com/@samline/formatter@1.1.2/dist/browser/global.global.js"></script>
+<script src="https://unpkg.com/@samline/formatter@1.2.0/dist/browser/global.global.js"></script>
 <script>
   const result = window.Formatter.format('5512345678', 'phone')
   console.log(result.formatted) // '55 1234 5678'
-  console.log(window.Formatter.version) // '1.1.2'
+  console.log(window.Formatter.version) // '1.2.0'
 </script>
 ```
 

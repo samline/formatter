@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { format, FORMAT_TYPES, isFormatType } from '../../src/core/formatter'
+import type { FormatOptions } from '../../src/core/formatter'
 
 describe('format', () => {
   describe('empty / nullish input', () => {
@@ -94,14 +95,21 @@ describe('format', () => {
   })
 
   describe('date', () => {
-    it('formats a raw ISO date to display pattern (d/m/Y by default)', () => {
-      const result = format('2026-05-12', 'date')
+    it('formats a display-order date to display pattern (d/m/Y by default)', () => {
+      // Input is in display order (the user is typing what they see — the
+      // realistic live-keystroke case). cleave-zen segments the digits
+      // into `datePattern` order and re-emits with the default delimiter.
+      const result = format('12052026', 'date')
       expect(result.type).toBe('date')
       expect(result.formatted).toBe('12/05/2026')
     })
 
     it('returns raw value in Y-m-d order (round-trip from formatted display)', () => {
-      const result = format('2026-05-12', 'date')
+      // `getDateRawValue` re-segments the display digits in `dateRawPattern`
+      // order (default `['Y','m','d']`) and re-emits with
+      // `dateRawPatternDelimiter` (default `'-'`), so the canonical backend
+      // form round-trips out of the display.
+      const result = format('12052026', 'date')
       expect(result.raw).toBe('2026-05-12')
     })
 
@@ -662,8 +670,12 @@ describe('format', () => {
     it('keeps the historical d-m-Y → Y-m-d behaviour when only the raw is queried', () => {
       // Calling format() with no options on a *raw* ISO date is documented
       // to display as d/m/Y and round-trip back to Y-m-d; this stays the
-      // same and protects consumers that depend on it.
-      const result = format('2026-05-12', 'date')
+      // same and protects consumers that depend on it — but the caller has
+      // to opt into the legacy raw-input interpretation with
+      // `interpretInputAs: 'raw'`. As of v1.2.0 the default is `'display'`
+      // (the realistic live-keystroke case), so passing a raw-formatted
+      // string without the opt-in would mis-segment the digits.
+      const result = format('2026-05-12', 'date', { interpretInputAs: 'raw' })
       expect(result.formatted).toBe('12/05/2026')
       expect(result.raw).toBe('2026-05-12')
     })
@@ -680,15 +692,206 @@ describe('format', () => {
     it('lets dateRawPattern override the derived default when explicitly set', () => {
       // If the caller actually wants the historical asymmetric behaviour
       // (input is already in raw order, e.g. ISO) they can still opt in
-      // by passing dateRawPattern + dateRawPatternDelimiter explicitly.
+      // by passing dateRawPattern + dateRawPatternDelimiter explicitly
+      // together with the new `interpretInputAs: 'raw'` flag.
       const result = format('2026-05-12', 'date', {
+        datePattern: ['d', 'm', 'Y'],
+        delimiter: '/',
+        dateRawPattern: ['Y', 'm', 'd'],
+        dateRawPatternDelimiter: '-',
+        interpretInputAs: 'raw'
+      })
+      expect(result.formatted).toBe('12/05/2026')
+      expect(result.raw).toBe('2026-05-12')
+    })
+  })
+
+  describe('date / time live keystrokes (Bug — interpretInputAs default)', () => {
+    // Up to 1.1.2 `format()` always treated `'date'` / `'time'` input as
+    // raw-formatted, segmented by `dateRawPattern` / `timeRawPattern` and
+    // re-emitted in `datePattern` / `timePattern` order. For a real user
+    // typing into a field whose display order differs from the raw order,
+    // this scrambled the digits on every keystroke (e.g. typing `15091989`
+    // produced visible `19/09/0805` and hidden `08050919` for a
+    // `d/m/Y` display + `Ymd` raw combo — see the original bug report).
+    //
+    // The fix: `format()` now defaults to `interpretInputAs: 'display'`,
+    // which passes the value through to `cleave-zen.formatDate` /
+    // `formatTime` without rearranging. The legacy raw-input
+    // interpretation is preserved behind an opt-in
+    // (`interpretInputAs: 'raw'`).
+    //
+    // `getRawValue()` (the round-trip path) still re-segments the display
+    // digits into the raw pattern, so the canonical backend form is
+    // produced for complete dates. For partial keystrokes the
+    // rearrangement is best-effort — the consumer is expected to finalise
+    // the raw on submit (the bug report acknowledges this). The KEY
+    // invariant is that the digits are no longer scrambled: the visible
+    // and the raw both reflect the user's typed input, not a permutation
+    // of it.
+
+    const easTripDateOpts: FormatOptions = {
+      datePattern: ['d', 'm', 'Y'],
+      delimiter: '/',
+      dateRawPattern: ['Y', 'm', 'd'],
+      dateRawPatternDelimiter: ''
+    }
+
+    const easyTripTimeOpts: FormatOptions = {
+      timePattern: ['h', 'm', 's'],
+      timeRawPattern: ['h', 'm'],
+      timeRawPatternDelimiter: ':'
+    }
+
+    it('date live keystrokes keep the visible and raw aligned with the user\'s input (d/m/Y + Ymd)', () => {
+      // The EasyTrip-style config: user sees `DD/MM/AAAA` and the backend
+      // expects `YYYYMMDD`. The fix: typing `15091989` produces
+      // visible `15/09/1989` and raw `19890915` (the canonical form the
+      // backend validates against `DateParser::FORMAT_DATE_INPUT = 'Ymd'`).
+      //
+      // For partial keystrokes the `raw` is the best-effort rearrangement
+      // of the typed digits into `dateRawPattern` order — the consumer is
+      // expected to finalise the raw on submit. The KEY invariant (the
+      // one the bug violated) is that the visible digits are not
+      // scrambled: typing `15` shows `15/`, typing `150` shows `15/0`,
+      // etc. The raw follows the source-pattern slicing into the
+      // target-pattern order, dropping incomplete trailing segments.
+      const expected: Array<[string, string, string]> = [
+        ['1', '1', '1'],
+        ['15', '15/', '15'],
+        ['150', '15/0', '015'],
+        ['1509', '15/09/', '0915'],
+        ['15091', '15/09/1', '10915'],
+        ['150919', '15/09/19', '190915'],
+        ['15091989', '15/09/1989', '19890915']
+      ]
+      for (const [input, expectedFormatted, expectedRaw] of expected) {
+        const r = format(input, 'date', easTripDateOpts)
+        expect(r.formatted).toBe(expectedFormatted)
+        expect(r.raw).toBe(expectedRaw)
+      }
+    })
+
+    it('time live keystrokes keep the visible and raw aligned (h/m/s + h/m, same fix applied symmetrically)', () => {
+      // The parallel bug for `time`: the old default mis-segmented the
+      // keystrokes whenever `timePattern` and `timeRawPattern` differed
+      // (typing `1430` with `timePattern:['h','m','s']` and
+      // `timeRawPattern:['s','m','h']` produced visible `03:14:` and raw
+      // `1403`). The fix: same `interpretInputAs: 'display'` short-circuit
+      // applies to the time branch in `getValueForFormatting`.
+      //
+      // With the same-shape raw pattern (`['h','m']` is a prefix of
+      // `['h','m','s']`) the raw is just the display digits sliced into
+      // the raw pattern order with the configured raw delimiter.
+      const expected: Array<[string, string, string]> = [
+        ['1', '1', '1'],
+        ['14', '14:', '14'],
+        ['143', '14:3', '14:3'],
+        ['1430', '14:30:', '14:30'],
+        ['14300', '14:30:0', '14:30'],
+        ['143000', '14:30:00', '14:30']
+      ]
+      for (const [input, expectedFormatted, expectedRaw] of expected) {
+        const r = format(input, 'time', easyTripTimeOpts)
+        expect(r.formatted).toBe(expectedFormatted)
+        expect(r.raw).toBe(expectedRaw)
+      }
+    })
+
+    it('time live keystrokes with a fully reordering raw pattern do not scramble the visible digits', () => {
+      // The most pathological asymmetric config: `timePattern:['h','m','s']`
+      // and `timeRawPattern:['s','m','h']`. The OLD default produced
+      // visible `03:4` and raw `403` for input `143` (digits scrambled).
+      // The fix: visible shows the natural `h/m/s` slicing of the typed
+      // digits, raw is the best-effort rearrangement into `s/m/h` order.
+      const opts: FormatOptions = {
+        timePattern: ['h', 'm', 's'],
+        timeRawPattern: ['s', 'm', 'h'],
+        timeRawPatternDelimiter: ''
+      }
+      // The KEY assertion: `formatted` is no longer scrambled. The raw
+      // still re-segments (it's the round-trip helper, doing what it
+      // always did), but the source is now in display order so the
+      // slicing is predictable.
+      expect(format('143', 'time', opts).formatted).toBe('14:3')
+      expect(format('1430', 'time', opts).formatted).toBe('14:30:')
+      expect(format('143059', 'time', opts).formatted).toBe('14:30:59')
+    })
+
+    it('date interpretInputAs: \'raw\' preserves the legacy raw-input round-trip', () => {
+      // Callers that pass a raw-formatted value (e.g. a `setValue` from
+      // a backend pre-filling the field) can opt into the historical
+      // rearrangement. The fix lands as a strict opt-in so the default
+      // change is safe.
+      const result = format('19890915', 'date', {
+        ...easTripDateOpts,
+        interpretInputAs: 'raw'
+      })
+      expect(result.formatted).toBe('15/09/1989')
+      expect(result.raw).toBe('19890915')
+    })
+
+    it('time interpretInputAs: \'raw\' preserves the legacy raw-input round-trip', () => {
+      const result = format('1430', 'time', {
+        ...easyTripTimeOpts,
+        interpretInputAs: 'raw'
+      })
+      expect(result.formatted).toBe('14:30:')
+      expect(result.raw).toBe('14:30')
+    })
+
+    it('getRawValue produces the canonical backend form for a complete formatted date', () => {
+      // `getRawValue` (the round-trip path used by `format()` to compute
+      // its `raw` mirror) still re-segments the display digits into the
+      // raw pattern. For a complete formatted date this yields the
+      // canonical backend form, ready to ship to a backend that
+      // validates against `Ymd`.
+      const result = format('15091989', 'date', easTripDateOpts)
+      expect(result.raw).toBe('19890915')
+    })
+
+    it('getRawValue respects an explicit raw delimiter', () => {
+      // Lock-in the documented `dateRawPatternDelimiter` contract so a
+      // future refactor of `getDateRawValue` cannot accidentally drop it.
+      const result = format('15091989', 'date', {
         datePattern: ['d', 'm', 'Y'],
         delimiter: '/',
         dateRawPattern: ['Y', 'm', 'd'],
         dateRawPatternDelimiter: '-'
       })
-      expect(result.formatted).toBe('12/05/2026')
-      expect(result.raw).toBe('2026-05-12')
+      expect(result.formatted).toBe('15/09/1989')
+      expect(result.raw).toBe('1989-09-15')
+    })
+
+    it('getRawValue for time derives the raw delimiter from `delimiter` when timeRawPatternDelimiter is not set', () => {
+      // Parallel to the 1.1.1 fix for date: `getTimeRawValue` now falls
+      // back to `options.delimiter` (the display delimiter) when
+      // `timeRawPatternDelimiter` is not set, so a single
+      // `{ timePattern, delimiter }` configuration round-trips
+      // consistently without the consumer having to repeat the delimiter
+      // in the raw options.
+      const result = format('143000', 'time', {
+        timePattern: ['h', 'm', 's'],
+        timeRawPattern: ['h', 'm'],
+        delimiter: '-'
+      })
+      expect(result.formatted).toBe('14-30-00')
+      expect(result.raw).toBe('14-30')
+    })
+
+    it('explicit timeRawPatternDelimiter still wins over the display delimiter', () => {
+      // The explicit option takes precedence; the display delimiter is
+      // only the fallback. This keeps the historical escape hatch
+      // available for callers that want the raw in a different shape
+      // (e.g. backend validates with `:` even though the user sees `-`).
+      const result = format('143000', 'time', {
+        timePattern: ['h', 'm', 's'],
+        timeRawPattern: ['h', 'm'],
+        delimiter: '-',
+        timeRawPatternDelimiter: ':'
+      })
+      expect(result.formatted).toBe('14-30-00')
+      expect(result.raw).toBe('14:30')
     })
   })
 })

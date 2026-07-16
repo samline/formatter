@@ -5,6 +5,50 @@ All notable changes to `@samline/formatter` are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2026-07-16
+
+### Changed
+
+- **`format()` now defaults to `interpretInputAs: 'display'` for `'date'` and `'time'` inputs.** Up to 1.1.2, `format()` always pre-processed the input as raw-formatted: it segmented the digits by `dateRawPattern` / `timeRawPattern` and re-emitted them in `datePattern` / `timePattern` order. That works for round-trip callers (a `setValue` from a backend that holds the canonical form), but it scrambles the visible digits whenever a real user types into a field whose display order differs from the raw order — typing `15091989` into a `d/m/Y` display with a `Ymd` raw produced visible `19/09/0805` and hidden `08050919` (the underlying EasyTrip bug report). The default now matches the realistic case — `format()` is called from an `input` event listener with the visible value, which is in display order — and the legacy round-trip interpretation is preserved as a strict opt-in: `interpretInputAs: 'raw'`. The fix is applied symmetrically to the `date` and `time` branches of `getValueForFormatting`.
+
+  ```ts
+  // Default (v1.2.0+) — live keystrokes in display order
+  format('15091989', 'date', {
+    datePattern: ['d', 'm', 'Y'],
+    delimiter: '/',
+    dateRawPattern: ['Y', 'm', 'd'],
+    dateRawPatternDelimiter: ''
+  })
+  // => { formatted: '15/09/1989', raw: '19890915', type: 'date' }
+
+  // Opt-in to the legacy round-trip semantics
+  format('19890915', 'date', {
+    datePattern: ['d', 'm', 'Y'],
+    delimiter: '/',
+    dateRawPattern: ['Y', 'm', 'd'],
+    dateRawPatternDelimiter: '',
+    interpretInputAs: 'raw'
+  })
+  // => { formatted: '15/09/1989', raw: '19890915', type: 'date' }
+  ```
+
+- **`getTimeRawValue` now derives its delimiter from `options.delimiter`** when `timeRawPatternDelimiter` is not set, matching the 1.1.1 fix that was applied to `getDateRawValue` but never ported to the time branch. A single `{ timePattern, timeRawPattern, delimiter }` configuration now round-trips consistently without the consumer having to repeat the delimiter in the raw options. Explicit `timeRawPatternDelimiter` still wins over the display delimiter.
+
+  ```ts
+  // Before 1.2.0: raw delimiter ignored the display `delimiter: '-'`,
+  // always used the default `:`. The display and the raw did not agree.
+  format('143000', 'time', {
+    timePattern: ['h', 'm', 's'],
+    timeRawPattern: ['h', 'm'],
+    delimiter: '-'
+  })
+  // => { formatted: '14-30-00', raw: '14-30', type: 'time' }
+  ```
+
+### Added
+
+- **`interpretInputAs?: 'display' | 'raw'`** option on `FormatOptions`, applied to the `'date'` and `'time'` branches of `format()`. Default `'display'` (the realistic live-keystroke case). Set to `'raw'` to opt into the legacy pre-1.2.0 round-trip semantics where the input is segmented by `dateRawPattern` / `timeRawPattern` and re-emitted in `datePattern` / `timePattern` order. See the `### Changed` entry above for examples.
+
 ## [1.1.2] - 2026-07-14
 
 ### Fixed
