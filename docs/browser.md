@@ -17,17 +17,17 @@ without a bundler:
 ## CDN usage
 
 ```html
-<script src="https://unpkg.com/@samline/formatter@1.2.0/dist/browser/global.global.js"></script>
+<script src="https://unpkg.com/@samline/formatter@2.0.0/dist/browser/global.global.js"></script>
 ```
 
-> Pin the version in production. Replace `1.2.0` with the version you ship.
+> Pin the version in production. Replace `2.0.0` with the version you ship.
 
 ## API
 
 The global exposes `format`, `regex`, and `version`:
 
 ```html
-<script src="https://unpkg.com/@samline/formatter@1.2.0/dist/browser/global.global.js"></script>
+<script src="https://unpkg.com/@samline/formatter@2.0.0/dist/browser/global.global.js"></script>
 <script>
   // Format a phone number
   const result = window.Formatter.format('5512345678', 'phone')
@@ -39,7 +39,7 @@ The global exposes `format`, `regex`, and `version`:
   console.log(isValid) // true
 
   // Library version
-  console.log(window.Formatter.version) // '1.2.0'
+  console.log(window.Formatter.version) // '2.0.0'
 </script>
 ```
 

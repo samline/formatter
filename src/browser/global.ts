@@ -30,7 +30,7 @@ const Formatter: FormatterGlobal = {
   format,
   regex,
   // Keep in sync with `version` in `package.json`.
-  version: '1.2.0'
+  version: '2.0.0'
 }
 
 if (typeof window !== 'undefined') {

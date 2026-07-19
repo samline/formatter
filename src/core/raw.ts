@@ -96,25 +96,37 @@ type ExtraFormatOptions = {
    * the live-keystroke preprocessing step (the call that runs before
    * cleave-zen's `formatDate` / `formatTime`).
    *
-   * - `'display'` (default, recommended): the input is treated as already in
-   *   display order. Live keystrokes arrive in display order because the
-   *   user is typing what they see, so this matches the realistic case for
-   *   `@samline/forms` integrations and any other caller that wires `format()`
-   *   to an `input` event listener.
+   * - `'auto'` (default since v2.0.0, recommended): the input is
+   *   inspected for the presence of the configured `delimiter` and the
+   *   length of its digit-only body. A value with no delimiters and a
+   *   digit length that matches the raw pattern (e.g. 8 digits for a
+   *   `['Y','m','d']` raw) is treated as raw; anything else (a value
+   *   with delimiters, or a partial value) is treated as display. This
+   *   covers the realistic "general purpose" case: a server-pre-filled
+   *   raw (Blade `old()`) lands in the input without delimiters and is
+   *   correctly converted to display; a user keystroke in display order
+   *   (with delimiters, or a partial value) is processed as display and
+   *   cleave-zen inserts the missing separators. The only edge case is a
+   *   paste of exactly the raw-pattern digit count with no delimiter
+   *   (e.g. pasting `"12121990"` into a `d/m/Y` + `Ymd` field); callers
+   *   that need to disambiguate that case can pass `'display'` or `'raw'`
+   *   explicitly.
+   * - `'display'` (v1.x default, still supported as opt-in): the input
+   *   is treated as already in display order. Use this for input event
+   *   listeners that receive display-order values without any
+   *   pre-segmentation by the caller.
    * - `'raw'` (legacy, opt-in): the input is treated as raw-formatted,
    *   segmented according to `dateRawPattern` / `timeRawPattern`, and
-   *   re-emitted in `datePattern` / `timePattern` order. Use this only when
-   *   the caller knows the value is already in raw form (e.g. a
-   *   `setValue('birth_date', '19890915')` from a pre-existing API
-   *   contract). Without this option, `format()` would otherwise mangle
-   *   the digits when `datePattern` and `dateRawPattern` differ.
+   *   re-emitted in `datePattern` / `timePattern` order. Use this when
+   *   the caller knows the value is always in raw form (e.g. a
+   *   pre-existing API contract that stores the canonical raw).
    *
    * The `getRawValue()` round-trip path (the inverse direction, used by
    * `format()`'s own `raw` mirror) is unaffected by this option — it
    * always uses `dateRawPattern` / `timeRawPattern` to derive the raw
    * value from the formatted display.
    */
-  interpretInputAs?: 'display' | 'raw'
+  interpretInputAs?: 'display' | 'raw' | 'auto'
 }
 
 export type FormatOptions = Partial<
@@ -240,6 +252,42 @@ const formatTimeSegments = (
     .filter(Boolean)
     .join(delimiter)
 
+// Heuristics that power the v2.0.0 `interpretInputAs: 'auto'` default.
+// Both helpers return `true` when the value looks like the canonical raw
+// form (no delimiters present, digit length matches the configured raw
+// pattern) and `false` otherwise. The caller is expected to fall back to
+// the display interpretation in the `false` branch — cleave-zen's
+// `formatDate` / `formatTime` then segments the digits by `datePattern` /
+// `timePattern` as it does for any partial-typed value.
+
+const getRawPatternLength = (pattern: readonly string[]): number =>
+  pattern.reduce((acc, unit) => acc + getDateUnitLength(unit as DateUnit), 0)
+
+const getTimePatternLength = (pattern: readonly string[]): number =>
+  pattern.length * 2
+
+const looksLikeRawDate = (value: string, options: FormatOptions): boolean => {
+  if (!value) return false
+  const delimiter = options.delimiter ?? '/'
+  if (value.includes(delimiter)) return false
+  const rawPattern =
+    options.dateRawPattern ?? DEFAULT_DATE_RAW_PATTERN
+  const expectedLength = getRawPatternLength(rawPattern)
+  const digits = value.replace(/\D/g, '')
+  return digits.length === expectedLength
+}
+
+const looksLikeRawTime = (value: string, options: FormatOptions): boolean => {
+  if (!value) return false
+  const delimiter = options.delimiter ?? ':'
+  if (value.includes(delimiter)) return false
+  const rawPattern =
+    options.timeRawPattern ?? options.timePattern ?? DEFAULT_TIME_RAW_PATTERN
+  const expectedLength = getTimePatternLength(rawPattern)
+  const digits = value.replace(/\D/g, '')
+  return digits.length === expectedLength
+}
+
 /**
  * Convert a raw date string (e.g. `2026-05-12`) into the digit order of the
  * display pattern (e.g. `12/05/2026` → `12052026`).
@@ -254,6 +302,16 @@ const formatTimeSegments = (
  * `interpretInputAs` in `FormatOptions` for the live-keystroke preprocessing
  * step.
  */
+export const looksLikeRawDateValue = (
+  value: string,
+  options: FormatOptions = {}
+): boolean => looksLikeRawDate(value, options)
+
+export const looksLikeRawTimeValue = (
+  value: string,
+  options: FormatOptions = {}
+): boolean => looksLikeRawTime(value, options)
+
 export const getDateValueFromRaw = (
   value: string,
   options: FormatOptions = {}

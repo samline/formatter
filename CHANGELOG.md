@@ -5,6 +5,55 @@ All notable changes to `@samline/formatter` are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - 2026-07-19
+
+### Changed — **BREAKING**
+
+- **`format()` now defaults to `interpretInputAs: 'auto'` for `'date'` and `'time'` inputs.** v1.2.0 introduced `'display'` as the default, which fixed the live-keystroke scramble (typing `15091989` into a `d/m/Y` display + `Ymd` raw field) but exposed the inverse problem: a server-pre-filled raw (Blade `old()` carrying `"19901212"`) was now mis-segmented and the visible ended up showing `"19/09/1212"`. v2.0.0 flips the default to a context-aware heuristic: a value with no delimiter and a digit length equal to the raw pattern length is treated as raw; anything else (a value with delimiters, or a partial value) is treated as display. This covers the realistic "general purpose" case without an opt-in: a server-pre-filled raw Ymd is correctly converted to display, and a user keystroke (which always lands with a delimiter after the first digit of each segment) is processed as display so `cleave-zen` inserts the missing separators as it always did. `'display'` and `'raw'` are preserved as opt-ins for callers that know the convention unambiguously.
+
+  ```ts
+  // Default (v2.0.0+) — auto-detect raw vs display by the input shape
+  format('19901212', 'date', {
+    datePattern: ['d', 'm', 'Y'],
+    delimiter: '/',
+    dateRawPattern: ['Y', 'm', 'd'],
+    dateRawPatternDelimiter: ''
+  })
+  // => { formatted: '12/12/1990', raw: '19901212', type: 'date' }
+
+  // Opt-in to the v1.2.0 strict display interpretation
+  format('15091989', 'date', {
+    datePattern: ['d', 'm', 'Y'],
+    delimiter: '/',
+    dateRawPattern: ['Y', 'm', 'd'],
+    dateRawPatternDelimiter: '',
+    interpretInputAs: 'display'
+  })
+  // => { formatted: '15/09/1989', raw: '19890915', type: 'date' }
+
+  // Opt-in to the pre-1.2.0 round-trip rearrangement
+  format('19890915', 'date', {
+    datePattern: ['d', 'm', 'Y'],
+    delimiter: '/',
+    dateRawPattern: ['Y', 'm', 'd'],
+    dateRawPatternDelimiter: '',
+    interpretInputAs: 'raw'
+  })
+  // => { formatted: '15/09/1989', raw: '19890915', type: 'date' }
+  ```
+
+  The only realistic regression is a paste of exactly the raw-pattern digit count with no delimiter (e.g. pasting `"12121990"` into a `d/m/Y` + `Ymd` field, which the auto heuristic now routes through the raw branch). Callers that need to disambiguate that case can pass `'display'` or `'raw'` explicitly. The keystroke case is unaffected: by the time the input event listener fires, the formatter has already inserted the delimiters, so the value reaching `format()` has a delimiter and the auto heuristic routes it through the display branch.
+
+### Added
+
+- **`interpretInputAs?: 'auto'`** as a third value alongside `'display'` and `'raw'`. The auto heuristic inspects the value: if it has no delimiter (matching the configured `datePattern` / `timePattern` delimiter or the default `/` / `:`) and its digit-only length matches the raw pattern length, it is treated as raw. Otherwise it is treated as display. The heuristic is the new v2.0.0 default; explicit `'auto'` is accepted for readability and forward-compatibility.
+- **`looksLikeRawDateValue(value, options?)` and `looksLikeRawTimeValue(value, options?)`** exported helpers that expose the auto heuristic for callers that want to apply the same detection independently of `format()` (e.g. a custom form pipeline that needs to know whether to treat an inbound string as raw or display before doing other work).
+
+### Migration notes
+
+- **From `1.x` to `2.0.0`**: this is a breaking change. Pin to `1.x` (e.g. `^1.2.0`) if you cannot update immediately. The `format()` API signature is unchanged; the breaking part is the default of one option. The only realistic call site that the new default breaks is one that passes a raw-formatted string with no delimiter to `format()` and previously relied on the v1.2.0 display interpretation (which would mis-segment the raw digits) — those sites now correctly produce the canonical display and raw, so the "regression" is in practice a fix.
+- **`@samline/forms@2.4.0`** drops the internal `interpretInputAs: 'raw'` override that v2.3.5 added to work around the v1.2.0 default; the v2.0.0 formatter default already does the right thing for the initial value pass and the mirror-source events that the override was guarding.
+
 ## [1.2.0] - 2026-07-16
 
 ### Changed

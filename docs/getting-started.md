@@ -70,10 +70,10 @@ That's it. The visible field shows `'55 1234 5678'`; the hidden field sends `'55
 
 The `format()` function is called on every keystroke, and the value it receives is whatever the user just typed into the visible field — i.e. **the value is in display order**, not in raw order. This matches how every realistic input listener works (you bind `format()` to an `input` event and the event's `target.value` is the visible string).
 
-As of **v1.2.0**, the default `interpretInputAs` is `'display'` for `'date'` and `'time'` types. This means `format()` passes the value through to `cleave-zen` without rearranging, and the digits end up in the right positions for the display pattern you configured. The legacy default (treating the input as raw order) is still available via the opt-in `interpretInputAs: 'raw'` for callers that need the round-trip semantics — e.g. when wiring `setValue('birth_date', '19890915')` from a pre-existing backend contract.
+As of **v2.0.0**, the default `interpretInputAs` is `'auto'` for `'date'` and `'time'` types. The formatter inspects the input: if it has no delimiter and its digit length matches the raw pattern (e.g. 8 digits for a `['Y','m','d']` raw), it is treated as raw — so a server-pre-filled value like `"19901212"` is correctly converted to the display form `"12/12/1990"`. Otherwise (a value with a delimiter, or a partial value) it is treated as display — so user keystrokes pass through and `cleave-zen` inserts the missing separators as it always did. The strict v1.2.0 display interpretation is still available via `interpretInputAs: 'display'`, and the legacy pre-1.2.0 round-trip rearrangement is still available via `interpretInputAs: 'raw'`. See [`FormatOptions.interpretInputAs`](./options.md#date) for the full contract.
 
 ```ts
-// ✅ Default (v1.2.0+): user typing in the field
+// ✅ Default (v2.0.0+): auto-detect raw vs display by the input shape
 input.addEventListener('input', () => {
   const { formatted, raw } = format(input.value, 'date', {
     datePattern: ['d', 'm', 'Y'],
@@ -81,18 +81,21 @@ input.addEventListener('input', () => {
     dateRawPattern: ['Y', 'm', 'd'],
     dateRawPatternDelimiter: ''
   })
-  // Typing `15091989` → visible `15/09/1989`, raw `19890915`
+  // Typing `15/09/1989` (display) → visible `15/09/1989`, raw `19890915`
+  // Pasting `19890915` (raw)     → visible `15/09/1989`, raw `19890915`
 })
 
-// ✅ Round-trip from a backend value (opt-in to legacy semantics)
-const result = format('19890915', 'date', {
+// ✅ Strict v1.2.0 display interpretation (opt-in)
+const result = format('15091989', 'date', {
   datePattern: ['d', 'm', 'Y'],
   delimiter: '/',
   dateRawPattern: ['Y', 'm', 'd'],
   dateRawPatternDelimiter: '',
-  interpretInputAs: 'raw'
+  interpretInputAs: 'display'
 })
 // => { formatted: '15/09/1989', raw: '19890915', type: 'date' }
 ```
 
-> **Pre-1.2.0 behaviour:** the default was equivalent to `interpretInputAs: 'raw'`. If you upgrade and find that `'date'` / `'time'` fields look scrambled, the most likely cause is a consumer passing a raw-formatted string to `format()` from somewhere other than the input event listener (e.g. a `setValue` from a backend). Add `interpretInputAs: 'raw'` to those call sites, or use a dedicated `setValue` / `prefill` helper that handles the round-trip correctly.
+> **Migration from v1.2.0 to v2.0.0:** the default behaviour changes for `'date'` / `'time'` inputs that reach `format()` with no delimiter and a digit count equal to the raw pattern length. Pre-2.0 this was treated as display; from 2.0 onwards it is treated as raw (the easytrip / Blade `old()` case). If you were relying on the v1.2.0 strict display interpretation at a call site that now collides with the auto heuristic, pass `interpretInputAs: 'display'` explicitly. Conversely, the pre-1.2.0 scramble on live keystrokes is no longer a concern (the auto heuristic routes partial-typed values through display, so the digits are never re-segmented before `cleave-zen` formats them).
+>
+> **Pre-1.2.0 behaviour:** the default was equivalent to `interpretInputAs: 'raw'`. If you upgrade through the entire 1.x → 2.0 series and find that `'date'` / `'time'` fields look scrambled, the most likely cause is a consumer passing a raw-formatted string to `format()` from somewhere other than the input event listener (e.g. a `setValue` from a backend that doesn't ship the canonical raw). Add `interpretInputAs: 'raw'` to those call sites, or use a dedicated `setValue` / `prefill` helper that handles the round-trip correctly.

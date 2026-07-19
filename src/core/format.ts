@@ -12,6 +12,8 @@ import { formatPhone } from './phone.js'
 import {
   getDateValueFromRaw,
   getTimeValueFromRaw,
+  looksLikeRawDateValue,
+  looksLikeRawTimeValue,
   type FormatOptions,
   type FormatType
 } from './raw.js'
@@ -118,18 +120,14 @@ const formatValue = (
 /**
  * Internal: pre-process `value` before passing it to the per-type formatter.
  *
- * For `date` and `time`, the caller is presumed to be driving `format()` from
- * an `input` event listener — the value is whatever the user just typed
- * into the visible field, which is in display order (the user types what
- * they see). The default `interpretInputAs: 'display'` therefore returns
- * the value verbatim and lets `cleave-zen` re-segment the digits into
- * `datePattern` / `timePattern` order.
- *
- * Callers that pass a raw-formatted value (e.g. `setValue('birth_date',
- * '19890915')` from a pre-existing API contract) can opt into the legacy
- * round-trip rearrangement with `interpretInputAs: 'raw'`. Without that
- * opt-in, the digits would be mis-segmented whenever `datePattern` and
- * `dateRawPattern` (or `timePattern` and `timeRawPattern`) differ.
+ * For `date` and `time`, the default `interpretInputAs: 'auto'` (since
+ * v2.0.0) inspects the value: if it has no delimiter and its digit length
+ * matches the raw pattern, it is treated as raw (so a server-pre-filled
+ * raw like `"19901212"` is correctly converted to display); otherwise
+ * it is treated as display (so user keystrokes in display order pass
+ * through and cleave-zen inserts any missing separators). `'display'`
+ * and `'raw'` are preserved as opt-ins for callers that know the
+ * convention unambiguously.
  */
 const getValueForFormatting = (
   value: string,
@@ -140,12 +138,22 @@ const getValueForFormatting = (
     if (options.interpretInputAs === 'raw') {
       return getDateValueFromRaw(value, options)
     }
+    if (options.interpretInputAs === 'auto' || options.interpretInputAs === undefined) {
+      return looksLikeRawDateValue(value, options)
+        ? getDateValueFromRaw(value, options)
+        : value
+    }
     return value
   }
 
   if (formatType === 'time') {
     if (options.interpretInputAs === 'raw') {
       return getTimeValueFromRaw(value, options)
+    }
+    if (options.interpretInputAs === 'auto' || options.interpretInputAs === undefined) {
+      return looksLikeRawTimeValue(value, options)
+        ? getTimeValueFromRaw(value, options)
+        : value
     }
     return value
   }
