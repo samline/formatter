@@ -34,7 +34,7 @@ Both entrypoints delegate to the same core module — no behavioural or size dif
 ## Browser entrypoint — `@samline/formatter/browser`
 
 ```html
-<script src="https://unpkg.com/@samline/formatter@2.0.2/dist/browser/global.global.js"></script>
+<script src="https://unpkg.com/@samline/formatter@2.0.3/dist/browser/global.global.js"></script>
 <script>
   const result = window.Formatter.format('5512345678', 'phone')
   console.log(result.formatted) // '55 1234 5678'

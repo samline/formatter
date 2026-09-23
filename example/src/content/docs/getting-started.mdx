@@ -74,7 +74,7 @@ Every call returns a `FormatterResult` with `formatted` (display) and `raw` (bac
 Drop the pre-bundled IIFE into any HTML page and call `window.Formatter.format(...)`.
 
 ```html
-<script src="https://unpkg.com/@samline/formatter@2.0.2/dist/browser/global.global.js"></script>
+<script src="https://unpkg.com/@samline/formatter@2.0.3/dist/browser/global.global.js"></script>
 <script>
   const { formatted, raw } = window.Formatter.format('5512345678', 'phone')
   console.log(formatted) // '55 1234 5678'
@@ -91,6 +91,12 @@ Drop the pre-bundled IIFE into any HTML page and call `window.Formatter.format(.
 		Recommended wiring for React, Vue, Svelte, vanilla, and server-side pipelines.
 
 		[Open the guide →](/formatter/guides/formatting-with-frameworks/)
+	</Card>
+
+	<Card title="Styling and UX" icon="accessibility">
+		Accessible field markup, native input attributes, CSS states, and caret considerations.
+
+		[Styling and UX →](/formatter/guides/styling-and-ux/)
 	</Card>
 
 	<Card title="Configuration" icon="setting">

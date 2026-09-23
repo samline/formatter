@@ -1,6 +1,6 @@
 {
   "name": "@samline/formatter",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "description": "Lightweight, framework-agnostic input formatter (phone, numeral, date, time, credit card, general) that returns split formatted/raw outputs.",
   "type": "module",
   "license": "MIT",

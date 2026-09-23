@@ -49,6 +49,8 @@ const siteConfig = defineSiteConfig({
 			items: [
 				{ slug: 'getting-started' },
 				{ slug: 'guides/formatting-with-frameworks' },
+				{ slug: 'guides/styling-and-ux' },
+				{ slug: 'reference/recipes' },
 			],
 		},
 		{
@@ -62,10 +64,6 @@ const siteConfig = defineSiteConfig({
 				{ slug: 'reference/entrypoints' },
 				{ slug: 'reference/browser' },
 			],
-		},
-		{
-			label: 'Recipes',
-			items: [{ slug: 'reference/recipes' }],
 		},
 	],
 

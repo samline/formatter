@@ -7,8 +7,8 @@ sidebar:
 
 This section documents the complete public surface of `@samline/formatter`. Start with the API for method signatures, then use the focused references for configuration, regex, types, entrypoints, and the browser global.
 
-:::note
-If you add a new page under `src/content/docs/reference/`, it appears under **Reference** in the sidebar automatically (no edit to `site.config.mjs` required).
+:::note[Keeping navigation explicit]
+The sidebar is intentionally ordered in `site.config.mjs`. When adding a reference page, add its slug there as part of the same change.
 :::
 
 ## Sections in this reference
@@ -20,3 +20,5 @@ If you add a new page under `src/content/docs/reference/`, it appears under **Re
 - [Entrypoints](/formatter/reference/entrypoints/) — ESM / CJS / browser module / `/vanilla` alias distribution matrix.
 - [Browser](/formatter/reference/browser/) — the `window.Formatter` IIFE for no-bundler setups (Shopify, WordPress, classic templates).
 - [Recipes](/formatter/reference/recipes/) — task-oriented recipes for common real-world scenarios.
+
+For presentation and interaction concerns, see [Styling and UX](/formatter/guides/styling-and-ux/). Formatter returns strings and intentionally leaves CSS, validation state, and caret management to the caller.

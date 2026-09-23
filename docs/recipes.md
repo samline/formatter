@@ -449,7 +449,7 @@ When the form is rendered server-side (Blade, ERB, classic Rails) and you only n
   <button type="submit">Checkout</button>
 </form>
 
-<script src="https://unpkg.com/@samline/formatter@2.0.2/dist/browser/global.global.js"></script>
+<script src="https://unpkg.com/@samline/formatter@2.0.3/dist/browser/global.global.js"></script>
 <script>
   const F = window.Formatter
 
@@ -547,4 +547,5 @@ The backend should read `phone`; `phone_displayed` is only there for cases where
 - Need a deep dive on options? See [docs/options.md](options.md).
 - Looking up the exact signature of a function? See [docs/api/format.md](api/format.md) or [docs/api/regex.md](api/regex.md).
 - Working with the type system? See [docs/typescript.md](typescript.md).
+- Styling and accessibility? See [docs/styling-and-ux.md](styling-and-ux.md).
 - Setting up the browser global? See [docs/browser.md](browser.md).

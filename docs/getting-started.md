@@ -2,7 +2,7 @@
 
 This page explains what `@samline/formatter` solves, the contract each public function honours, and the recommended wiring patterns. Use it as a mental model before diving into the per-feature reference under [`docs/api/`](api/index.md) and the end-to-end patterns in [`docs/recipes.md`](recipes.md).
 
-> Latest version is `2.0.2` — see [Releases](https://github.com/samline/formatter/releases) for the changelog.
+> Latest version is `2.0.3` — see [Releases](https://github.com/samline/formatter/releases) for the changelog.
 
 ---
 
@@ -171,5 +171,6 @@ events use `'display'`, while initial and canonical mirror values use `'auto'`.
 - Looking up the exact signature of a function? See [docs/api/format.md](api/format.md) or [docs/api/regex.md](api/regex.md).
 - Working with the type system? See [docs/typescript.md](typescript.md).
 - Browsing end-to-end patterns? See [docs/recipes.md](recipes.md).
+- Styling the visible field or handling accessibility and caret behavior? See [docs/styling-and-ux.md](styling-and-ux.md).
 - Want a `<script>`-only setup without a bundler? See [docs/browser.md](browser.md).
 - Curious about entrypoints and module shapes? See [docs/entrypoints.md](entrypoints.md).

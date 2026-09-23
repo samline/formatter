@@ -5,12 +5,28 @@ All notable changes to `@samline/formatter` are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.3] - 2026-09-23
+
+### Added
+
+- Added internal and Starlight guides for styling and UX, covering visible/raw field structure, native input attributes, accessibility states, caret behavior, and common integration pitfalls.
+- Added a documentation synchronization checklist and durable project lessons based on the formatter/forms documentation audit.
+
+### Changed
+
+- Reorganized the Starlight guide navigation so framework integration, styling, and recipes form one task-oriented learning path before the reference section.
+- Added styling and UX links throughout the README, getting-started pages, recipes, and reference overview.
+- Clarified changelog coverage for the prefix/suffix and password-validator regression tests shipped in `2.0.2`.
+- Corrected the reference overview to explain that new pages must be added to the explicit sidebar configuration.
+
 ## [2.0.2] - 2026-09-23
 
 ### Added
 
 - Exported `DatePatternType` and `TimePatternType` from the package entrypoints.
 - Expanded the internal and Starlight documentation with dedicated API, recipes, entrypoint, framework, and TypeScript references.
+- Added regression coverage for dedicated and combined prefix/suffix stripping.
+- Strengthened password-validator tests so every enabled uppercase, lowercase, numeric, and special-character requirement is enforced independently.
 
 ### Fixed
 

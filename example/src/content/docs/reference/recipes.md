@@ -30,7 +30,7 @@ For framework-specific wiring (React / Vue / Svelte), see [Formatting with frame
 		No bundler required. Drop the CDN script and use `window.Formatter.format(...)`.
 
 		```html
-		<script src="https://unpkg.com/@samline/formatter@2.0.2/dist/browser/global.global.js"></script>
+		<script src="https://unpkg.com/@samline/formatter@2.0.3/dist/browser/global.global.js"></script>
 		<script>
 		  const result = window.Formatter.format('5512345678', 'phone')
 		  console.log(result.formatted)
@@ -319,7 +319,7 @@ When the form is rendered server-side (Blade, ERB, classic Rails) and you only n
   <button type="submit">Checkout</button>
 </form>
 
-<script src="https://unpkg.com/@samline/formatter@2.0.2/dist/browser/global.global.js"></script>
+<script src="https://unpkg.com/@samline/formatter@2.0.3/dist/browser/global.global.js"></script>
 <script>
   const F = window.Formatter
 

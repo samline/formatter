@@ -41,15 +41,15 @@ Requires Node 20+ when bundling. Runtime target is ES2020.
 Use the browser build when you do not have a bundler and need to run the package directly in HTML, Shopify, WordPress, or any traditional template.
 
 ```html
-<script src="https://unpkg.com/@samline/formatter@2.0.2/dist/browser/global.global.js"></script>
+<script src="https://unpkg.com/@samline/formatter@2.0.3/dist/browser/global.global.js"></script>
 ```
 
-> Pin the version in production. Replace `2.0.2` with the version you ship.
+> Pin the version in production. Replace `2.0.3` with the version you ship.
 
 The browser bundle exposes a single global: `window.Formatter`.
 
 ```html
-<script src="https://unpkg.com/@samline/formatter@2.0.2/dist/browser/global.global.js"></script>
+<script src="https://unpkg.com/@samline/formatter@2.0.3/dist/browser/global.global.js"></script>
 <script>
   const result = window.Formatter.format('5512345678', 'phone')
   console.log(result.formatted) // '55 1234 5678'
@@ -119,6 +119,7 @@ Full API reference, guides, and examples are available at **[samline.github.io/f
 | --- | --- |
 | [docs/getting-started.md](docs/getting-started.md) | Concepts, observable contract, lifecycle, and side-effects table. |
 | [docs/recipes.md](docs/recipes.md) | End-to-end patterns: React, Vue, Svelte, vanilla, server-side. |
+| [docs/styling-and-ux.md](docs/styling-and-ux.md) | Accessible markup, CSS states, input attributes, and caret behavior. |
 | [docs/options.md](docs/options.md) | Full `FormatOptions` reference, with `general` prefix/suffix deep-dive. |
 | [docs/api/format.md](docs/api/format.md) | `format()` signature, behaviour, edge cases, advanced helpers. |
 | [docs/api/regex.md](docs/api/regex.md) | Validation dictionary, parametric variants, custom regex. |
