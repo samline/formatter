@@ -46,7 +46,10 @@ const siteConfig = defineSiteConfig({
 	sidebar: [
 		{
 			label: 'Guide',
-			items: [{ slug: 'getting-started' }],
+			items: [
+				{ slug: 'getting-started' },
+				{ slug: 'guides/formatting-with-frameworks' },
+			],
 		},
 		{
 			label: 'Reference',
@@ -56,12 +59,13 @@ const siteConfig = defineSiteConfig({
 				{ slug: 'reference/api' },
 				{ slug: 'reference/regex' },
 				{ slug: 'reference/typescript' },
+				{ slug: 'reference/entrypoints' },
 				{ slug: 'reference/browser' },
 			],
 		},
 		{
-			label: 'Examples',
-			items: [{ slug: 'reference/examples' }],
+			label: 'Recipes',
+			items: [{ slug: 'reference/recipes' }],
 		},
 	],
 

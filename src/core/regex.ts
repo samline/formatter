@@ -143,6 +143,13 @@ function createPassword(params: PasswordParams): RegexEntry {
   if (numbers) chars += '0-9'
   if (special) chars += '!@#$%^&*()_+\\-=\\[\\]{}|;:\'",.<>?/'
 
+  const requirements = [
+    uppercase ? '(?=.*[A-Z])' : '',
+    lowercase ? '(?=.*[a-z])' : '',
+    numbers ? '(?=.*[0-9])' : '',
+    special ? '(?=.*[!@#$%^&*()_+\\-=\\[\\]{}|;:\'",.<>?/])' : ''
+  ].join('')
+
   const ruleParts: string[] = []
   if (uppercase) ruleParts.push('uppercase letter')
   if (lowercase) ruleParts.push('lowercase letter')
@@ -154,7 +161,7 @@ function createPassword(params: PasswordParams): RegexEntry {
     : ruleParts.join(' and ')
 
   return {
-    pattern: new RegExp(`^[${chars}]{${min},${max}}$`),
+    pattern: new RegExp(`^${requirements}[${chars}]{${min},${max}}$`),
     errorMessage: `Password must be ${min}-${max} characters with at least one ${rulesText}.`
   }
 }
@@ -430,5 +437,6 @@ export const regex = {
   custom: customFn
 } as const
 
+/** Keys whose entries always expose a static `pattern` and `errorMessage`. */
 export type RegexKey = keyof typeof _regex
 export type Regex = typeof regex

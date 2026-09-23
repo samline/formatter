@@ -157,6 +157,19 @@ describe('stripPrefixAndSuffix', () => {
     expect(stripPrefixAndSuffix('$100', { prefix: '$' })).toBe('100')
   })
 
+  it('strips a dedicated suffix', () => {
+    expect(stripPrefixAndSuffix('100 USD', { suffix: ' USD' })).toBe('100')
+  })
+
+  it('strips independent prefix and suffix together', () => {
+    expect(
+      stripPrefixAndSuffix('PRE-123-END', {
+        prefix: 'PRE-',
+        suffix: '-END'
+      })
+    ).toBe('123')
+  })
+
   it('strips a tailPrefix (suffix) when tailPrefix: true', () => {
     expect(
       stripPrefixAndSuffix('100 USD', { prefix: ' USD', tailPrefix: true })

@@ -176,7 +176,9 @@ r.errorMessage  // 'Invalid value.'
 ```ts
 import { regex } from '@samline/formatter'
 
-function validateField(value: string, type: keyof typeof regex) {
+import type { RegexKey } from '@samline/formatter'
+
+function validateField(value: string, type: RegexKey) {
   const { pattern, errorMessage } = regex[type]
   if (!pattern.test(value)) {
     return { valid: false, error: errorMessage }

@@ -13,6 +13,8 @@ import {
   type TimeUnit
 } from 'cleave-zen'
 
+export type { DatePatternType, TimePatternType } from 'cleave-zen'
+
 export type FormatType =
   | 'general'
   | 'phone'
@@ -413,20 +415,24 @@ export const stripPrefixAndSuffix = (
   value: string,
   options: FormatOptions = {}
 ): string => {
-  if (!value || !options.prefix) return value
+  if (!value) return value
 
-  const { prefix } = options
+  const { prefix, suffix } = options
   const tailPrefix = options.tailPrefix ?? false
 
-  if (tailPrefix && value.endsWith(prefix)) {
-    return value.slice(0, -prefix.length)
+  let result = value
+
+  if (suffix && result.endsWith(suffix)) {
+    result = result.slice(0, -suffix.length)
   }
 
-  if (!tailPrefix && value.startsWith(prefix)) {
-    return value.slice(prefix.length)
+  if (prefix && tailPrefix && result.endsWith(prefix)) {
+    result = result.slice(0, -prefix.length)
+  } else if (prefix && !tailPrefix && result.startsWith(prefix)) {
+    result = result.slice(prefix.length)
   }
 
-  return value
+  return result
 }
 
 /**

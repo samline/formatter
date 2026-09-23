@@ -252,11 +252,15 @@ describe('regex', () => {
   describe('parametric: password()', () => {
     it('matches with default rules', () => {
       expect(regex.password().pattern.test('Passw0rd')).toBe(true)
+      expect(regex.password().pattern.test('password1')).toBe(false)
+      expect(regex.password().pattern.test('PASSWORD1')).toBe(false)
+      expect(regex.password().pattern.test('Password')).toBe(false)
     })
     it('accepts custom rules', () => {
       const r = regex.password({ min: 12, special: true })
       expect(r.pattern.test('MyP@ssw0rd!!')).toBe(true)
       expect(r.pattern.test('short')).toBe(false)
+      expect(r.pattern.test('MyPasswordLong')).toBe(false)
     })
   })
 

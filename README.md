@@ -41,15 +41,15 @@ Requires Node 20+ when bundling. Runtime target is ES2020.
 Use the browser build when you do not have a bundler and need to run the package directly in HTML, Shopify, WordPress, or any traditional template.
 
 ```html
-<script src="https://unpkg.com/@samline/formatter@2.0.1/dist/browser/global.global.js"></script>
+<script src="https://unpkg.com/@samline/formatter@2.0.2/dist/browser/global.global.js"></script>
 ```
 
-> Pin the version in production. Replace `2.0.1` with the version you ship.
+> Pin the version in production. Replace `2.0.2` with the version you ship.
 
 The browser bundle exposes a single global: `window.Formatter`.
 
 ```html
-<script src="https://unpkg.com/@samline/formatter@2.0.1/dist/browser/global.global.js"></script>
+<script src="https://unpkg.com/@samline/formatter@2.0.2/dist/browser/global.global.js"></script>
 <script>
   const result = window.Formatter.format('5512345678', 'phone')
   console.log(result.formatted) // '55 1234 5678'
@@ -117,11 +117,16 @@ Full API reference, guides, and examples are available at **[samline.github.io/f
 
 | Doc | Purpose |
 | --- | --- |
-| [docs/getting-started.md](docs/getting-started.md) | Concepts, observable contract, and lifecycle overview. |
-| [docs/options.md](docs/options.md) | Full `FormatOptions` reference. |
+| [docs/getting-started.md](docs/getting-started.md) | Concepts, observable contract, lifecycle, and side-effects table. |
+| [docs/recipes.md](docs/recipes.md) | End-to-end patterns: React, Vue, Svelte, vanilla, server-side. |
+| [docs/options.md](docs/options.md) | Full `FormatOptions` reference, with `general` prefix/suffix deep-dive. |
+| [docs/api/format.md](docs/api/format.md) | `format()` signature, behaviour, edge cases, advanced helpers. |
+| [docs/api/regex.md](docs/api/regex.md) | Validation dictionary, parametric variants, custom regex. |
+| [docs/api/index.md](docs/api/index.md) | API surface at a glance. |
 | [docs/typescript.md](docs/typescript.md) | Every exported TypeScript type, with examples. |
-| [docs/vanilla.md](docs/vanilla.md) | Vanilla surface for non-framework consumers. |
+| [docs/entrypoints.md](docs/entrypoints.md) | ESM / CJS / browser / vanilla entrypoints and distribution matrix. |
 | [docs/browser.md](docs/browser.md) | Browser global (`window.Formatter`) usage. |
+| [docs/regex.md](docs/regex.md) | Standalone reference for the validation pattern dictionary. |
 
 ---
 

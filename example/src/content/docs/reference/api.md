@@ -7,6 +7,31 @@ sidebar:
 
 Every public symbol is listed here in the order it appears in the source. Each entry shows the signature, parameter table, return shape, and a runnable example.
 
+:::tip[Reading the signatures]
+Functions that return data (rather than calling side-effect-ful APIs) end in a different return type — for example `format()` returns `FormatterResult`, `isFormatType()` returns a type-guard boolean, and `regex.digits(...)` returns `{ pattern, errorMessage }`. The package is pure throughout — see the side-effects table below.
+:::
+
+## Side effects per function
+
+Use this as a quick lookup when you need to know what a function will touch.
+
+| Function | DOM mutation | Network | Reads globals | Reads time | Notes |
+| --- | --- | --- | --- | --- | --- |
+| `format(value, type, options?)` | no | no | no | no | Pure string transformer. Safe to call on every keystroke. |
+| `isFormatType(value)` | no | no | no | no | Type-guard. No allocation beyond the comparison. |
+| `FORMAT_TYPES` | n/a | n/a | n/a | n/a | A `readonly` tuple; iteration is the only legitimate use. |
+| `regex.<key>.pattern` | no | no | no | no | A compiled `RegExp`. `regex.<key>` is also callable for parametric variants. |
+| `regex.<key>.errorMessage` | n/a | n/a | n/a | n/a | A short human-readable message paired with the pattern. |
+| `formatPhone` | no | no | no | no | Lower-level phone helper called by `format(..., 'phone')`. |
+| `getRawValue` | no | no | no | no | Lower-level raw value extractor. |
+| `getDateValueFromRaw` | no | no | no | no | Legacy round-trip helper for dates. |
+| `getTimeValueFromRaw` | no | no | no | no | Legacy round-trip helper for times. |
+| `looksLikeRawDateValue` | no | no | no | no | Heuristic test for the v2.0.0 `auto` mode. |
+| `looksLikeRawTimeValue` | no | no | no | no | Heuristic test for the v2.0.0 `auto` mode. |
+| `stripPrefixAndSuffix` | no | no | no | no | Strips the configured `prefix` and `suffix` from a string. |
+
+The `format` function and every helper it delegates to are referentially transparent — the same `(value, formatType, options)` triple always returns the same `FormatterResult`. This is what enables SSR re-rendering and testing without mocks.
+
 ## `format(value, formatType, options?)`
 
 The main entry point. Pure, deterministic, framework-agnostic.
@@ -101,6 +126,7 @@ type FormatOptions = Partial<
   suffix?: string
   suffixMode?: 'lock' | 'passthrough'
   rawSuffix?: boolean
+  interpretInputAs?: 'auto' | 'display' | 'raw'
 }
 ```
 
@@ -143,7 +169,7 @@ regex.email.errorMessage               // 'Please enter a valid email address.'
 
 ## Browser global: `window.Formatter`
 
-The `/browser` entrypoint registers a `Formatter` object on `window`. It exposes `format`, `regex`, and `version` — the same surface as the root entrypoint, bundled as IIFE for direct `<script>` usage.
+The `/browser` entrypoint registers a focused `Formatter` object on `window`. It exposes `format`, `regex`, and `version`; lower-level root helpers are not added to the global.
 
 ```ts
 interface FormatterGlobal {
@@ -154,11 +180,11 @@ interface FormatterGlobal {
 ```
 
 ```html
-<script src="https://unpkg.com/@samline/formatter@2.0.1/dist/browser/global.global.js"></script>
+<script src="https://unpkg.com/@samline/formatter@2.0.2/dist/browser/global.global.js"></script>
 <script>
   const result = window.Formatter.format('5512345678', 'phone')
   console.log(result.formatted) // '55 1234 5678'
-  console.log(window.Formatter.version) // '2.0.1'
+  console.log(window.Formatter.version) // '2.0.2'
 </script>
 ```
 

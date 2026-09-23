@@ -1,6 +1,8 @@
 export type {
+  DatePatternType,
   FormatOptions,
-  FormatType
+  FormatType,
+  TimePatternType
 } from './raw.js'
 
 export {

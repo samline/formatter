@@ -74,7 +74,7 @@ Every call returns a `FormatterResult` with `formatted` (display) and `raw` (bac
 Drop the pre-bundled IIFE into any HTML page and call `window.Formatter.format(...)`.
 
 ```html
-<script src="https://unpkg.com/@samline/formatter@2.0.1/dist/browser/global.global.js"></script>
+<script src="https://unpkg.com/@samline/formatter@2.0.2/dist/browser/global.global.js"></script>
 <script>
   const { formatted, raw } = window.Formatter.format('5512345678', 'phone')
   console.log(formatted) // '55 1234 5678'
@@ -82,11 +82,17 @@ Drop the pre-bundled IIFE into any HTML page and call `window.Formatter.format(.
 </script>
 ```
 
-> Pin the version in production. The browser bundle ships both `cleave-zen` and `libphonenumber-js` bundled in (~250 KB unminified).
+> Pin the version in production. The browser bundle ships both `cleave-zen` and `libphonenumber-js` bundled in (~250 KB unminified). See the [Browser reference](/formatter/reference/browser/) for the full surface and CDN options.
 
 ## What's next?
 
 <CardGrid>
+	<Card title="Formatting with frameworks" icon="rocket">
+		Recommended wiring for React, Vue, Svelte, vanilla, and server-side pipelines.
+
+		[Open the guide →](/formatter/guides/formatting-with-frameworks/)
+	</Card>
+
 	<Card title="Configuration" icon="setting">
 		Explore every option, with defaults and runtime impact.
 
@@ -99,9 +105,9 @@ Drop the pre-bundled IIFE into any HTML page and call `window.Formatter.format(.
 		[API reference →](/formatter/reference/api/)
 	</Card>
 
-	<Card title="Examples" icon="puzzle">
-		End-to-end examples covering common real-world scenarios.
+	<Card title="Recipes" icon="puzzle">
+		End-to-end recipes covering common real-world scenarios.
 
-		[Browse examples →](/formatter/reference/examples/)
+		[Browse recipes →](/formatter/reference/recipes/)
 	</Card>
 </CardGrid>

@@ -5,6 +5,20 @@ All notable changes to `@samline/formatter` are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.2] - 2026-09-23
+
+### Added
+
+- Exported `DatePatternType` and `TimePatternType` from the package entrypoints.
+- Expanded the internal and Starlight documentation with dedicated API, recipes, entrypoint, framework, and TypeScript references.
+
+### Fixed
+
+- Made `stripPrefixAndSuffix()` remove the dedicated `suffix` option as documented, including combined prefix/suffix values.
+- Made parametric password validators enforce each enabled uppercase, lowercase, numeric, and special-character requirement.
+- Corrected documentation contracts for `RegexKey`, the browser global, affix helpers, and framework examples.
+- Prevented the country-selector recipe from accumulating input listeners and removed direct DOM mutation from the React recipe.
+
 ## [2.0.1] - 2026-09-23
 
 ### Fixed

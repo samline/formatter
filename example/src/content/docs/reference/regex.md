@@ -5,7 +5,7 @@ sidebar:
   order: 4
 ---
 
-The `regex` export is a frozen object of validation patterns. Each entry pairs a `RegExp` with an `errorMessage` string so you can show the user the same wording the validator uses.
+The `regex` export is a readonly TypeScript object of validation patterns. Static entries pair a `RegExp` with an `errorMessage`; parametric-only helpers return that pair when called.
 
 ```ts
 import { regex } from '@samline/formatter'
@@ -39,7 +39,7 @@ regex.phone({ length: 7 })
 
 ### 1. Static (object form)
 
-The default form — every entry exposes a `.pattern` and a `.errorMessage`:
+Static entries expose `.pattern` and `.errorMessage`. The callable `phone`, `creditCard`, and `url` entries retain those properties for backward compatibility:
 
 ```ts
 regex.phone.pattern.test('5512345678')  // true
@@ -183,7 +183,7 @@ validate('email', 'foo@bar.com')   // null  (valid)
 validate('email', 'not-an-email')  // 'Please enter a valid email address.'
 ```
 
-`RegexKey` is exported as `keyof typeof regex` so you can iterate the entries or build a type-safe settings UI. Note that `RegexKey` covers the static entries; the parametric functions (`digits`, `phone`, `creditCard`, `url`, `password`, `custom`) are invoked through their function form rather than through the indexed lookup.
+`RegexKey` covers entries that always expose a static `.pattern` and `.errorMessage`, including the static sides of `phone`, `creditCard`, and `url`. It excludes the parametric-only helpers `digits`, `password`, and `custom`.
 
 ## Notes
 
