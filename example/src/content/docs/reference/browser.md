@@ -61,6 +61,7 @@ interface FormatterGlobal {
 | jsDelivr | `https://cdn.jsdelivr.net/npm/@samline/formatter@2.0.3/dist/browser/global.global.js` |
 | unpkg | `https://unpkg.com/@samline/formatter@2.0.3/dist/browser/global.global.js` |
 
-Pin the package version in production. The published browser bundle is the
+These URLs intentionally pin the current release instead of `latest`, so you can
+choose the exact package version to ship. The published browser bundle is the
 unminified `dist/browser/global.global.js`; there is no `formatter.iife.min.js`
 artifact in the package.

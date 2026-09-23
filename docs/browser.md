@@ -20,7 +20,8 @@ without a bundler:
 <script src="https://unpkg.com/@samline/formatter@2.0.3/dist/browser/global.global.js"></script>
 ```
 
-> Pin the version in production. Replace `2.0.3` with the version you ship.
+> The documentation intentionally pins the current release (`2.0.3`) instead of
+> `latest`. Choose the exact version you want to ship when copying this URL.
 
 ## API
 
