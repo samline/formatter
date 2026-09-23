@@ -41,15 +41,15 @@ Requires Node 20+ when bundling. Runtime target is ES2020.
 Use the browser build when you do not have a bundler and need to run the package directly in HTML, Shopify, WordPress, or any traditional template.
 
 ```html
-<script src="https://unpkg.com/@samline/formatter@2.0.0/dist/browser/global.global.js"></script>
+<script src="https://unpkg.com/@samline/formatter@2.0.1/dist/browser/global.global.js"></script>
 ```
 
-> Pin the version in production. Replace `2.0.0` with the version you ship.
+> Pin the version in production. Replace `2.0.1` with the version you ship.
 
 The browser bundle exposes a single global: `window.Formatter`.
 
 ```html
-<script src="https://unpkg.com/@samline/formatter@1.2.0/dist/browser/global.global.js"></script>
+<script src="https://unpkg.com/@samline/formatter@2.0.1/dist/browser/global.global.js"></script>
 <script>
   const result = window.Formatter.format('5512345678', 'phone')
   console.log(result.formatted) // '55 1234 5678'
@@ -103,7 +103,7 @@ format('4111111111111111', 'creditCardType')
 
 | `formatType` | What it does | Default output |
 | --- | --- | --- |
-| `'general'` | Block-based masking with custom delimiter/delimiters | Digits-only raw |
+| `'general'` | Block-based masking with custom delimiter/delimiters | Unformatted body; digits-only when `numericOnly` is enabled |
 | `'phone'` | Country-aware phone formatting via `libphonenumber-js` | Space-delimited, digits-only raw (preserves leading `+`) |
 | `'numeral'` | Thousand separators, optional decimals | `'1,234.56'` style raw |
 | `'date'` | Raw `Y-m-d` → display pattern | `'12/05/2026'`, raw `'2026-05-12'` |

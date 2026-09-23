@@ -15,7 +15,7 @@ Internally `FormatOptions` is the intersection of cleave-zen's per-type option i
 | Field | Type | Default | Applies to | Notes |
 | --- | --- | --- | --- | --- |
 | `country` | `string` (ISO 3166-1 alpha-2) | `'MX'` for phone, `''` otherwise | `phone` | Passed to `libphonenumber-js`'s `AsYouType`. |
-| `delimiter` | `string` | phone: `' '`; other types: cleave-zen default | all | Single-character separator for the formatted display. |
+| `delimiter` | `string` | phone: `' '`; other types: cleave-zen default | all | Separator for the formatted display. An empty string disables visible separation while preserving date/time auto-detection. |
 | `delimiters` | `string[]` | `[]` | `general`, `numeral` | Additional separators (e.g. `[' ', '-']`). |
 | `prefix` | `string` | `''` | `general`, `numeral` | Prepended to the display. See [Prefix & suffix on `general`](#prefix--suffix-on-general) for how the formatter manages it (including `prefixMode` and `rawPrefix`). |
 | `tailPrefix` | `boolean` | `false` | `general`, `numeral` | **Legacy**: when `true` (and `suffix` is not provided), `prefix` is treated as a suffix (stripped from the end). Prefer the new dedicated `suffix` option for new code. |
@@ -31,7 +31,7 @@ Internally `FormatOptions` is the intersection of cleave-zen's per-type option i
 | `numericOnly` | `boolean` | Strip non-digit characters. |
 | `uppercase` / `lowercase` | `boolean` | Force case. |
 | `prefixMode` | `'lock' \| 'passthrough'` | `'lock'` (default) auto-prepends the configured `prefix`; `'passthrough'` reflects whatever the user has typed of the prefix instead (so `E` sticks for a configured `EASY`). See [Prefix & suffix on `general`](#prefix--suffix-on-general). |
-| `rawPrefix` | `boolean` | When `true`, the `raw` mirror includes the configured `prefix`. Default `false` (digits-only). |
+| `rawPrefix` | `boolean` | When `true`, the `raw` mirror includes the configured `prefix`. Default `false`; the body is only digits-only when `numericOnly` is enabled. |
 | `suffix` | `string` | Tail decoration appended at the end of the display (e.g. `' USD'`, `'-END'`). Independent from `prefix`; can differ from it. |
 | `suffixMode` | `'lock' \| 'passthrough'` | `'lock'` (default) auto-appends the configured `suffix`; `'passthrough'` reflects whatever the user has typed of the suffix instead. |
 | `rawSuffix` | `boolean` | When `true`, the `raw` mirror includes the configured `suffix`. Default `false`. |
@@ -77,7 +77,7 @@ format('12345US', 'general', {
 
 #### `rawPrefix` / `rawSuffix` — what the `raw` mirror contains
 
-The default `raw` value is the digits-only body the user typed. Opt in with `rawPrefix: true` / `rawSuffix: true` when the backend needs the canonical value with the decoration included:
+The default `raw` value is the unformatted body the user typed. With `numericOnly: true` it is digits-only. Opt in with `rawPrefix: true` / `rawSuffix: true` when the backend needs the canonical value with the decoration included:
 
 ```ts
 // Backend wants the canonical identifier
@@ -163,20 +163,20 @@ format('12345', 'general', {
 
 | Field | Type | Default | Notes |
 | --- | --- | --- | --- |
-| `datePattern` | `DatePatternType` (`['d', 'm', 'Y'] \| …`) | `['d', 'm', 'Y']` | Display pattern. With the default `interpretInputAs: 'display'`, `format()` treats the input as already in display order — this matches the live-keystroke use case from `@samline/forms` and any other caller that wires `format()` to an `input` event listener. To opt into the legacy raw-input interpretation (useful for `setValue` / `prefill` round-trips where the value is already in raw form, e.g. `setValue('birth_date', '19890915')`), pass `interpretInputAs: 'raw'` and the input will be segmented by `dateRawPattern` and re-emitted in `datePattern` order. |
+| `datePattern` | `DatePatternType` (`['d', 'm', 'Y'] \| …`) | `['d', 'm', 'Y']` | Display pattern. The default `interpretInputAs: 'auto'` distinguishes complete delimiter-less raw values from partial or delimiter-bearing display values. |
 | `dateRawPattern` | `DatePatternType` | `['Y', 'm', 'd']` | Pattern used by `getRawValue` to derive the raw value from the formatted display. The raw is rearranged into this order and re-emitted with `dateRawPatternDelimiter`. |
 | `dateRawPatternDelimiter` | `string` | `'-'` | Delimiter used in the raw value. Falls back to `delimiter` (the display delimiter) when not set, mirroring the 1.1.1 fix for the round-trip self-consistency story. |
-| `interpretInputAs` | `'display' \| 'raw'` | `'display'` | How `format()` interprets `'date'` inputs during live-keystroke preprocessing. See the `datePattern` row for context. Defaults to `'display'` because the typical caller is an input event listener that receives the visible field's value (display order) on every keystroke. |
+| `interpretInputAs` | `'auto' \| 'display' \| 'raw'` | `'auto'` | `'auto'` treats a delimiter-less value whose digit count matches `dateRawPattern` as raw and everything else as display. Use `'display'` for an unambiguous visible-input pipeline or `'raw'` for an unambiguous canonical-input pipeline. |
 | `dateMin` / `dateMax` | `string` | `''` | Optional bounds (`'YYYY-MM-DD'`). |
 
 ### `time`
 
 | Field | Type | Default | Notes |
 | --- | --- | --- | --- |
-| `timePattern` | `TimePatternType` (`['h', 'm', 's'] \| …`) | `['h', 'm', 's']` | Display pattern. With the default `interpretInputAs: 'display'`, `format()` treats the input as already in display order — same reasoning as the `datePattern` row above. Pass `interpretInputAs: 'raw'` to opt into the legacy raw-input interpretation. |
+| `timePattern` | `TimePatternType` (`['h', 'm', 's'] \| …`) | `['h', 'm', 's']` | Display pattern. Input interpretation follows `interpretInputAs`, which defaults to `'auto'`. |
 | `timeRawPattern` | `TimePatternType` | `['h', 'm']` | Pattern used by `getRawValue` to derive the raw value from the formatted display. |
 | `timeRawPatternDelimiter` | `string` | `':'` | Delimiter used in the raw value. Falls back to `delimiter` (the display delimiter) when not set — same as the `dateRawPatternDelimiter` story. |
-| `interpretInputAs` | `'display' \| 'raw'` | `'display'` | How `format()` interprets `'time'` inputs during live-keystroke preprocessing. Symmetric with the `date` option. |
+| `interpretInputAs` | `'auto' \| 'display' \| 'raw'` | `'auto'` | Same heuristic and explicit modes as `date`, using `timeRawPattern` to determine the expected raw length. |
 | `timeFormat` | `'12' \| '24'` | `'24'` | 12-hour or 24-hour clock. |
 
 ### `creditCard`

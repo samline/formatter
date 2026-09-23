@@ -16,10 +16,7 @@ export { FORMAT_TYPES, isFormatType, stripPrefixAndSuffix }
 
 /**
  * Detect and strip whatever portion of `affix` the user has already
- * typed at either the start or end of `value`. Used for both the head
- * (`prefix`) and tail (`suffix`) decorations on `general` formats so we
- * never delegate affix handling to cleave-zen (whose `stripPrefix` /
- * `tailPrefix` are buggy / reused).
+ * typed at either the start or end of `value`.
  */
 const stripTypedAffix = (
   value: string,
@@ -31,8 +28,7 @@ const stripTypedAffix = (
 
   if (side === 'end') {
     if (passthrough) {
-      // Walk from the largest possible tail down to size 1, keeping the
-      // longest match that aligns `affix[0..n]` with `value[value.length - n..]`.
+      // Keep the longest partial suffix that the user has typed.
       let typedLen = 0
       const max = Math.min(affix.length, value.length)
       for (let n = 1; n <= max; n++) {
@@ -51,7 +47,6 @@ const stripTypedAffix = (
     return { typed: '', core: value }
   }
 
-  // side === 'start'
   if (passthrough) {
     let typed = ''
     const max = Math.min(affix.length, value.length)
@@ -71,11 +66,6 @@ const stripTypedAffix = (
 /**
  * Format `value` according to `formatType`, returning both a presentable
  * `formatted` string and a backend-ready `raw` string.
- *
- * The function is pure: it never touches the DOM and never reads from the
- * network. Pair it with your own input wiring (React, Vue, Svelte, vanilla)
- * to drive the visible field; mirror `result.raw` into a hidden input when
- * shipping to a server that expects clean digits.
  *
  * @param value - The raw value typed by the user (`null`/`undefined`/`''` return an empty result).
  * @param formatType - One of the supported `FormatType` values.
@@ -101,22 +91,7 @@ export const format = (
   const runtime = resolveRuntimeOptions(formatType, options)
   const stringValue = typeof value === 'string' ? value : String(value)
 
-  // Handle `general` + `prefix` / `suffix` decorations entirely on our
-  // side. cleave-zen's `stripPrefix` discards any input that doesn't
-  // already start with the prefix (snapping the field to the literal
-  // prefix and emptying the raw), and cleave-zen has no real `suffix`
-  // option — only a `tailPrefix` boolean that reuses the `prefix` string.
-  // We therefore strip+re-apply the affix on the formatter's side and
-  // never pass `prefix` to cleave-zen.
-  //
-  // Resolution rules:
-  // - Head decoration = `prefix` unless `tailPrefix: true` is set (in
-  //   which case `prefix` is repurposed as a tail decoration and we look
-  //   for `suffix` first; the legacy `prefix + tailPrefix` shape still
-  //   works for backwards compatibility, but `suffix` wins when both are
-  //   provided).
-  // - Tail decoration = `suffix`, falling back to the legacy
-  //   `prefix + tailPrefix: true` shape.
+  // Manage affixes here because cleave-zen has no independent suffix.
   if (formatType === 'general') {
     const rawPrefix = runtime.prefix
     const rawSuffix = runtime.suffix
@@ -168,10 +143,6 @@ export const format = (
         body = r.core
       }
 
-      // Run cleave-zen on the body with the affix turned off. Passing
-      // `prefix: ''` is safe — cleave-zen treats an empty prefix as no
-      // prefix. `formatValue` expects a `RuntimeOptions` with a required
-      // `country: string`, so we satisfy that explicitly.
       const {
         prefix: _p,
         suffix: _s,
@@ -195,27 +166,11 @@ export const format = (
         country: runtime.country ?? ''
       })
 
-      // `typed || configured` so partial affix typing sticks in
-      // `passthrough` mode; in `lock` mode `typed` is always either the
-      // full affix (paste case) or empty, so this resolves to the
-      // configured affix.
       const displayedHead = effPrefix ? (typedHead || effPrefix) : ''
       const displayedTail = effSuffix ? (typedTail || effSuffix) : ''
       const formatted = displayedHead + bodyFormatted + displayedTail
 
-      // Raw mirror: independent flags for head and tail. The body part
-      // is always included; the affixes are added only when the caller
-      // opts in.
-      //
-      // When the caller opts into a canonical raw (`rawPrefix: true` or
-      // `rawSuffix: true`), derive the body from `bodyFormatted` —
-      // which has already been through `cleave-zen.formatGeneral` and
-      // therefore inherits `numericOnly` / case transformations — and
-      // strip the display delimiter. This produces a clean, canonical
-      // value ready to ship to a backend even when the user fat-fingers
-      // letters into the field. Without the canonical flags, `raw`
-      // continues to mirror the user's typed input verbatim, matching
-      // the historical `getRawValue` shape.
+      // Canonical raw values inherit display transformations without separators.
       const wantsCanonicalRaw =
         (runtime.rawPrefix === true && effPrefix) ||
         (runtime.rawSuffix === true && effSuffix)
@@ -231,11 +186,6 @@ export const format = (
           new RegExp(`[${escapedDelimiter}\\s]`, 'g'),
           ''
         )
-        // Defensive belt — `bodyFormatted` already went through
-        // `cleave-zen` with `numericOnly: true`, but apply it again so
-        // the canonical raw is digits-only when the caller asked for
-        // digits-only (catches any edge case where cleave-zen leaves a
-        // stray character behind, e.g. for future cleave-zen releases).
         if (runtime.numericOnly) cleaned = cleaned.replace(/\D/g, '')
         raw = cleaned
       }
@@ -254,11 +204,7 @@ export const format = (
   const cleanValue = stripPrefixAndSuffix(stringValue, runtime)
   const preValue = getValueForFormatting(cleanValue, formatType, runtime)
   const formatted = formatValue(preValue, formatType, runtime)
-  // `getRawValue` normally consumes the *formatted* display string (mirrors
-  // the original `syncRawInputValue` pipeline). The one exception is
-  // `creditCardType`, where `formatted` is the card brand name (e.g. "visa")
-  // rather than the card number — the raw needs to come from the cleaned
-  // input directly.
+  // A card type's display value is its brand, so derive raw from the number.
   const raw =
     formatType === 'creditCardType'
       ? getRawValue(cleanValue, formatType, runtime)

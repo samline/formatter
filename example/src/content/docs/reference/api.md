@@ -59,7 +59,7 @@ interface FormatterResult {
 ```
 
 - `formatted` is the display string (with delimiters, prefix, etc.). Bind this to the visible `<input>`.
-- `raw` is the canonical value to ship to the server (digits only, no separators, predictable order). Mirror it into a hidden input.
+- `raw` is the canonical value to ship to the server. Its exact shape depends on the format and options: phone/card values are digits (with a possible leading `+` for phones), while general values can retain letters or configured affixes. Mirror it into a hidden input.
 - `type` is the requested format type — useful for debugging or when the same result object is piped through downstream layers.
 
 ## `FormatType`
@@ -154,11 +154,11 @@ interface FormatterGlobal {
 ```
 
 ```html
-<script src="https://unpkg.com/@samline/formatter@1.2.0/dist/browser/global.global.js"></script>
+<script src="https://unpkg.com/@samline/formatter@2.0.1/dist/browser/global.global.js"></script>
 <script>
   const result = window.Formatter.format('5512345678', 'phone')
   console.log(result.formatted) // '55 1234 5678'
-  console.log(window.Formatter.version) // '2.0.0'
+  console.log(window.Formatter.version) // '2.0.1'
 </script>
 ```
 

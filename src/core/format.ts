@@ -39,11 +39,6 @@ type RuntimeOptions = FormatOptions & {
   delimiter?: string
 }
 
-// Per-type defaults applied only when the caller does not pass their own.
-// `phone` overrides cleave-zen because libphonenumber emits spaces natively;
-// every other type lets cleave-zen pick its own idiomatic delimiter
-// (`/`, `:`, `,`, etc.) by leaving `delimiter` undefined on the runtime
-// options object passed downstream.
 const PHONE_DEFAULT_DELIMITER = ' '
 const PHONE_DEFAULT_COUNTRY = 'MX'
 
@@ -60,10 +55,6 @@ const resolveRuntimeOptions = (
   const isPhone = formatType === 'phone'
   const country = options.country ?? (isPhone ? PHONE_DEFAULT_COUNTRY : '')
 
-  // Build the runtime options without ever assigning `undefined` to optional
-  // fields (so `exactOptionalPropertyTypes` stays happy) and without ever
-  // adding an explicit empty-string `delimiter` for non-phone types (so
-  // cleave-zen falls back to its own idiomatic default).
   const runtime: RuntimeOptions = {
     ...options,
     country
@@ -120,8 +111,8 @@ const formatValue = (
 /**
  * Internal: pre-process `value` before passing it to the per-type formatter.
  *
- * For `date` and `time`, the default `interpretInputAs: 'auto'` (since
- * v2.0.0) inspects the value: if it has no delimiter and its digit length
+ * For `date` and `time`, `interpretInputAs: 'auto'` inspects the value: if
+ * it has no delimiter and its digit length
  * matches the raw pattern, it is treated as raw (so a server-pre-filled
  * raw like `"19901212"` is correctly converted to display); otherwise
  * it is treated as display (so user keystrokes in display order pass

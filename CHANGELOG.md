@@ -5,6 +5,18 @@ All notable changes to `@samline/formatter` are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.1] - 2026-09-23
+
+### Fixed
+
+- Corrected automatic date and time interpretation when the configured display delimiter is an empty string.
+- Kept the browser global version synchronized with `package.json`.
+
+### Changed
+
+- Added continuous integration coverage and refreshed the internal and Starlight documentation.
+- Removed obsolete implementation history and redundant source comments while preserving public contracts and non-obvious invariants.
+
 ## [2.0.0] - 2026-07-19
 
 ### Changed — **BREAKING**

@@ -67,6 +67,7 @@ type FormatOptions = Partial<
   suffix?: string
   suffixMode?: 'lock' | 'passthrough'
   rawSuffix?: boolean
+  interpretInputAs?: 'auto' | 'display' | 'raw'
 }
 ```
 
@@ -77,8 +78,8 @@ Use `isFormatType` to validate input at runtime before calling `format`.
 ```ts
 import { isFormatType } from '@samline/formatter'
 
-if (isFormatType(value, 'phone')) {
-  const result = format(value, 'phone')
+if (isFormatType(formatType)) {
+  const result = format(value, formatType)
   // result is FormatterResult, TypeScript knows the type
 }
 ```

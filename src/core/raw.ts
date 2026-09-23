@@ -269,7 +269,9 @@ const getTimePatternLength = (pattern: readonly string[]): number =>
 const looksLikeRawDate = (value: string, options: FormatOptions): boolean => {
   if (!value) return false
   const delimiter = options.delimiter ?? '/'
-  if (value.includes(delimiter)) return false
+  // Every string includes the empty string. Guard this check so
+  // `delimiter: ''` can still participate in the auto heuristic.
+  if (delimiter.length > 0 && value.includes(delimiter)) return false
   const rawPattern =
     options.dateRawPattern ?? DEFAULT_DATE_RAW_PATTERN
   const expectedLength = getRawPatternLength(rawPattern)
@@ -280,7 +282,7 @@ const looksLikeRawDate = (value: string, options: FormatOptions): boolean => {
 const looksLikeRawTime = (value: string, options: FormatOptions): boolean => {
   if (!value) return false
   const delimiter = options.delimiter ?? ':'
-  if (value.includes(delimiter)) return false
+  if (delimiter.length > 0 && value.includes(delimiter)) return false
   const rawPattern =
     options.timeRawPattern ?? options.timePattern ?? DEFAULT_TIME_RAW_PATTERN
   const expectedLength = getTimePatternLength(rawPattern)

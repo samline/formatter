@@ -12,7 +12,7 @@ sidebar:
 The browser bundle exposes a global `window.Formatter` object:
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/@samline/formatter/dist/formatter.iife.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@samline/formatter@2.0.1/dist/browser/global.global.js"></script>
 <script>
   const result = window.Formatter.format('5512345678', 'phone')
   // => { formatted: '55 1234 5678', raw: '5512345678', type: 'phone' }
@@ -58,7 +58,9 @@ interface FormatterGlobal {
 
 | CDN | URL |
 | --- | --- |
-| jsDelivr | `https://cdn.jsdelivr.net/npm/@samline/formatter/dist/formatter.iife.min.js` |
-| unpkg | `https://unpkg.com/@samline/formatter/dist/formatter.iife.min.js` |
+| jsDelivr | `https://cdn.jsdelivr.net/npm/@samline/formatter@2.0.1/dist/browser/global.global.js` |
+| unpkg | `https://unpkg.com/@samline/formatter@2.0.1/dist/browser/global.global.js` |
 
-Replace `iife.min.js` with `iife.js` for the unminified version during development.
+Pin the package version in production. The published browser bundle is the
+unminified `dist/browser/global.global.js`; there is no `formatter.iife.min.js`
+artifact in the package.

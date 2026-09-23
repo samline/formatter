@@ -1,10 +1,6 @@
-// Browser IIFE bundle — exposes the formatter as `window.Formatter`
-// for projects without a bundler (Shopify themes, WordPress templates,
-// plain HTML pages). The tsup config wires this file as an IIFE entry
-// with `globalName: "Formatter"` and `platform: "browser"`.
-
 import { format } from '../core/formatter.js'
 import { regex } from '../core/regex.js'
+import packageJson from '../../package.json'
 import type {
   FormatOptions,
   FormatType,
@@ -29,8 +25,7 @@ declare global {
 const Formatter: FormatterGlobal = {
   format,
   regex,
-  // Keep in sync with `version` in `package.json`.
-  version: '2.0.0'
+  version: packageJson.version
 }
 
 if (typeof window !== 'undefined') {

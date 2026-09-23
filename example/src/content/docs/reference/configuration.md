@@ -26,7 +26,7 @@ These apply to most format types.
 | Field | Type | Default | Applies to | Notes |
 | --- | --- | --- | --- | --- |
 | `country` | `string` (ISO 3166-1 alpha-2) | `'MX'` for phone, `''` otherwise | `phone` | Passed to `libphonenumber-js`'s `AsYouType`. |
-| `delimiter` | `string` | phone: `' '`; others: `cleave-zen` default | all | Single-character separator for the formatted display. |
+| `delimiter` | `string` | phone: `' '`; others: `cleave-zen` default | all | Separator for the formatted display. An empty string disables visible separation while preserving date/time auto-detection. |
 | `delimiters` | `string[]` | `[]` | `general`, `numeral` | Additional separators (e.g. `[' ', '-']`). |
 | `prefix` | `string` | `''` | `general`, `numeral` | Prepended to the display. See [Prefix & suffix on `general`](#prefix--suffix-on-general) for how the formatter manages it (including `prefixMode` and `rawPrefix`). |
 | `tailPrefix` | `boolean` | `false` | `general`, `numeral` | **Legacy**: when `true` (and `suffix` is not provided), `prefix` is treated as a suffix (stripped from the end). Prefer the new dedicated `suffix` option for new code. |
@@ -45,7 +45,7 @@ Block-based masking with custom `delimiter` / `delimiters`. Pair with `blocks` t
 | `uppercase` | `boolean` | `false` | Force uppercase. |
 | `lowercase` | `boolean` | `false` | Force lowercase. |
 | `prefixMode` | `'lock' \| 'passthrough'` | `'lock'` | `'lock'` (default) auto-prepends the configured `prefix`; `'passthrough'` reflects whatever the user has typed of the prefix instead (so `E` sticks for a configured `EASY`). See [Prefix & suffix on `general`](#prefix--suffix-on-general). |
-| `rawPrefix` | `boolean` | `false` | When `true`, the `raw` mirror includes the configured `prefix`. Default `false` (digits-only). |
+| `rawPrefix` | `boolean` | `false` | When `true`, the `raw` mirror includes the configured `prefix`. The body is only digits-only when `numericOnly` is enabled. |
 | `suffix` | `string` | `''` | Tail decoration appended at the end of the display (e.g. `' USD'`, `'-END'`). Independent from `prefix`; can differ from it. |
 | `suffixMode` | `'lock' \| 'passthrough'` | `'lock'` | `'lock'` (default) auto-appends the configured `suffix`; `'passthrough'` reflects whatever the user has typed of the suffix instead. |
 | `rawSuffix` | `boolean` | `false` | When `true`, the `raw` mirror includes the configured `suffix`. Default `false`. |
@@ -91,7 +91,7 @@ format('12345US', 'general', {
 
 #### `rawPrefix` / `rawSuffix` — what the `raw` mirror contains
 
-The default `raw` value is the digits-only body the user typed. Opt in with `rawPrefix: true` / `rawSuffix: true` when the backend needs the canonical value with the decoration included:
+The default `raw` value is the unformatted body the user typed. With `numericOnly: true` it is digits-only. Opt in with `rawPrefix: true` / `rawSuffix: true` when the backend needs the canonical value with the decoration included:
 
 ```ts
 // Backend wants the canonical identifier
@@ -181,13 +181,14 @@ Thousand separators with optional decimal scaling.
 
 > Type: `'date'`
 
-Raw `Y-m-d` (configurable) → display pattern. The package always parses the input as raw digits, then re-emits them in the display pattern order.
+Formats display-order or canonical raw dates. The default `interpretInputAs: 'auto'` treats a complete delimiter-less value matching the raw pattern length as raw; partial or delimiter-bearing values are treated as display.
 
 | Field | Type | Default | Notes |
 | --- | --- | --- | --- |
 | `datePattern` | `DatePatternType` (`['d', 'm', 'Y'] \| …`) | `['d', 'm', 'Y']` | Display pattern. |
 | `dateRawPattern` | `DatePatternType` | `['Y', 'm', 'd']` | Pattern used to derive the raw value from the formatted display. |
 | `dateRawPatternDelimiter` | `string` | `'-'` | Delimiter used in the raw value. |
+| `interpretInputAs` | `'auto' \| 'display' \| 'raw'` | `'auto'` | Select automatic shape detection or force an unambiguous input convention. |
 | `dateMin` / `dateMax` | `string` | `''` | Optional bounds (`'YYYY-MM-DD'`). |
 | `delimiter` | `string` | `'/'` | Display delimiter (use this to switch to `-` or `.`). |
 
@@ -195,13 +196,14 @@ Raw `Y-m-d` (configurable) → display pattern. The package always parses the in
 
 > Type: `'time'`
 
-Raw `h:m` (configurable) → display pattern.
+Formats display-order or canonical raw times using the same input interpretation modes as dates.
 
 | Field | Type | Default | Notes |
 | --- | --- | --- | --- |
 | `timePattern` | `TimePatternType` (`['h', 'm', 's'] \| …`) | `['h', 'm', 's']` | Display pattern. |
 | `timeRawPattern` | `TimePatternType` | `['h', 'm']` | Pattern used to derive the raw value from the formatted display. |
 | `timeRawPatternDelimiter` | `string` | `':'` | Delimiter used in the raw value. |
+| `interpretInputAs` | `'auto' \| 'display' \| 'raw'` | `'auto'` | Select automatic shape detection or force display/raw interpretation. |
 | `timeFormat` | `'12' \| '24'` | `'24'` | 12-hour or 24-hour clock. |
 | `delimiter` | `string` | `':'` | Display delimiter. |
 

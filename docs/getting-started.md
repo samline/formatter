@@ -82,7 +82,7 @@ input.addEventListener('input', () => {
     dateRawPatternDelimiter: ''
   })
   // Typing `15/09/1989` (display) → visible `15/09/1989`, raw `19890915`
-  // Pasting `19890915` (raw)     → visible `15/09/1989`, raw `19890915`
+  // Receiving `19890915` (raw)   → visible `15/09/1989`, raw `19890915`
 })
 
 // ✅ Strict v1.2.0 display interpretation (opt-in)
@@ -95,6 +95,14 @@ const result = format('15091989', 'date', {
 })
 // => { formatted: '15/09/1989', raw: '19890915', type: 'date' }
 ```
+
+If this handler exclusively receives text from the visible field, prefer
+`interpretInputAs: 'display'`. It removes the unavoidable ambiguity of pasting
+exactly eight delimiter-less digits such as `12121990`, which could be either a
+display-order date or a canonical raw date. Use the default `'auto'` for mixed
+pipelines that also receive server-prefilled or programmatically assigned raw
+values. `@samline/forms` makes this distinction automatically: visible input
+events use `'display'`, while initial and canonical mirror values use `'auto'`.
 
 > **Migration from v1.2.0 to v2.0.0:** the default behaviour changes for `'date'` / `'time'` inputs that reach `format()` with no delimiter and a digit count equal to the raw pattern length. Pre-2.0 this was treated as display; from 2.0 onwards it is treated as raw (the easytrip / Blade `old()` case). If you were relying on the v1.2.0 strict display interpretation at a call site that now collides with the auto heuristic, pass `interpretInputAs: 'display'` explicitly. Conversely, the pre-1.2.0 scramble on live keystrokes is no longer a concern (the auto heuristic routes partial-typed values through display, so the digits are never re-segmented before `cleave-zen` formats them).
 >

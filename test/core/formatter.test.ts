@@ -96,21 +96,12 @@ describe('format', () => {
 
   describe('date', () => {
     it('formats a display-order date to display pattern (d/m/Y by default)', () => {
-      // Input is in display order (the user is typing what they see — the
-      // realistic live-keystroke case). The v2.0.0 `auto` default
-      // detects the `/` delimiter and passes the value through to
-      // cleave-zen, which segments the digits into `datePattern` order
-      // and re-emits with the default delimiter.
       const result = format('12/05/2026', 'date')
       expect(result.type).toBe('date')
       expect(result.formatted).toBe('12/05/2026')
     })
 
     it('returns raw value in Y-m-d order (round-trip from formatted display)', () => {
-      // `getDateRawValue` re-segments the display digits in `dateRawPattern`
-      // order (default `['Y','m','d']`) and re-emits with
-      // `dateRawPatternDelimiter` (default `'-'`), so the canonical backend
-      // form round-trips out of the display.
       const result = format('12/05/2026', 'date')
       expect(result.raw).toBe('2026-05-12')
     })
@@ -709,33 +700,7 @@ describe('format', () => {
   })
 
   describe('date / time live keystrokes (Bug — interpretInputAs default)', () => {
-    // Up to 1.1.2 `format()` always treated `'date'` / `'time'` input as
-    // raw-formatted, segmented by `dateRawPattern` / `timeRawPattern` and
-    // re-emitted in `datePattern` / `timePattern` order. For a real user
-    // typing into a field whose display order differs from the raw order,
-    // this scrambled the digits on every keystroke (e.g. typing `15091989`
-    // produced visible `19/09/0805` and hidden `08050919` for a
-    // `d/m/Y` display + `Ymd` raw combo — see the original bug report).
-    //
-    // The fix landed in v1.2.0 as `interpretInputAs: 'display'` (a
-    // strict default that passes the value through to cleave-zen
-    // without rearranging). v2.0.0 changed the default to `'auto'`
-    // (see the "auto" describe block below) which solves the inverse
-    // problem — server-pre-filled raw values from `old()` no longer
-    // scramble either. For consumers that want the strict
-    // display-order behaviour of v1.2.0 (e.g. a real-time keystroke
-    // listener where the formatter has already inserted delimiters),
-    // `interpretInputAs: 'display'` remains available as an opt-in
-    // and is what these legacy keystroke tests pin down.
-    //
-    // `getRawValue()` (the round-trip path) still re-segments the display
-    // digits into the raw pattern, so the canonical backend form is
-    // produced for complete dates. For partial keystrokes the
-    // rearrangement is best-effort — the consumer is expected to finalise
-    // the raw on submit (the bug report acknowledges this). The KEY
-    // invariant is that the digits are no longer scrambled: the visible
-    // and the raw both reflect the user's typed input, not a permutation
-    // of it.
+    // Strict display mode preserves live-keystroke order before deriving raw values.
 
     const easTripDateOpts: FormatOptions = {
       datePattern: ['d', 'm', 'Y'],
@@ -983,30 +948,45 @@ describe('format', () => {
     })
 
     it('treats a custom delimiter consistently (the delimiter is the auto heuristic\'s discriminator)', () => {
-      // When the display delimiter is not `/` (e.g. `-`), the
-      // heuristic must look for THAT delimiter, not the default.
       const dashOpts: FormatOptions = {
         datePattern: ['d', 'm', 'Y'],
         delimiter: '-',
         dateRawPattern: ['Y', 'm', 'd'],
         dateRawPatternDelimiter: ''
       }
-      // Display with the custom delimiter: routes through display.
       const display = format('12-12-1990', 'date', dashOpts)
       expect(display.formatted).toBe('12-12-1990')
       expect(display.raw).toBe('19901212')
-      // Raw without any delimiter: routes through raw.
       const raw = format('19901212', 'date', dashOpts)
       expect(raw.formatted).toBe('12-12-1990')
       expect(raw.raw).toBe('19901212')
     })
 
+    it('detects a raw date when the display delimiter is empty', () => {
+      const result = format('19901212', 'date', {
+        datePattern: ['d', 'm', 'Y'],
+        delimiter: '',
+        dateRawPattern: ['Y', 'm', 'd'],
+        dateRawPatternDelimiter: ''
+      })
+
+      expect(result.formatted).toBe('12121990')
+      expect(result.raw).toBe('19901212')
+    })
+
+    it('detects a raw time when the display delimiter is empty', () => {
+      const result = format('143000', 'time', {
+        timePattern: ['h', 'm', 's'],
+        delimiter: '',
+        timeRawPattern: ['h', 'm', 's'],
+        timeRawPatternDelimiter: ''
+      })
+
+      expect(result.formatted).toBe('143000')
+      expect(result.raw).toBe('143000')
+    })
+
     it('explicit interpretInputAs: "display" still opts into the v1.2.0 strict behaviour', () => {
-      // The opt-in is preserved for callers that know the
-      // convention unambiguously and want to skip the heuristic.
-      // With "display" the 8-digit input is treated as display
-      // d/m/Y even though it has no delimiter — i.e. the
-      // pre-2.0 behaviour for keystroke listeners.
       const result = format('15091989', 'date', {
         ...dateAutoOpts,
         interpretInputAs: 'display'
@@ -1016,12 +996,6 @@ describe('format', () => {
     })
 
     it('explicit interpretInputAs: "raw" still opts into the v1.0 round-trip', () => {
-      // The opt-in is preserved for callers that always know the
-      // value is in raw form (e.g. a programmatic setValue from a
-      // pre-existing API contract). The input here is an actual
-      // raw Ymd (19890915 = 15 September 1989), not a display-order
-      // string, so the round-trip yields the same canonical form
-      // both before and after the call.
       const result = format('19890915', 'date', {
         ...dateAutoOpts,
         interpretInputAs: 'raw'

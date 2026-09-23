@@ -1,10 +1,11 @@
 import { describe, it, expect } from 'vitest'
 import Formatter from '../../src/browser/global'
 import { regex } from '../../src/core/regex'
+import packageJson from '../../package.json'
 
 describe('browser global bundle', () => {
   it('exposes the Formatter global with format, regex, and version', () => {
-    expect(Formatter.version).toBe('2.0.0')
+    expect(Formatter.version).toBe(packageJson.version)
     expect(typeof Formatter.format).toBe('function')
     expect(Formatter.regex).toBe(regex)
   })

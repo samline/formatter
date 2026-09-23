@@ -97,7 +97,8 @@ regex.email.errorMessage               // 'Please enter a valid email address.'
 
 ## Advanced: helpers
 
-`getRawValue`, `getDateValueFromRaw`, `getTimeValueFromRaw`, `formatPhone`, and
+`getRawValue`, `getDateValueFromRaw`, `getTimeValueFromRaw`,
+`looksLikeRawDateValue`, `looksLikeRawTimeValue`, `formatPhone`, and
 `stripPrefixAndSuffix` are also exported for advanced consumers that need the
 building blocks. Treat them as an internal API — they are exported because they
 are useful, but the public contract is `format`.
