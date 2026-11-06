@@ -95,3 +95,7 @@ After a first pass that passed every automated check, the maintainer found nine 
 - `site-tools/assemble.mjs` — legacy Starlight redirects.
 - `skills/formatter/SKILL.md`, `landing/src/pages/skills/formatter/SKILL.md.ts` — skill and endpoint.
 - `README.md`, `AGENTS.md`, `SITE.md`, `content-audit.json` — sibling-aligned docs and evidence.
+
+## 6. Addendum — section copy voice (found after the report)
+
+- **[template] Section eyebrows and headings survive adaptation.** Formatter shipped the template's "01 / The package at a glance", "02 / Choose your integration", "04 / Useful patterns · Small examples. Practical context." and the closing "Ready for the details? Start here.", plus a hero that did not follow the sibling voice. Drawer and Notify share a voice: kicker of two short sentences ("Small library. Clear feedback."), hero accent as a promise ("Keep people in the loop."), one-sentence description plus three concrete actions, footnotes "<trait> · JavaScript & TypeScript · MIT licensed", eyebrows "02 / Fit it into your stack" + "Two ways in. One <API>.", "03 / From install to <result>", "04 / After the first <result>", "05 / Before you build", and a closing pair such as "Make the next step / a clear one." Add these defaults to the template's landing catalog (or a documented voice guide) and include the template's own eyebrow/heading strings in the default-string scan.
