@@ -3,8 +3,8 @@ locale: en
 sidebar:
   group: reference
   order: 5
-title: 'Browser global'
-titleAccent: 'global'
+title: 'HTML / CDN'
+titleAccent: 'CDN'
 description: 'Use @samline/formatter without a bundler: the minified CDN script, window.Formatter and wiring it to a form.'
 ---
 

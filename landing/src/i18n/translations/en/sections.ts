@@ -125,12 +125,20 @@ export default {
     steps: { install: 'Install', markup: 'Add two inputs', initialize: 'Format on input' },
     installLabel: 'Installation method',
     installTabs: [],
+    initLabel: 'Example format',
+    initTabs: [
+      { id: 'script', label: 'Package / ESM' },
+      { id: 'complete', label: 'HTML / CDN' },
+    ],
+    cdnHint:
+      'Load the CDN script from step 1 first, then this file with defer. window.Formatter replaces the import.',
     fullExampleLabel: 'Copy complete working files',
     markupDescription:
       'A visible field for people and a hidden field with the name your backend reads.',
     examples: {
       markup: code('index.html', quickStartFiles.markup, 'html'),
       script: code('main.js', quickStartFiles.esm, 'javascript'),
+      complete: code('main.js', quickStartFiles.cdn, 'javascript'),
     },
     docs: {
       description: 'Continue with every option, the regex catalog and the TypeScript types.',
@@ -143,7 +151,7 @@ export default {
     titleAccent: 'Keep the data clean.',
     description:
       'Patterns that come up in real forms: server-filled values, regional numbers and validation messages.',
-    examplesLabel: 'Explore working examples',
+    examplesLabel: 'Explore all fifteen examples',
     items: [
       {
         title: 'Show a value from your API',

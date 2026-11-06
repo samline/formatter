@@ -3,8 +3,8 @@ locale: en
 sidebar:
   group: reference
   order: 4
-title: 'Entrypoints and builds'
-titleAccent: 'and builds'
+title: 'Entrypoints and module formats'
+titleAccent: 'module formats'
 description: 'The ESM, CommonJS, vanilla and browser IIFE entrypoints of @samline/formatter and when to choose each one.'
 ---
 

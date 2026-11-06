@@ -285,7 +285,7 @@ export const scenarios = {
   },
   reference: {
     category: 'masks',
-    tab: 'Order reference',
+    tab: 'Mask',
     title: 'An order reference with a fixed prefix',
     description:
       'The ORD- prefix is locked, digits are grouped by blocks, and the backend receives only the digits. Deleting part of the prefix restores it.',
@@ -427,7 +427,7 @@ export const scenarios = {
   },
   validator: {
     category: 'validation',
-    tab: 'Validation rules',
+    tab: 'Rules',
     title: 'Validation rules with ready messages',
     description:
       'Choose a rule from the regex catalog and type a value. Each rule pairs its pattern with the message to show, so the two never drift apart.',

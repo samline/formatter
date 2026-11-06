@@ -42,7 +42,7 @@ const t = getI18n(Astro).examples
       <nav aria-label={t.navigation} class:list={['recipe-navigation']}>
         {presetIds.map(key => (
           <Button variant="secondary" href={`#${key}`} class:list={['recipe-link']}>
-            {scenarios[key].tab}
+            {scenarios[key].title}
             <span aria-hidden="true">↓</span>
           </Button>
         ))}

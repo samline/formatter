@@ -11,11 +11,12 @@ description: 'Install @samline/formatter with a package manager or from a CDN, f
 import Installer from '../../../../shared/components/Installer.astro'
 import Callout from '../../../../shared/components/Callout.astro'
 import DemoCode from '../../../../shared/components/DemoCode.astro'
+import Playground from '../../../../shared/components/Playground.astro'
 import CardGrid from '../../../../shared/components/CardGrid.astro'
 import LinkCard from '../../../../shared/components/LinkCard.astro'
 import { href } from '../../lib/routes'
 
-## Prerequisites
+## Requirements
 
 - **Node.js 20+** when you install the package with a bundler or run it on the server. The builds target ES2020.
 - Any package manager, or no package manager at all when you load the standalone script from a CDN.
@@ -58,6 +59,12 @@ format('4111111111111111', 'creditCardType')
   canonical value.
 </Callout>
 
+## Your first working field
+
+This is the field the starter files build: type a number, change the country and watch both values update.
+
+<Playground preset="phone" />
+
 ## Working starter files
 
 These files format a phone field as people type, regroup it when the country changes and mirror the raw value into a hidden input. Save HTML, CSS and JavaScript together, or copy the complete file. Choose **HTML / CDN** for a page without a build step, or **Package / ESM** for a bundler.
@@ -68,7 +75,7 @@ These files format a phone field as people type, regroup it when the country cha
 
 Formatter owns nothing on the page. Your code owns the listener, the visible value, the hidden value, labels, error messages and caret handling. There is no instance to create or destroy: remove your own listener when the field goes away. The [Styling and UX guide](../guides/styling-and-ux/) covers markup, input attributes and caret behavior.
 
-## What's next
+## Next steps
 
 <CardGrid columns={2}>
   <LinkCard href={href('guides/frameworks')} title="Framework integrations">

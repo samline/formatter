@@ -3,16 +3,15 @@ locale: en
 sidebar:
   group: start
   order: 1
-title: 'Format inputs in one call'
-titleAccent: 'in one call'
-description: 'Documentation for @samline/formatter: format phones, money, dates, times, cards and custom masks into display and backend-ready values.'
+title: '@samline/formatter'
+titleAccent: 'formatter'
+description: 'Input formatting for phones, money, dates, times, card numbers and custom masks, with display and backend-ready values from one call.'
 ---
 
 import CardGrid from '../../../../shared/components/CardGrid.astro'
 import LinkCard from '../../../../shared/components/LinkCard.astro'
-import { href } from '../../lib/routes'
 
-`@samline/formatter` formats input values and returns **two strings at once**: `formatted` for the visible field and `raw` for the backend. It has no DOM access, no I/O and no state, so it works in browsers, Node.js, React, Vue, Svelte, Shopify themes or anywhere JavaScript runs.
+Formatter formats input values while people type and returns **two strings at once**: `formatted` for the visible field and `raw` for your backend. It is one pure function with no DOM access, no state and no stylesheet, so it fits browsers, frameworks, CMS templates and server code alike.
 
 ```ts
 import { format } from '@samline/formatter'
@@ -21,34 +20,39 @@ format('5512345678', 'phone')
 // => { formatted: '55 1234 5678', raw: '5512345678', type: 'phone' }
 ```
 
-## Why Formatter
+## Start building
 
-- **One function, two outputs.** Show `formatted`, submit `raw`, and never re-parse display text on the server.
-- **Framework-agnostic.** There is no adapter to install: call it from the input handler you already have.
-- **Pure.** No DOM reads or writes, no globals and no clock access, so it is safe on every keystroke.
-- **Typed.** `FormatType`, `FormatOptions`, `FormatterResult` and the regex types are exported.
-- **Validation included.** The `regex` catalog pairs each pattern with a ready-to-use error message.
-- **Built on proven libraries.** Phones use `libphonenumber-js`; the other types use `cleave-zen`. The standalone browser script bundles both.
-
-## Choose your next step
-
-<CardGrid columns={2}>
-  <LinkCard href={href('getting-started')} title="Installation">
-    Install the package or load the CDN script and format your first field.
+<CardGrid>
+  <LinkCard href="getting-started/" title="Installation">
+    Choose Package / ESM or HTML / CDN and format your first field.
   </LinkCard>
-  <LinkCard href={href('guides/examples')} title="Working examples">
-    Try six live fields and copy their HTML / CDN or Package / ESM files.
+  <LinkCard href="guides/examples/" title="Working examples">
+    Try fifteen live fields: phones, money, dates, cards, custom masks and validation.
   </LinkCard>
-  <LinkCard href={href('reference/configuration')} title="Configuration">
-    Every option per format type, with defaults and raw-value behavior.
+  <LinkCard href="reference/configuration/" title="Options">
+    Every option per format type, with defaults and the prefix and suffix rules.
   </LinkCard>
-  <LinkCard href={href('reference/api')} title="API reference">
-    format(), the advanced helpers, error behavior and return values.
+  <LinkCard href="reference/regex/" title="Validation patterns">
+    Static and parametric rules, each paired with its error message.
   </LinkCard>
-  <LinkCard href={href('reference/regex')} title="Validation patterns">
-    Static and parametric rules with paired error messages.
+  <LinkCard href="reference/api/" title="API reference">
+    format(), the type checks and the advanced helpers, with errors and returns.
   </LinkCard>
-  <LinkCard href={href('changelog')} title="Changelog">
-    Release notes, including behavior changes and fixes.
+  <LinkCard href="changelog/" title="Changelog">
+    Follow recorded release changes, including behavior changes.
   </LinkCard>
 </CardGrid>
+
+## Choose your integration
+
+Use `@samline/formatter` for named ESM or CommonJS imports, or `@samline/formatter/vanilla` for the same API under an explicit subpath. Plain HTML loads the standalone IIFE, which defines `window.Formatter` with `format`, `regex` and `version`. `format()` also runs on the server, in workers and in tests.
+
+Read [entrypoints and module formats](reference/entrypoints/) for the loading terminology and [framework integrations](guides/frameworks/) for controlled inputs in React, Vue and Svelte.
+
+## Styling and accessibility
+
+Formatter returns strings and never touches the page. Your application owns the visible and hidden inputs, labels, `inputmode` and `autocomplete`, error messages, validation states and caret behavior. See [Styling and UX](guides/styling-and-ux/).
+
+## Version
+
+This site documents `@samline/formatter` **2.1.0**. Use this version when copying the pinned CDN examples.
