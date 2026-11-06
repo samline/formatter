@@ -9,12 +9,10 @@ description: 'Fifteen live form fields covering every format type, decorations a
 ---
 
 import Playground from '../../../../../shared/components/Playground.astro'
-import TextLink from '../../../../../shared/components/TextLink.astro'
-import { landingHref } from '../../../lib/routes'
 
 Each example is a real form field. The preview, the copied files and the Home demo share one scenario definition, so the options shown in code are the options running in the preview. Type into the field, try the sample values, then open the code.
 
-Every example links to its source on the Examples page. The copied files run in two loading modes. **HTML / CDN** files work after saving them to one folder and opening `index.html` (network access to unpkg is required). **Package / ESM** files import `@samline/formatter` and need a bundler or dev server such as Vite.
+Open the code under each example to copy its files. They run in two loading modes. **HTML / CDN** files work after saving them to one folder and opening `index.html` (network access to unpkg is required). **Package / ESM** files import `@samline/formatter` and need a bundler or dev server such as Vite.
 
 ## Phones
 
@@ -22,11 +20,7 @@ Every example links to its source on the Examples page. The copied files run in 
 
 `format(value, 'phone', { country })` groups digits for the selected country through `libphonenumber-js`. Changing the country reformats the current digits; the listener reads the country on every call instead of being re-attached.
 
-<Playground preset="phone" />
-
-<TextLink href={landingHref('examples/#phone')}>
-  Copy the HTML / CDN and Package / ESM files
-</TextLink>
+<Playground preset="phone" showCode />
 
 ## Numbers and money
 
@@ -34,31 +28,19 @@ Every example links to its source on the Examples page. The copied files run in 
 
 The `numeral` type adds grouping, a prefix and a decimal limit. `raw` is a plain decimal string without the prefix.
 
-<Playground preset="amount" />
-
-<TextLink href={landingHref('examples/#amount')}>
-  Copy the HTML / CDN and Package / ESM files
-</TextLink>
+<Playground preset="amount" showCode />
 
 ### European price
 
 `numeralDecimalMark: ','` and `delimiter: '.'` switch the separators, and `tailPrefix: true` moves the currency to the end. The raw value still uses a dot.
 
-<Playground preset="euro" />
-
-<TextLink href={landingHref('examples/#euro')}>
-  Copy the HTML / CDN and Package / ESM files
-</TextLink>
+<Playground preset="euro" showCode />
 
 ### Whole positive quantity
 
 `numeralDecimalScale: 0` and `numeralPositiveOnly: true` produce integer counts with no sign. Leading zeros are removed.
 
-<Playground preset="quantity" />
-
-<TextLink href={landingHref('examples/#quantity')}>
-  Copy the HTML / CDN and Package / ESM files
-</TextLink>
+<Playground preset="quantity" showCode />
 
 ## Dates and times
 
@@ -66,31 +48,19 @@ The `numeral` type adds grouping, a prefix and a decimal limit. `raw` is a plain
 
 `dateRawPattern` and `dateRawPatternDelimiter` decide the raw shape independently of the display pattern. The default `interpretInputAs: 'auto'` converts a stored `1990-12-31` for display.
 
-<Playground preset="date" />
-
-<TextLink href={landingHref('examples/#date')}>
-  Copy the HTML / CDN and Package / ESM files
-</TextLink>
+<Playground preset="date" showCode />
 
 ### Card expiry
 
 `datePattern: ['m', 'y']` builds an MM/YY mask and corrects impossible months. Pair it with `regex.expirationDate`.
 
-<Playground preset="expiry" />
-
-<TextLink href={landingHref('examples/#expiry')}>
-  Copy the HTML / CDN and Package / ESM files
-</TextLink>
+<Playground preset="expiry" showCode />
 
 ### Appointment time
 
 `timePattern: ['h', 'm']` shows hours and minutes. The raw value is validated with `regex.time24`.
 
-<Playground preset="time" />
-
-<TextLink href={landingHref('examples/#time')}>
-  Copy the HTML / CDN and Package / ESM files
-</TextLink>
+<Playground preset="time" showCode />
 
 ## Payment cards
 
@@ -98,11 +68,7 @@ The `numeral` type adds grouping, a prefix and a decimal limit. `raw` is a plain
 
 `creditCard` groups by brand, and `creditCardType` returns the brand name as `formatted`. Card formatting is not payment validation.
 
-<Playground preset="card" />
-
-<TextLink href={landingHref('examples/#card')}>
-  Copy the HTML / CDN and Package / ESM files
-</TextLink>
+<Playground preset="card" showCode />
 
 ## Custom masks
 
@@ -110,61 +76,37 @@ The `numeral` type adds grouping, a prefix and a decimal limit. `raw` is a plain
 
 The `general` type needs `blocks`. A locked `prefix` is displayed on every call, restored after a single deletion and excluded from `raw` unless `rawPrefix: true`.
 
-<Playground preset="reference" />
-
-<TextLink href={landingHref('examples/#reference')}>
-  Copy the HTML / CDN and Package / ESM files
-</TextLink>
+<Playground preset="reference" showCode />
 
 ### Unit suffix
 
 `suffix` adds a trailing decoration. In the default lock mode, deleting part of it restores the full suffix.
 
-<Playground preset="weight" />
-
-<TextLink href={landingHref('examples/#weight')}>
-  Copy the HTML / CDN and Package / ESM files
-</TextLink>
+<Playground preset="weight" showCode />
 
 ### Passthrough prefix
 
 `prefixMode: 'passthrough'` keeps the prefix people type, in any case when `uppercase` is set, instead of adding it for them.
 
-<Playground preset="promo" />
-
-<TextLink href={landingHref('examples/#promo')}>
-  Copy the HTML / CDN and Package / ESM files
-</TextLink>
+<Playground preset="promo" showCode />
 
 ### ZIP code with optional block
 
 `delimiterLazyShow: true` shows the hyphen only when the second block starts. Pair it with `regex.postalCode`.
 
-<Playground preset="postal" />
-
-<TextLink href={landingHref('examples/#postal')}>
-  Copy the HTML / CDN and Package / ESM files
-</TextLink>
+<Playground preset="postal" showCode />
 
 ### Uppercase identifier
 
 `uppercase: true` transforms the display, and `raw` follows it because there is no decoration. `regex.curp` checks the structure.
 
-<Playground preset="curp" />
-
-<TextLink href={landingHref('examples/#curp')}>
-  Copy the HTML / CDN and Package / ESM files
-</TextLink>
+<Playground preset="curp" showCode />
 
 ### Prefix kept in raw
 
 `rawPrefix: true` stores the `#` with the value, so the backend receives a complete CSS color.
 
-<Playground preset="color" />
-
-<TextLink href={landingHref('examples/#color')}>
-  Copy the HTML / CDN and Package / ESM files
-</TextLink>
+<Playground preset="color" showCode />
 
 ## Validation
 
@@ -172,8 +114,4 @@ The `general` type needs `blocks`. A locked `prefix` is displayed on every call,
 
 Pick a rule from the `regex` catalog. Static entries are records; parametric entries such as `password()` are called first. Every rule pairs its pattern with its message.
 
-<Playground preset="validator" />
-
-<TextLink href={landingHref('examples/#validator')}>
-  Copy the HTML / CDN and Package / ESM files
-</TextLink>
+<Playground preset="validator" showCode />
