@@ -1,0 +1,86 @@
+---
+locale: en
+sidebar:
+  group: start
+  order: 2
+title: 'Getting started'
+titleAccent: 'started'
+description: 'Install @samline/formatter, format your first field and submit its raw value.'
+---
+
+import Installer from '../../../../shared/components/Installer.astro'
+import Callout from '../../../../shared/components/Callout.astro'
+import DemoCode from '../../../../shared/components/DemoCode.astro'
+import CardGrid from '../../../../shared/components/CardGrid.astro'
+import LinkCard from '../../../../shared/components/LinkCard.astro'
+import { href } from '../../lib/routes'
+
+## Prerequisites
+
+- **Node.js 20+** when you install the package with a bundler or run it on the server. The builds target ES2020.
+- Any package manager, or no package manager at all when you load the standalone script from a CDN.
+
+## Install
+
+<Installer />
+
+The **HTML / CDN** tab loads the minified standalone build, which defines `window.Formatter` with `format`, `regex` and `version`.
+
+## Quick start
+
+```ts
+import { format } from '@samline/formatter'
+
+// Phone (Mexico by default, space-delimited)
+format('5512345678', 'phone')
+// => { formatted: '55 1234 5678', raw: '5512345678', type: 'phone' }
+
+// Numeral (thousand separators)
+format('1234567', 'numeral')
+// => { formatted: '1,234,567', raw: '1234567', type: 'numeral' }
+
+// Date (a raw Y-m-d value becomes d/m/Y for display)
+format('2026-05-12', 'date')
+// => { formatted: '12/05/2026', raw: '2026-05-12', type: 'date' }
+
+// Credit card (grouped by brand, digits-only raw)
+format('4111111111111111', 'creditCard')
+// => { formatted: '4111 1111 1111 1111', raw: '4111111111111111', type: 'creditCard' }
+
+// Card brand detection
+format('4111111111111111', 'creditCardType')
+// => { formatted: 'visa', raw: '4111111111111111', type: 'creditCardType' }
+```
+
+<Callout title="Two outputs in one call">
+  Every call returns a `FormatterResult` with `formatted` (display) and `raw` (backend). Pair the
+  visible input with a hidden input and mirror `raw` into it, so the form always submits the
+  canonical value.
+</Callout>
+
+## Working starter files
+
+These files format a phone field as people type, regroup it when the country changes and mirror the raw value into a hidden input. Save HTML, CSS and JavaScript together, or copy the complete file. Choose **HTML / CDN** for a page without a build step, or **Package / ESM** for a bundler.
+
+<DemoCode preset="phone" />
+
+## Ownership
+
+Formatter owns nothing on the page. Your code owns the listener, the visible value, the hidden value, labels, error messages and caret handling. There is no instance to create or destroy: remove your own listener when the field goes away. The [Styling and UX guide](../guides/styling-and-ux/) covers markup, input attributes and caret behavior.
+
+## What's next
+
+<CardGrid columns={2}>
+  <LinkCard href={href('guides/frameworks')} title="Framework integrations">
+    Controlled inputs in React, Vue and Svelte, plus vanilla and server-side use.
+  </LinkCard>
+  <LinkCard href={href('guides/examples')} title="Working examples">
+    Six live fields with copyable files for both loading modes.
+  </LinkCard>
+  <LinkCard href={href('reference/configuration')} title="Configuration">
+    Every option, with defaults and runtime impact.
+  </LinkCard>
+  <LinkCard href={href('guides/recipes')} title="Recipes">
+    End-to-end patterns for real forms.
+  </LinkCard>
+</CardGrid>

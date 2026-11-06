@@ -5,6 +5,31 @@ All notable changes to `@samline/formatter` are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.0] - 2026-11-05
+
+### Fixed
+
+- Fixed the browser IIFE (`@samline/formatter/browser`, the CDN file): a classic `<script>` previously left `window.Formatter` as `{ default }`, so `window.Formatter.format` was `undefined` in real browsers. The global now exposes `format`, `regex` and `version` directly.
+- Made the default `raw` of a prefixed or suffixed `general` value stable when the displayed value is formatted again: the formatter's own `delimiter`/`delimiters` are removed from the typed body, so `format('ORD-1234-5678', …).raw` matches `format('12345678', …).raw`. Characters that `numericOnly` hides are still preserved, as documented.
+- Made canonical `raw` values (`rawPrefix`/`rawSuffix`) strip every configured `delimiters` entry, not only `delimiter`.
+- Restored a locked `prefix`/`suffix` (default `'lock'` mode) when a single character of the decoration is deleted, instead of duplicating it (`100 US` → `100 USD`, not `100 US USD`).
+- `format(value, 'general')` without a non-empty `blocks` array now throws a descriptive `TypeError` instead of an internal `cleave-zen` error.
+- Phone country codes are now case-insensitive (`'mx'` behaves like `'MX'`).
+- Anchored `regex.numeral` to the whole value; it previously matched any string containing a digit. It accepts plain or comma-grouped digits with an optional sign and decimals.
+- `regex.password()` rules are now requirements rather than an allow-list: characters outside the enabled rule groups (such as `!` with `special: false`) no longer fail validation, and disabling every rule produces a working length-only policy.
+- Parametric regex builders (`digits`, `phone`, `creditCard`, `password`) throw a descriptive `RangeError` for negative, fractional or inverted (`min > max`) ranges instead of an invalid-regex `SyntaxError`.
+
+### Changed
+
+- The browser IIFE is now minified (about 165 KB instead of 272 KB before compression) and ships a source map.
+- Replaced the Starlight documentation app with a combined Home, Examples and Docs website built from the shared package website theme. Website commands use the `site:` prefix; the npm package remains runtime-only (`dist` and `CHANGELOG.md`).
+- Switched repository tooling to Bun workspaces, matching the other `@samline` packages.
+
+### Added
+
+- Added a built-output smoke suite (`npm run test:dist`) that runs the IIFE as a classic script and compares ESM/CommonJS exports. It runs in CI and `prepublishOnly`.
+- Added regression tests for every fix above.
+
 ## [2.0.3] - 2026-09-23
 
 ### Added

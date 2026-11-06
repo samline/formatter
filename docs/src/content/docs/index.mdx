@@ -1,0 +1,54 @@
+---
+locale: en
+sidebar:
+  group: start
+  order: 1
+title: 'Format inputs in one call'
+titleAccent: 'one call'
+description: 'A pure input formatter that returns a display-ready formatted value and a backend-ready raw value.'
+---
+
+import CardGrid from '../../../../shared/components/CardGrid.astro'
+import LinkCard from '../../../../shared/components/LinkCard.astro'
+import { href } from '../../lib/routes'
+
+`@samline/formatter` formats input values and returns **two strings at once**: `formatted` for the visible field and `raw` for the backend. It has no DOM access, no I/O and no state, so it works in browsers, Node.js, React, Vue, Svelte, Shopify themes or anywhere JavaScript runs.
+
+```ts
+import { format } from '@samline/formatter'
+
+format('5512345678', 'phone')
+// => { formatted: '55 1234 5678', raw: '5512345678', type: 'phone' }
+```
+
+## Why Formatter
+
+- **One function, two outputs.** Show `formatted`, submit `raw`, and never re-parse display text on the server.
+- **Framework-agnostic.** There is no adapter to install: call it from the input handler you already have.
+- **Pure.** No DOM reads or writes, no globals and no clock access, so it is safe on every keystroke.
+- **Typed.** `FormatType`, `FormatOptions`, `FormatterResult` and the regex types are exported.
+- **Validation included.** The `regex` catalog pairs each pattern with a ready-to-use error message.
+- **Built on proven libraries.** Phones use `libphonenumber-js`; the other types use `cleave-zen`. The standalone browser script bundles both.
+
+## Choose your next step
+
+<CardGrid columns={2}>
+  <LinkCard href={href('getting-started')} title="Installation">
+    Install the package or load the CDN script and format your first field.
+  </LinkCard>
+  <LinkCard href={href('guides/examples')} title="Working examples">
+    Try six live fields and copy their HTML / CDN or Package / ESM files.
+  </LinkCard>
+  <LinkCard href={href('reference/configuration')} title="Configuration">
+    Every option per format type, with defaults and raw-value behavior.
+  </LinkCard>
+  <LinkCard href={href('reference/api')} title="API reference">
+    format(), the advanced helpers, error behavior and return values.
+  </LinkCard>
+  <LinkCard href={href('reference/regex')} title="Validation patterns">
+    Static and parametric rules with paired error messages.
+  </LinkCard>
+  <LinkCard href={href('changelog')} title="Changelog">
+    Release notes, including behavior changes and fixes.
+  </LinkCard>
+</CardGrid>

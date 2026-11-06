@@ -1,0 +1,37 @@
+{
+  "package": {
+    "name": "Formatter",
+    "npmName": "@samline/formatter",
+    "version": "2.1.0",
+    "description": "A lightweight, framework-agnostic input formatter for phones, numerals, dates, times, credit cards and custom masks that returns display and backend-ready values from one call.",
+    "author": "samline",
+    "license": "MIT",
+    "keywords": [
+      "formatter",
+      "input",
+      "phone",
+      "numeral",
+      "date",
+      "time",
+      "credit-card",
+      "format",
+      "mask",
+      "cleave",
+      "libphonenumber"
+    ]
+  },
+  "site": {
+    "url": "https://samline.github.io/formatter/",
+    "repository": "https://github.com/samline/formatter",
+    "namespace": "pkg-samline-formatter",
+    "template": false
+  },
+  "theme": {
+    "accentLight": "#4d7c0f",
+    "accentDark": "#a3e635"
+  },
+  "delivery": {
+    "cdnScript": "https://unpkg.com/@samline/formatter@2.1.0/dist/browser/global.global.js",
+    "cdnStylesheet": null
+  }
+}

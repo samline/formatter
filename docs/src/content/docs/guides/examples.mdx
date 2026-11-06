@@ -1,0 +1,51 @@
+---
+locale: en
+sidebar:
+  group: guides
+  order: 1
+title: 'Examples with context'
+titleAccent: 'context'
+description: 'Six live form fields with formatted and raw values, validation and copyable source files.'
+---
+
+import Playground from '../../../../../shared/components/Playground.astro'
+
+Each example is a real form field. The preview, the copied files and the Home demo share one scenario definition, so the options shown in code are the options running in the preview. Type into the field, try the sample values, then open the code.
+
+The copied files run in two loading modes. **HTML / CDN** files work after saving them to one folder and opening `index.html` (network access to unpkg is required). **Package / ESM** files import `@samline/formatter` and need a bundler or dev server such as Vite.
+
+## Phone by country
+
+`format(value, 'phone', { country })` groups digits for the selected country through `libphonenumber-js`. Changing the country reformats the current digits; the listener reads the country on every call instead of being re-attached.
+
+<Playground preset="phone" showCode />
+
+## Amount with currency
+
+The `numeral` type adds grouping, a prefix and a decimal limit. `raw` is a plain decimal string.
+
+<Playground preset="amount" showCode />
+
+## Date for display, ISO for storage
+
+`dateRawPattern` and `dateRawPatternDelimiter` decide the raw shape independently of the display pattern. The default `interpretInputAs: 'auto'` converts a stored `1990-12-31` for display.
+
+<Playground preset="date" showCode />
+
+## Appointment time
+
+`timePattern: ['h', 'm']` shows hours and minutes. The raw value is validated with `regex.time24`.
+
+<Playground preset="time" showCode />
+
+## Card number and brand
+
+`creditCard` groups by brand, and `creditCardType` returns the brand name as `formatted`. Card formatting is not payment validation.
+
+<Playground preset="card" showCode />
+
+## Custom mask with a prefix
+
+The `general` type needs `blocks`. A locked `prefix` is displayed on every call and excluded from `raw` unless `rawPrefix: true`.
+
+<Playground preset="reference" showCode />

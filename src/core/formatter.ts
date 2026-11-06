@@ -15,6 +15,26 @@ export type { FormatOptions, FormatType, FormatterResult }
 export { FORMAT_TYPES, isFormatType, stripPrefixAndSuffix }
 
 /**
+ * Whether `value` contains `affix` with exactly one character removed at
+ * `side`. This is what a single Backspace/Delete inside a locked decoration
+ * produces (e.g. `100 US` for the suffix ` USD`).
+ */
+const damagedAffixLength = (
+  value: string,
+  affix: string,
+  side: 'start' | 'end'
+): number => {
+  if (affix.length < 2) return 0
+  const length = affix.length - 1
+  const candidate = side === 'start' ? value.slice(0, length) : value.slice(-length)
+  if (candidate.length !== length) return 0
+  for (let index = 0; index < affix.length; index++) {
+    if (affix.slice(0, index) + affix.slice(index + 1) === candidate) return length
+  }
+  return 0
+}
+
+/**
  * Detect and strip whatever portion of `affix` the user has already
  * typed at either the start or end of `value`.
  */
@@ -27,6 +47,9 @@ const stripTypedAffix = (
   if (!affix) return { typed: '', core: value }
 
   if (side === 'end') {
+    if (value.endsWith(affix)) {
+      return { typed: affix, core: value.slice(0, value.length - affix.length) }
+    }
     if (passthrough) {
       // Keep the longest partial suffix that the user has typed.
       let typedLen = 0
@@ -41,10 +64,9 @@ const stripTypedAffix = (
         core: value.slice(0, value.length - typedLen)
       }
     }
-    if (value.endsWith(affix)) {
-      return { typed: affix, core: value.slice(0, value.length - affix.length) }
-    }
-    return { typed: '', core: value }
+    // Lock mode: a single deleted character restores the whole suffix.
+    const damaged = damagedAffixLength(value, affix, 'end')
+    return { typed: '', core: value.slice(0, value.length - damaged) }
   }
 
   if (passthrough) {
@@ -60,7 +82,9 @@ const stripTypedAffix = (
   if (value.startsWith(affix)) {
     return { typed: affix, core: value.slice(affix.length) }
   }
-  return { typed: '', core: value }
+  // Lock mode: a single deleted character restores the whole prefix.
+  const damaged = damagedAffixLength(value, affix, 'start')
+  return { typed: '', core: value.slice(damaged) }
 }
 
 /**
@@ -86,6 +110,15 @@ export const format = (
 
   if (value === null || value === undefined || value === '') {
     return { formatted: '', raw: '', type: formatType }
+  }
+
+  if (
+    formatType === 'general' &&
+    (!Array.isArray(options.blocks) || options.blocks.length === 0)
+  ) {
+    throw new TypeError(
+      "The 'general' format requires a non-empty `blocks` array, e.g. { blocks: [4, 4, 4] }."
+    )
   }
 
   const runtime = resolveRuntimeOptions(formatType, options)
@@ -170,24 +203,22 @@ export const format = (
       const displayedTail = effSuffix ? (typedTail || effSuffix) : ''
       const formatted = displayedHead + bodyFormatted + displayedTail
 
-      // Canonical raw values inherit display transformations without separators.
+      // Canonical raw values inherit display transformations without
+      // separators. The default keeps the historical typed-body contract.
       const wantsCanonicalRaw =
         (runtime.rawPrefix === true && effPrefix) ||
         (runtime.rawSuffix === true && effSuffix)
 
-      let raw = body
+      const delimiterOptions = {
+        ...(runtime.delimiter !== undefined ? { delimiter: runtime.delimiter } : {}),
+        ...(runtime.delimiters !== undefined ? { delimiters: runtime.delimiters } : {})
+      }
+      // Default: the typed body without the formatter's own delimiters, so
+      // re-formatting a displayed value (every keystroke) keeps `raw` stable.
+      let raw = getRawValue(body, formatType, delimiterOptions)
       if (wantsCanonicalRaw) {
-        const delimiterChars = runtime.delimiter ?? ''
-        const escapedDelimiter = delimiterChars.replace(
-          /[.*+?^${}()|[\]\\]/g,
-          '\\$&'
-        )
-        let cleaned = bodyFormatted.replace(
-          new RegExp(`[${escapedDelimiter}\\s]`, 'g'),
-          ''
-        )
-        if (runtime.numericOnly) cleaned = cleaned.replace(/\D/g, '')
-        raw = cleaned
+        raw = getRawValue(bodyFormatted, formatType, delimiterOptions).replace(/\s/g, '')
+        if (runtime.numericOnly) raw = raw.replace(/\D/g, '')
       }
 
       if (runtime.rawPrefix === true && effPrefix) {

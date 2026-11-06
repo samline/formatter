@@ -22,7 +22,8 @@ export const formatPhone = (
 
   // Preserve '+' so international numbers keep their prefix.
   const digits = value.replace(/[^\d+]/g, '')
-  const formatter = new AsYouType(country as CountryCode)
+  // Country codes are case-insensitive for callers; libphonenumber expects upper case.
+  const formatter = new AsYouType(country.toUpperCase() as CountryCode)
   const formatted = formatter.input(digits)
 
   if (delimiter !== ' ') {

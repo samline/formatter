@@ -97,7 +97,22 @@ interface CustomParams {
 
 // ─── Internal Factories ──────────────────────────────────────────────────────
 
+const assertCount = (name: string, value: number): void => {
+  if (!Number.isInteger(value) || value < 0) {
+    throw new RangeError(`regex: \`${name}\` must be a non-negative integer, received ${String(value)}.`)
+  }
+}
+
+const assertRange = (min: number, max: number): void => {
+  assertCount('min', min)
+  assertCount('max', max)
+  if (min > max) {
+    throw new RangeError(`regex: \`min\` (${min}) cannot be greater than \`max\` (${max}).`)
+  }
+}
+
 function createDigits(min: number, max: number, errorMsg: string): RegexEntry {
+  assertRange(min, max)
   return {
     pattern: new RegExp(`^\\d{${min},${max}}$`),
     errorMessage: errorMsg
@@ -105,6 +120,7 @@ function createDigits(min: number, max: number, errorMsg: string): RegexEntry {
 }
 
 function createPhone(length: number): RegexEntry {
+  assertCount('length', length)
   return {
     pattern: new RegExp(`^(?:\\D*\\d){${length}}\\D*$`),
     errorMessage: `Please enter a valid ${length}-digit phone number.`
@@ -112,6 +128,7 @@ function createPhone(length: number): RegexEntry {
 }
 
 function createCreditCard(min: number, max: number): RegexEntry {
+  assertRange(min, max)
   return {
     pattern: new RegExp(`^(?:\\D*\\d){${min},${max}}\\D*$`),
     errorMessage: `Please enter a valid card number (${min}-${max} digits).`
@@ -136,12 +153,7 @@ function createPassword(params: PasswordParams): RegexEntry {
     special = false
   } = params
 
-  // Build the character class with proper escaping (put - last to avoid range issues)
-  let chars = ''
-  if (uppercase) chars += 'A-Z'
-  if (lowercase) chars += 'a-z'
-  if (numbers) chars += '0-9'
-  if (special) chars += '!@#$%^&*()_+\\-=\\[\\]{}|;:\'",.<>?/'
+  assertRange(min, max)
 
   const requirements = [
     uppercase ? '(?=.*[A-Z])' : '',
@@ -159,10 +171,13 @@ function createPassword(params: PasswordParams): RegexEntry {
   const rulesText = ruleParts.length > 2
     ? ruleParts.slice(0, -1).join(', ') + ' and ' + ruleParts.slice(-1)
     : ruleParts.join(' and ')
+  const rulesSentence = rulesText ? ` with at least one ${rulesText}` : ''
 
   return {
-    pattern: new RegExp(`^${requirements}[${chars}]{${min},${max}}$`),
-    errorMessage: `Password must be ${min}-${max} characters with at least one ${rulesText}.`
+    // Rules are requirements, not an allow-list: any non-whitespace
+    // character may appear, so `Passw0rd!` passes the default policy.
+    pattern: new RegExp(`^${requirements}\\S{${min},${max}}$`),
+    errorMessage: `Password must be ${min}-${max} characters${rulesSentence}.`
   }
 }
 
@@ -194,8 +209,8 @@ const _regex = {
     errorMessage: 'Please enter a valid 5-digit postal code.'
   },
   numeral: {
-    // Numbers with optional thousand separators and decimal points
-    pattern: /\d{1,3}(,\d{3})*(\.\d+)?/,
+    // Whole value: optional sign, plain or comma-grouped digits, optional decimals
+    pattern: /^-?(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d+)?$/,
     errorMessage: 'Please enter a valid number.'
   },
   onlyNumbers: {
@@ -371,7 +386,7 @@ function _urlFn(params?: UrlParams): RegexEntry {
  * Password with configurable strength rules.
  * @example
  * regex.password().pattern.test('Passw0rd!')  // true (default: 8+ chars, upper, lower, number)
- * regex.password({ min: 12, special: true }).pattern.test('MyP@ssw0rd!') // true
+ * regex.password({ min: 12, special: true }).pattern.test('MyP@ssw0rd!2') // true
  */
 function _passwordFn(params?: PasswordParams): RegexEntry {
   return createPassword(params ?? {})

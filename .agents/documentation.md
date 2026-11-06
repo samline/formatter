@@ -1,22 +1,19 @@
 # Documentation in-sync rule
 
-`@samline/formatter` has two documentation surfaces:
+Since 2.1.0 `@samline/formatter` has one maintained documentation surface: the Astro collection in `docs/src/content/docs/`, published with the landing and examples at `https://samline.github.io/formatter` (see SITE.md). The old `docs/*.md` files and the Starlight `example/` app were retired after migration; `content-audit.json` pins them to their last commit. The root README stays the npm-facing guide and links to the site.
 
-1. `docs/` — repository and package-facing Markdown.
-2. `example/src/content/docs/` — the Starlight site published at `https://samline.github.io/formatter`.
-
-A public behavior change is not complete until both surfaces agree with the built declarations.
+A public behavior change is not complete until the collection, the demo scenarios in `shared/i18n/translations/en/demo.ts`, the README and the built declarations agree.
 
 ## Pre-release checklist
 
 1. Build and inspect `dist/index.d.ts`; treat it as the consumer-visible export contract.
-2. Confirm every export from `src/core/index.ts` appears in `docs/api/index.md` and the Starlight API reference.
-3. Confirm every `FormatOptions` field appears in `docs/options.md` and Starlight Configuration.
-4. Confirm every exported type appears in both TypeScript references.
+2. Confirm every export from `src/core/index.ts` appears in `reference/api.mdx` (and `content-audit.json.publicExports`).
+3. Confirm every `FormatOptions` field appears in `reference/configuration.md`.
+4. Confirm every exported type appears in `reference/typescript.mdx`.
 5. Trace every documented output through the implementation or a test; documentation must describe current behavior, not intended behavior.
 6. Keep recipes single-owner: no duplicate listeners and no direct DOM mutation inside framework-controlled fields.
-7. Check relative links in `docs/` and `/formatter/...` links in Starlight.
-8. Sweep the version through `package.json`, CDN snippets, prose, and browser-global examples.
+7. Run `bun run site:build`; it verifies every link and fragment.
+8. Sweep the version through `package.json`, `project.config.json` (version and CDN URL), README, CDN snippets and browser-global examples; `test/docs/cdn-version.test.ts` enforces the pins.
 9. Add a changelog compare link for every release.
 
 ## Changelog rules

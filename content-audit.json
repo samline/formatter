@@ -1,0 +1,466 @@
+{
+  "status": "verified",
+  "packageVersion": "2.1.0",
+  "sources": [
+    {
+      "source": "README.md",
+      "sha256": "dfc1d481efa3e39f37c3ceeee35684da098b7914d9167bf765dbf57f2477f17c",
+      "destination": "docs/src/content/docs/index.mdx",
+      "reviewed": true,
+      "reviewScope": "Package README remains the npm guide; its documentation table links to the website."
+    },
+    {
+      "source": "CHANGELOG.md",
+      "sha256": "c37cb78e7a24a84e63427c7adac0b4a2c173942a6c85c512ab4afdc5942eaa8a",
+      "destination": "CHANGELOG.md",
+      "reviewed": true,
+      "reviewScope": "Single release history, loaded into the docs collection as /docs/changelog/."
+    },
+    {
+      "source": "docs/getting-started.md",
+      "sourceRevision": "28101a4300955f5475ce973e50f806b07cedbb4a",
+      "sha256": "a25f78a13825b36b719237359852538052279f8ea53cbd1c71c686e8651082a7",
+      "destination": "docs/src/content/docs/getting-started.mdx",
+      "reviewed": true,
+      "reviewScope": "Starlight article migrated section by section (links, fragments, tabs and asides converted); repository Markdown duplicate of the Starlight page. Updated for 2.1.0 behavior: browser global, minified IIFE, password/numeral regex, blocks error, idempotent decorated raw, case-insensitive country."
+    },
+    {
+      "source": "docs/recipes.md",
+      "sourceRevision": "28101a4300955f5475ce973e50f806b07cedbb4a",
+      "sha256": "de1571754363efc7c58b6dc98f560fe53dd871a07eec256966efe09846f170f4",
+      "destination": "docs/src/content/docs/guides/recipes.mdx",
+      "reviewed": true,
+      "reviewScope": "Starlight article migrated section by section (links, fragments, tabs and asides converted); repository Markdown duplicate of the Starlight page. Updated for 2.1.0 behavior: browser global, minified IIFE, password/numeral regex, blocks error, idempotent decorated raw, case-insensitive country."
+    },
+    {
+      "source": "docs/styling-and-ux.md",
+      "sourceRevision": "28101a4300955f5475ce973e50f806b07cedbb4a",
+      "sha256": "584edc1c2d18360271556f0ed05a11d7e8089361b39446d030ab77aa49bfb262",
+      "destination": "docs/src/content/docs/guides/styling-and-ux.md",
+      "reviewed": true,
+      "reviewScope": "Starlight article migrated section by section (links, fragments, tabs and asides converted); repository Markdown duplicate of the Starlight page. Updated for 2.1.0 behavior: browser global, minified IIFE, password/numeral regex, blocks error, idempotent decorated raw, case-insensitive country."
+    },
+    {
+      "source": "docs/options.md",
+      "sourceRevision": "28101a4300955f5475ce973e50f806b07cedbb4a",
+      "sha256": "d9faac415d4a6ead9731ac928dbb475093b97c79b1c6fe42775ede08e625723c",
+      "destination": "docs/src/content/docs/reference/configuration.md",
+      "reviewed": true,
+      "reviewScope": "Starlight article migrated section by section (links, fragments, tabs and asides converted); repository Markdown duplicate of the Starlight page. Updated for 2.1.0 behavior: browser global, minified IIFE, password/numeral regex, blocks error, idempotent decorated raw, case-insensitive country."
+    },
+    {
+      "source": "docs/api/format.md",
+      "sourceRevision": "28101a4300955f5475ce973e50f806b07cedbb4a",
+      "sha256": "b6a1ab4de1c09cb68f954aae21260ee24fb773959f8797def357744a1c8b482f",
+      "destination": "docs/src/content/docs/reference/api.mdx",
+      "reviewed": true,
+      "reviewScope": "Starlight article migrated section by section (links, fragments, tabs and asides converted); repository Markdown duplicate of the Starlight page. Updated for 2.1.0 behavior: browser global, minified IIFE, password/numeral regex, blocks error, idempotent decorated raw, case-insensitive country."
+    },
+    {
+      "source": "docs/api/regex.md",
+      "sourceRevision": "28101a4300955f5475ce973e50f806b07cedbb4a",
+      "sha256": "7bf840bb24aefd6b83d5a4ec8e9ceebef4f8526836cfb4aad2bc8b6250a70ae8",
+      "destination": "docs/src/content/docs/reference/regex.md",
+      "reviewed": true,
+      "reviewScope": "Starlight article migrated section by section (links, fragments, tabs and asides converted); repository Markdown duplicate of the Starlight page. Updated for 2.1.0 behavior: browser global, minified IIFE, password/numeral regex, blocks error, idempotent decorated raw, case-insensitive country."
+    },
+    {
+      "source": "docs/api/index.md",
+      "sourceRevision": "28101a4300955f5475ce973e50f806b07cedbb4a",
+      "sha256": "513a4741ac600b80347eae61b6bfb68fa4dd04ae968f12d8558806d077fc2880",
+      "destination": "docs/src/content/docs/reference/api.mdx",
+      "reviewed": true,
+      "reviewScope": "Starlight article migrated section by section (links, fragments, tabs and asides converted); repository Markdown duplicate of the Starlight page. Updated for 2.1.0 behavior: browser global, minified IIFE, password/numeral regex, blocks error, idempotent decorated raw, case-insensitive country."
+    },
+    {
+      "source": "docs/typescript.md",
+      "sourceRevision": "28101a4300955f5475ce973e50f806b07cedbb4a",
+      "sha256": "1d0a3d1a95d405c5c641b36b582102e507d32fae9c585014a21aa8a4f1593451",
+      "destination": "docs/src/content/docs/reference/typescript.mdx",
+      "reviewed": true,
+      "reviewScope": "Starlight article migrated section by section (links, fragments, tabs and asides converted); repository Markdown duplicate of the Starlight page. Updated for 2.1.0 behavior: browser global, minified IIFE, password/numeral regex, blocks error, idempotent decorated raw, case-insensitive country."
+    },
+    {
+      "source": "docs/entrypoints.md",
+      "sourceRevision": "28101a4300955f5475ce973e50f806b07cedbb4a",
+      "sha256": "9a27b691a3068baada473b172d1b4cc7b95345972f3eca6a62b74745ca43f8b5",
+      "destination": "docs/src/content/docs/reference/entrypoints.md",
+      "reviewed": true,
+      "reviewScope": "Starlight article migrated section by section (links, fragments, tabs and asides converted); repository Markdown duplicate of the Starlight page. Updated for 2.1.0 behavior: browser global, minified IIFE, password/numeral regex, blocks error, idempotent decorated raw, case-insensitive country."
+    },
+    {
+      "source": "docs/browser.md",
+      "sourceRevision": "28101a4300955f5475ce973e50f806b07cedbb4a",
+      "sha256": "483a96d7706bfb93be85be7a09738765a3f3d33ae16ae5a06be1b9f5fb24d5e1",
+      "destination": "docs/src/content/docs/reference/browser.md",
+      "reviewed": true,
+      "reviewScope": "Starlight article migrated section by section (links, fragments, tabs and asides converted); repository Markdown duplicate of the Starlight page. Updated for 2.1.0 behavior: browser global, minified IIFE, password/numeral regex, blocks error, idempotent decorated raw, case-insensitive country."
+    },
+    {
+      "source": "docs/regex.md",
+      "sourceRevision": "28101a4300955f5475ce973e50f806b07cedbb4a",
+      "sha256": "d64efe344fa7fa2fbc54d7c330e1867a12e54579a7103325ea92c7cf08d17cbf",
+      "destination": "docs/src/content/docs/reference/regex.md",
+      "reviewed": true,
+      "reviewScope": "Starlight article migrated section by section (links, fragments, tabs and asides converted); repository Markdown duplicate of the Starlight page. Updated for 2.1.0 behavior: browser global, minified IIFE, password/numeral regex, blocks error, idempotent decorated raw, case-insensitive country."
+    },
+    {
+      "source": "example/src/content/docs/index.mdx",
+      "sourceRevision": "28101a4300955f5475ce973e50f806b07cedbb4a",
+      "sha256": "31683dbeb1da7a3656c6f8f1aeabee5726f3fcdc7477eef3f26888de152da067",
+      "destination": "docs/src/content/docs/index.mdx",
+      "reviewed": true,
+      "reviewScope": "Starlight article migrated section by section (links, fragments, tabs and asides converted); repository Markdown duplicate of the Starlight page. Updated for 2.1.0 behavior: browser global, minified IIFE, password/numeral regex, blocks error, idempotent decorated raw, case-insensitive country."
+    },
+    {
+      "source": "example/src/content/docs/getting-started.mdx",
+      "sourceRevision": "28101a4300955f5475ce973e50f806b07cedbb4a",
+      "sha256": "6e41801cf8f2e9828263b3f2f69c37fdaa509ac774b27492a1ccf2191d80159b",
+      "destination": "docs/src/content/docs/getting-started.mdx",
+      "reviewed": true,
+      "reviewScope": "Starlight article migrated section by section (links, fragments, tabs and asides converted); repository Markdown duplicate of the Starlight page. Updated for 2.1.0 behavior: browser global, minified IIFE, password/numeral regex, blocks error, idempotent decorated raw, case-insensitive country."
+    },
+    {
+      "source": "example/src/content/docs/guides/formatting-with-frameworks.md",
+      "sourceRevision": "28101a4300955f5475ce973e50f806b07cedbb4a",
+      "sha256": "a65ed65c98c1e8d785a9a82ddeeada767e7b8a03ccc8ccc84019846be95fa04b",
+      "destination": "docs/src/content/docs/guides/frameworks.mdx",
+      "reviewed": true,
+      "reviewScope": "Starlight article migrated section by section (links, fragments, tabs and asides converted); repository Markdown duplicate of the Starlight page. Updated for 2.1.0 behavior: browser global, minified IIFE, password/numeral regex, blocks error, idempotent decorated raw, case-insensitive country."
+    },
+    {
+      "source": "example/src/content/docs/guides/styling-and-ux.md",
+      "sourceRevision": "28101a4300955f5475ce973e50f806b07cedbb4a",
+      "sha256": "a729f78bc62e041dc5dc823b9c8c79debaae0a277b5431087ab300d6989ad2b9",
+      "destination": "docs/src/content/docs/guides/styling-and-ux.md",
+      "reviewed": true,
+      "reviewScope": "Starlight article migrated section by section (links, fragments, tabs and asides converted); repository Markdown duplicate of the Starlight page. Updated for 2.1.0 behavior: browser global, minified IIFE, password/numeral regex, blocks error, idempotent decorated raw, case-insensitive country."
+    },
+    {
+      "source": "example/src/content/docs/reference/api.md",
+      "sourceRevision": "28101a4300955f5475ce973e50f806b07cedbb4a",
+      "sha256": "e6605f9f430362b317018db24fa77c159b963c260892ee4eadb7515acee39bdb",
+      "destination": "docs/src/content/docs/reference/api.mdx",
+      "reviewed": true,
+      "reviewScope": "Starlight article migrated section by section (links, fragments, tabs and asides converted); repository Markdown duplicate of the Starlight page. Updated for 2.1.0 behavior: browser global, minified IIFE, password/numeral regex, blocks error, idempotent decorated raw, case-insensitive country."
+    },
+    {
+      "source": "example/src/content/docs/reference/browser.md",
+      "sourceRevision": "28101a4300955f5475ce973e50f806b07cedbb4a",
+      "sha256": "2a82141d6564d98498a8f34f118db7f5ea3cea6ff63a421dfa34d0df261990d4",
+      "destination": "docs/src/content/docs/reference/browser.md",
+      "reviewed": true,
+      "reviewScope": "Starlight article migrated section by section (links, fragments, tabs and asides converted); repository Markdown duplicate of the Starlight page. Updated for 2.1.0 behavior: browser global, minified IIFE, password/numeral regex, blocks error, idempotent decorated raw, case-insensitive country."
+    },
+    {
+      "source": "example/src/content/docs/reference/configuration.md",
+      "sourceRevision": "28101a4300955f5475ce973e50f806b07cedbb4a",
+      "sha256": "7ba58d6be274939d0d434cd37834f08a0782a6b369047a48e52267d1e3c709f3",
+      "destination": "docs/src/content/docs/reference/configuration.md",
+      "reviewed": true,
+      "reviewScope": "Starlight article migrated section by section (links, fragments, tabs and asides converted); repository Markdown duplicate of the Starlight page. Updated for 2.1.0 behavior: browser global, minified IIFE, password/numeral regex, blocks error, idempotent decorated raw, case-insensitive country."
+    },
+    {
+      "source": "example/src/content/docs/reference/entrypoints.md",
+      "sourceRevision": "28101a4300955f5475ce973e50f806b07cedbb4a",
+      "sha256": "88a136e3f2a6098535557732726155303a7b4c7163cce8efd78cb9a7695fe73b",
+      "destination": "docs/src/content/docs/reference/entrypoints.md",
+      "reviewed": true,
+      "reviewScope": "Starlight article migrated section by section (links, fragments, tabs and asides converted); repository Markdown duplicate of the Starlight page. Updated for 2.1.0 behavior: browser global, minified IIFE, password/numeral regex, blocks error, idempotent decorated raw, case-insensitive country."
+    },
+    {
+      "source": "example/src/content/docs/reference/index.md",
+      "sourceRevision": "28101a4300955f5475ce973e50f806b07cedbb4a",
+      "sha256": "0e7de479da804b48ad084d8056c4077ced8ae15febe1166234005abbff91353f",
+      "destination": "docs/src/content/docs/reference/api.mdx",
+      "reviewed": true,
+      "reviewScope": "Starlight article migrated section by section (links, fragments, tabs and asides converted); repository Markdown duplicate of the Starlight page. Updated for 2.1.0 behavior: browser global, minified IIFE, password/numeral regex, blocks error, idempotent decorated raw, case-insensitive country."
+    },
+    {
+      "source": "example/src/content/docs/reference/recipes.md",
+      "sourceRevision": "28101a4300955f5475ce973e50f806b07cedbb4a",
+      "sha256": "537a7d4fc58d457325d2108359a772490fb7285be3a0a5311e9a77717bb4fda2",
+      "destination": "docs/src/content/docs/guides/recipes.mdx",
+      "reviewed": true,
+      "reviewScope": "Starlight article migrated section by section (links, fragments, tabs and asides converted); repository Markdown duplicate of the Starlight page. Updated for 2.1.0 behavior: browser global, minified IIFE, password/numeral regex, blocks error, idempotent decorated raw, case-insensitive country."
+    },
+    {
+      "source": "example/src/content/docs/reference/regex.md",
+      "sourceRevision": "28101a4300955f5475ce973e50f806b07cedbb4a",
+      "sha256": "20db37343aab3384434d33afbccebcbef2b134b6bd7bb161b63bd062e0714efd",
+      "destination": "docs/src/content/docs/reference/regex.md",
+      "reviewed": true,
+      "reviewScope": "Starlight article migrated section by section (links, fragments, tabs and asides converted); repository Markdown duplicate of the Starlight page. Updated for 2.1.0 behavior: browser global, minified IIFE, password/numeral regex, blocks error, idempotent decorated raw, case-insensitive country."
+    },
+    {
+      "source": "example/src/content/docs/reference/typescript.md",
+      "sourceRevision": "28101a4300955f5475ce973e50f806b07cedbb4a",
+      "sha256": "200143da4f96b58ee7595be203f427f6e25b4557f72adbc5eae16d45965efa9a",
+      "destination": "docs/src/content/docs/reference/typescript.mdx",
+      "reviewed": true,
+      "reviewScope": "Starlight article migrated section by section (links, fragments, tabs and asides converted); repository Markdown duplicate of the Starlight page. Updated for 2.1.0 behavior: browser global, minified IIFE, password/numeral regex, blocks error, idempotent decorated raw, case-insensitive country."
+    }
+  ],
+  "publicExports": [
+    {
+      "name": "format",
+      "kind": "function",
+      "source": "src/core/formatter.ts",
+      "destination": "docs/src/content/docs/reference/api.mdx",
+      "reviewed": true
+    },
+    {
+      "name": "FORMAT_TYPES",
+      "kind": "constant",
+      "source": "src/core/format.ts",
+      "destination": "docs/src/content/docs/reference/api.mdx",
+      "reviewed": true
+    },
+    {
+      "name": "isFormatType",
+      "kind": "function",
+      "source": "src/core/format.ts",
+      "destination": "docs/src/content/docs/reference/api.mdx",
+      "reviewed": true
+    },
+    {
+      "name": "formatPhone",
+      "kind": "function",
+      "source": "src/core/phone.ts",
+      "destination": "docs/src/content/docs/reference/api.mdx",
+      "reviewed": true
+    },
+    {
+      "name": "getRawValue",
+      "kind": "function",
+      "source": "src/core/raw.ts",
+      "destination": "docs/src/content/docs/reference/api.mdx",
+      "reviewed": true
+    },
+    {
+      "name": "getDateValueFromRaw",
+      "kind": "function",
+      "source": "src/core/raw.ts",
+      "destination": "docs/src/content/docs/reference/api.mdx",
+      "reviewed": true
+    },
+    {
+      "name": "getTimeValueFromRaw",
+      "kind": "function",
+      "source": "src/core/raw.ts",
+      "destination": "docs/src/content/docs/reference/api.mdx",
+      "reviewed": true
+    },
+    {
+      "name": "looksLikeRawDateValue",
+      "kind": "function",
+      "source": "src/core/raw.ts",
+      "destination": "docs/src/content/docs/reference/api.mdx",
+      "reviewed": true
+    },
+    {
+      "name": "looksLikeRawTimeValue",
+      "kind": "function",
+      "source": "src/core/raw.ts",
+      "destination": "docs/src/content/docs/reference/api.mdx",
+      "reviewed": true
+    },
+    {
+      "name": "stripPrefixAndSuffix",
+      "kind": "function",
+      "source": "src/core/raw.ts",
+      "destination": "docs/src/content/docs/reference/api.mdx",
+      "reviewed": true
+    },
+    {
+      "name": "regex",
+      "kind": "object",
+      "source": "src/core/regex.ts",
+      "destination": "docs/src/content/docs/reference/regex.md",
+      "reviewed": true
+    },
+    {
+      "name": "RegexEntry",
+      "kind": "type",
+      "source": "src/core/regex.ts",
+      "destination": "docs/src/content/docs/reference/typescript.mdx",
+      "reviewed": true
+    },
+    {
+      "name": "RegexKey",
+      "kind": "type",
+      "source": "src/core/regex.ts",
+      "destination": "docs/src/content/docs/reference/typescript.mdx",
+      "reviewed": true
+    },
+    {
+      "name": "Regex",
+      "kind": "type",
+      "source": "src/core/regex.ts",
+      "destination": "docs/src/content/docs/reference/typescript.mdx",
+      "reviewed": true
+    },
+    {
+      "name": "FormatOptions",
+      "kind": "type",
+      "source": "src/core/raw.ts",
+      "destination": "docs/src/content/docs/reference/configuration.md",
+      "reviewed": true
+    },
+    {
+      "name": "FormatType",
+      "kind": "type",
+      "source": "src/core/raw.ts",
+      "destination": "docs/src/content/docs/reference/typescript.mdx",
+      "reviewed": true
+    },
+    {
+      "name": "FormatterResult",
+      "kind": "type",
+      "source": "src/core/types.ts",
+      "destination": "docs/src/content/docs/reference/typescript.mdx",
+      "reviewed": true
+    },
+    {
+      "name": "DatePatternType",
+      "kind": "type",
+      "source": "src/core/raw.ts",
+      "destination": "docs/src/content/docs/reference/typescript.mdx",
+      "reviewed": true
+    },
+    {
+      "name": "TimePatternType",
+      "kind": "type",
+      "source": "src/core/raw.ts",
+      "destination": "docs/src/content/docs/reference/typescript.mdx",
+      "reviewed": true
+    },
+    {
+      "name": "window.Formatter (format, regex, version)",
+      "kind": "browser global",
+      "source": "src/browser/global.ts",
+      "destination": "docs/src/content/docs/reference/browser.md",
+      "reviewed": true
+    },
+    {
+      "name": "@samline/formatter/vanilla",
+      "kind": "entrypoint",
+      "source": "src/vanilla/index.ts",
+      "destination": "docs/src/content/docs/reference/entrypoints.md",
+      "reviewed": true
+    },
+    {
+      "name": "@samline/formatter/browser",
+      "kind": "entrypoint",
+      "source": "src/browser/global.ts",
+      "destination": "docs/src/content/docs/reference/entrypoints.md",
+      "reviewed": true
+    }
+  ],
+  "notes": "Audit of public behavior for Formatter 2.1.0. Internal pipeline helpers (formatValue, getValueForFormatting, resolveRuntimeOptions) remain reachable for compatibility but are marked @internal and intentionally undocumented. This is content coverage, not proof of universal accessibility or production performance. CHANGELOG.md is the single history source.",
+  "templateSource": {
+    "url": "https://github.com/samline/package-landing-docs.git",
+    "commit": "54822b6dc3ad6d81e611490bcf5302b5938aeef9"
+  },
+  "themeReview": {
+    "status": "verified",
+    "source": "Maintainer requested lime green (\"verde lim\u00f3n\") in the 2026-11-05 audit and website request. Light #4d7c0f keeps text contrast on white; dark #a3e635.",
+    "accentLight": "#4d7c0f",
+    "accentDark": "#a3e635"
+  },
+  "starlightMigration": {
+    "revision": "28101a4300955f5475ce973e50f806b07cedbb4a",
+    "articles": 12,
+    "status": "verified",
+    "redirects": "site-tools/assemble.mjs keeps the old root URLs (getting-started, guides/*, reference/*) as noindex redirects to /docs/."
+  },
+  "capabilityReview": {
+    "status": "verified",
+    "integrations": [
+      {
+        "name": "JavaScript",
+        "evidence": "Pure format() call from any input listener; copied CDN/ESM files executed in Chromium (site-e2e/site.spec.ts)",
+        "destination": "docs/src/content/docs/guides/frameworks.mdx",
+        "reviewed": true
+      },
+      {
+        "name": "TypeScript",
+        "evidence": "Exported types in src/core/types.ts, raw.ts and regex.ts; dist .d.ts inspected",
+        "destination": "docs/src/content/docs/guides/frameworks.mdx",
+        "reviewed": true
+      },
+      {
+        "name": "React",
+        "evidence": "Controlled-input recipe migrated from the Starlight guide; reviewed against the API, not compiled in this audit",
+        "destination": "docs/src/content/docs/guides/frameworks.mdx",
+        "reviewed": true
+      },
+      {
+        "name": "Vue",
+        "evidence": "v-model recipe migrated from the Starlight guide; reviewed against the API, not compiled in this audit",
+        "destination": "docs/src/content/docs/guides/frameworks.mdx",
+        "reviewed": true
+      },
+      {
+        "name": "Svelte",
+        "evidence": "Bound-input recipe migrated from the Starlight guide; reviewed against the API, not compiled in this audit",
+        "destination": "docs/src/content/docs/guides/frameworks.mdx",
+        "reviewed": true
+      },
+      {
+        "name": "Server-side",
+        "evidence": "format() has no DOM access; Node usage covered by vitest and test:dist",
+        "destination": "docs/src/content/docs/guides/frameworks.mdx",
+        "reviewed": true
+      },
+      {
+        "name": "Browser global / CDN",
+        "evidence": "dist/browser/global.global.js executed as a classic script (test/build/bundle.test.ts and copied CDN files)",
+        "destination": "docs/src/content/docs/reference/browser.md",
+        "reviewed": true
+      }
+    ],
+    "scenarios": [
+      {
+        "name": "Phone by country",
+        "evidence": "shared/i18n/translations/en/demo.ts#phone; live preview and copied CDN/ESM files executed in site-e2e/site.spec.ts",
+        "destination": "landing/src/sections/ExamplesGallery.astro",
+        "reviewed": true
+      },
+      {
+        "name": "Amount with currency",
+        "evidence": "shared/i18n/translations/en/demo.ts#amount; live preview and copied CDN/ESM files executed in site-e2e/site.spec.ts",
+        "destination": "landing/src/sections/ExamplesGallery.astro",
+        "reviewed": true
+      },
+      {
+        "name": "Date for display, ISO for storage",
+        "evidence": "shared/i18n/translations/en/demo.ts#date; live preview and copied CDN/ESM files executed in site-e2e/site.spec.ts",
+        "destination": "landing/src/sections/ExamplesGallery.astro",
+        "reviewed": true
+      },
+      {
+        "name": "Appointment time",
+        "evidence": "shared/i18n/translations/en/demo.ts#time; live preview and copied CDN/ESM files executed in site-e2e/site.spec.ts",
+        "destination": "landing/src/sections/ExamplesGallery.astro",
+        "reviewed": true
+      },
+      {
+        "name": "Card number and brand",
+        "evidence": "shared/i18n/translations/en/demo.ts#card; live preview and copied CDN/ESM files executed in site-e2e/site.spec.ts",
+        "destination": "landing/src/sections/ExamplesGallery.astro",
+        "reviewed": true
+      },
+      {
+        "name": "Custom mask with a prefix",
+        "evidence": "shared/i18n/translations/en/demo.ts#reference; live preview and copied CDN/ESM files executed in site-e2e/site.spec.ts",
+        "destination": "landing/src/sections/ExamplesGallery.astro",
+        "reviewed": true
+      }
+    ],
+    "onboarding": {
+      "equivalentModes": true,
+      "scope": "Home shows install, two inputs and one input listener; Getting started and Examples provide complete HTML / CDN and Package / ESM files from one generator."
+    }
+  }
+}

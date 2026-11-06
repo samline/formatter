@@ -8,6 +8,8 @@ export default defineConfig({
         url: 'http://localhost/'
       }
     },
-    include: ['test/**/*.test.ts']
+    include: ['test/**/*.test.ts'],
+    // Built-output smoke tests run separately through `npm run test:dist`.
+    exclude: ['test/build/**', '**/node_modules/**']
   }
 })

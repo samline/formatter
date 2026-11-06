@@ -1,0 +1,370 @@
+---
+import type { HTMLAttributes } from 'astro/types'
+import { format, regex } from '@samline/formatter'
+import DemoStudio from './DemoStudio.astro'
+import DemoPanel from './DemoPanel.astro'
+import DemoFooter from './DemoFooter.astro'
+import Button from './Button.astro'
+import Disclosure from './Disclosure.astro'
+import DemoCode from './DemoCode.astro'
+import t, { scenarios, type DemoPreset, type ScenarioCheck } from '../i18n/translations/en/demo'
+import type { FormatOptions } from '@samline/formatter'
+interface Props extends HTMLAttributes<'div'> {
+  showCode?: boolean
+  preset?: DemoPreset
+  framed?: boolean
+}
+const {
+  id = `demo-${crypto.randomUUID()}`,
+  showCode = false,
+  preset = 'phone',
+  framed = true,
+  class: className,
+  ...attributes
+} = Astro.props
+const item = scenarios[preset]
+const field = item.field
+const fieldId = `${id}-${field.id}`
+// Render the initial result at build time so the preview is complete without
+// JavaScript and does not shift when the script takes over.
+const options = item.options as FormatOptions
+const initial = format(field.value, item.formatType, options)
+const brand =
+  'brand' in item ? format(initial.raw, 'creditCardType').formatted || item.brand.empty : null
+const check: ScenarioCheck | null = 'check' in item ? item.check : null
+const rule = check
+  ? (() => {
+      const entry = regex[check.key as keyof typeof regex] as unknown
+      return typeof entry === 'function' && check.args
+        ? (entry as (...args: unknown[]) => { pattern: RegExp; errorMessage: string })(
+            ...check.args
+          )
+        : (entry as { pattern: RegExp; errorMessage: string })
+    })()
+  : null
+const valid = check && rule ? rule.pattern.test(initial[check.on]) : null
+const Frame = framed ? DemoStudio : 'div'
+---
+
+<div {...attributes} data-ui class:list={['playground', className]}>
+  <package-site-demo data-preset={preset} role="group" aria-labelledby={`${id}-label`}>
+    <Frame>
+      <DemoPanel label={item.title} tagline={t.previewTagline}>
+        <div class:list={['specimen']}>
+          <div class:list={['field-column']}>
+            <p id={`${id}-label`} class:list={['preview-eyebrow']}>
+              {item.eyebrow}
+            </p>
+            {'country' in item && (
+              <div class:list={['control']}>
+                <label for={`${id}-${item.country.id}`}>{item.country.label}</label>
+                <select id={`${id}-${item.country.id}`} data-country>
+                  {item.country.choices.map(([code, label]) => (
+                    <option value={code} selected={code === options.country}>
+                      {label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+            <div class:list={['control']}>
+              <label for={fieldId}>{field.label}</label>
+              <input
+                id={fieldId}
+                type="text"
+                inputmode={field.inputmode}
+                autocomplete={field.autocomplete}
+                placeholder={field.placeholder}
+                value={initial.formatted}
+                spellcheck="false"
+                aria-describedby={`${id}-raw${check ? ` ${id}-status` : ''}`}
+                data-field
+              />
+            </div>
+            <p class:list={['preview-description']}>{item.description}</p>
+          </div>
+          <dl class:list={['readout']}>
+            <div>
+              <dt>{t.formattedLabel}</dt>
+              <dd>
+                <output data-formatted>{initial.formatted || t.emptyRaw}</output>
+              </dd>
+            </div>
+            <div class:list={['raw']}>
+              <dt id={`${id}-raw`}>{t.rawLabel}</dt>
+              <dd>
+                <output data-raw>{initial.raw || t.emptyRaw}</output>
+              </dd>
+            </div>
+            {brand !== null && 'brand' in item && (
+              <div>
+                <dt>{item.brand.label}</dt>
+                <dd>
+                  <output data-brand>{brand}</output>
+                </dd>
+              </div>
+            )}
+            {check && rule && (
+              <div>
+                <dt>{`regex.${check.key}${check.args ? `(${check.args.join(', ')})` : ''}`}</dt>
+                <dd>
+                  <span
+                    id={`${id}-status`}
+                    data-status
+                    data-valid={String(valid)}
+                    aria-live="polite"
+                  >
+                    {valid ? check.valid : rule.errorMessage}
+                  </span>
+                </dd>
+              </div>
+            )}
+          </dl>
+        </div>
+      </DemoPanel>
+      <DemoFooter note={item.hint}>
+        <div class:list={['samples']}>
+          <span class:list={['samples-label']}>{t.samplesLabel}</span>
+          {item.samples.map(sample => (
+            <Button variant="secondary" data-sample={sample.value} disabled>
+              {sample.label}
+            </Button>
+          ))}
+          <Button variant="secondary" data-reset={field.value} disabled>
+            {t.reset}
+          </Button>
+        </div>
+      </DemoFooter>
+      <noscript>
+        <p class:list={['noscript']}>{t.noscript}</p>
+      </noscript>
+    </Frame>
+  </package-site-demo>
+  {showCode && (
+    <Disclosure class:list={['code-disclosure']}>
+      <span slot="summary">{t.openCode}</span>
+      <div class:list={['code-body']}>
+        <DemoCode preset={preset} />
+      </div>
+    </Disclosure>
+  )}
+</div>
+
+<script>
+  import { format, regex } from '@samline/formatter'
+  import { mountElements } from '../lib/mount-elements'
+  import type { FormatOptions } from '@samline/formatter'
+  import { scenarios, type DemoPreset, type ScenarioCheck } from '../i18n/translations/en/demo'
+  import t from '../i18n/translations/en/demo'
+
+  type Rule = { pattern: RegExp; errorMessage: string }
+
+  mountElements('package-site-demo', element => {
+    const item = scenarios[element.dataset.preset as DemoPreset]
+    const field = element.querySelector<HTMLInputElement>('[data-field]')
+    const formattedOutput = element.querySelector('output[data-formatted]')
+    const rawOutput = element.querySelector('output[data-raw]')
+    if (!item || !field || !formattedOutput || !rawOutput) return
+    const lifecycle = new AbortController()
+    const { signal } = lifecycle
+    const country = element.querySelector<HTMLSelectElement>('[data-country]')
+    const brand = element.querySelector('output[data-brand]')
+    const status = element.querySelector<HTMLElement>('[data-status]')
+    const check: ScenarioCheck | null = 'check' in item ? item.check : null
+    const baseOptions = item.options as FormatOptions
+    const rule = check
+      ? (() => {
+          const entry = regex[check.key as keyof typeof regex] as unknown
+          return typeof entry === 'function' && check.args
+            ? (entry as (...args: unknown[]) => Rule)(...check.args)
+            : (entry as Rule)
+        })()
+      : null
+
+    const update = () => {
+      const options = country ? { ...baseOptions, country: country.value } : baseOptions
+      const { formatted, raw } = format(field.value, item.formatType, options)
+      field.value = formatted
+      formattedOutput.textContent = formatted || t.emptyRaw
+      rawOutput.textContent = raw || t.emptyRaw
+      if (brand && 'brand' in item)
+        brand.textContent = format(raw, 'creditCardType').formatted || item.brand.empty
+      if (status && check && rule) {
+        const valid = rule.pattern.test(check.on === 'raw' ? raw : formatted)
+        status.dataset.valid = String(valid)
+        status.textContent = valid ? check.valid : rule.errorMessage
+      }
+    }
+
+    field.addEventListener('input', update, { signal })
+    country?.addEventListener('change', update, { signal })
+    for (const button of element.querySelectorAll<HTMLButtonElement>(
+      '[data-sample], [data-reset]'
+    )) {
+      button.disabled = false
+      button.addEventListener(
+        'click',
+        () => {
+          field.value = button.dataset.sample ?? button.dataset.reset ?? ''
+          if (country) country.value = baseOptions.country ?? country.value
+          update()
+        },
+        { signal }
+      )
+    }
+    update()
+    return () => lifecycle.abort()
+  })
+</script>
+
+<style>
+  .playground {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-lg);
+    min-width: 0;
+  }
+  package-site-demo {
+    display: block;
+    min-width: 0;
+  }
+  .specimen {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+    gap: 1.75rem;
+    align-items: start;
+    min-height: 15rem;
+  }
+  .field-column {
+    display: grid;
+    gap: 0.875rem;
+    min-width: 0;
+  }
+  .preview-eyebrow {
+    margin: 0;
+    font: 0.68rem/1.6 var(--font-mono);
+    letter-spacing: 0.08em;
+    color: var(--color-text-muted);
+  }
+  .control {
+    display: grid;
+    gap: 0.375rem;
+  }
+  .control label {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--color-text);
+  }
+  .control input,
+  .control select {
+    box-sizing: border-box;
+    width: 100%;
+    min-height: 3rem;
+    padding: 0.75rem 0.875rem;
+    border: 0.0625rem solid var(--palette-control-border, var(--color-border));
+    border-radius: var(--radius-control);
+    background: var(--color-bg-soft);
+    color: var(--color-text);
+    font: inherit;
+    font-size: 1.0625rem;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.01em;
+  }
+  .control input {
+    font-family: var(--font-mono);
+    font-size: 1.125rem;
+  }
+  .control input:focus-visible,
+  .control select:focus-visible {
+    outline: 0.125rem solid var(--color-accent);
+    outline-offset: 0.1875rem;
+  }
+  .preview-description {
+    margin: 0;
+    font-size: 0.875rem;
+    line-height: 1.65;
+    color: var(--color-text-muted);
+  }
+  .readout {
+    display: grid;
+    gap: 0;
+    margin: 0;
+    border: 0.0625rem solid var(--color-border);
+    border-radius: 0.875rem;
+    background: var(--color-bg);
+    overflow: hidden;
+  }
+  .readout > div {
+    display: grid;
+    gap: 0.25rem;
+    padding: 0.875rem 1rem;
+    min-width: 0;
+  }
+  .readout > div + div {
+    border-top: 0.0625rem solid var(--color-border);
+  }
+  .readout .raw {
+    background: var(--theme-accent-soft);
+  }
+  .readout dt {
+    font: 0.62rem/1.6 var(--font-mono);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-text-subtle);
+  }
+  .readout dd {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: 0.95rem;
+    color: var(--color-text);
+    overflow-wrap: anywhere;
+  }
+  [data-status] {
+    font-family: var(--font-sans, inherit);
+    font-size: 0.875rem;
+  }
+  [data-status][data-valid='true'] {
+    color: var(--color-text);
+  }
+  [data-status][data-valid='true']::before {
+    content: '✓ ';
+    color: var(--color-accent);
+  }
+  [data-status][data-valid='false'] {
+    color: var(--color-text-muted);
+  }
+  .samples {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-sm);
+  }
+  .samples-label {
+    font: 0.62rem/1.6 var(--font-mono);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-right: 0.25rem;
+  }
+  .noscript {
+    padding: 1rem 1.5rem;
+    margin: 0;
+    font-size: var(--text-small);
+  }
+  .code-body {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-md);
+    padding: var(--space-sm);
+  }
+  .code-disclosure {
+    margin-top: var(--space-lg);
+    padding-block: var(--space-xs);
+  }
+  @media (width < 48rem) {
+    .specimen {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 1.25rem;
+      min-height: 0;
+    }
+  }
+</style>

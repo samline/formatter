@@ -41,16 +41,16 @@ Requires Node 20+ when bundling. Runtime target is ES2020.
 Use the browser build when you do not have a bundler and need to run the package directly in HTML, Shopify, WordPress, or any traditional template.
 
 ```html
-<script src="https://unpkg.com/@samline/formatter@2.0.3/dist/browser/global.global.js"></script>
+<script src="https://unpkg.com/@samline/formatter@2.1.0/dist/browser/global.global.js"></script>
 ```
 
-> The documentation intentionally pins the current release (`2.0.3`) instead of
+> The documentation intentionally pins the current release (`2.1.0`) instead of
 > `latest`. Choose the exact version you want to ship when copying this URL.
 
 The browser bundle exposes a single global: `window.Formatter`.
 
 ```html
-<script src="https://unpkg.com/@samline/formatter@2.0.3/dist/browser/global.global.js"></script>
+<script src="https://unpkg.com/@samline/formatter@2.1.0/dist/browser/global.global.js"></script>
 <script>
   const result = window.Formatter.format('5512345678', 'phone')
   console.log(result.formatted) // '55 1234 5678'
@@ -58,7 +58,7 @@ The browser bundle exposes a single global: `window.Formatter`.
 </script>
 ```
 
-See [docs/browser.md](docs/browser.md) for the full browser surface.
+See the [Browser global reference](https://samline.github.io/formatter/docs/reference/browser/) for the full browser surface. The minified script defines `window.Formatter` with `format`, `regex` and `version` (use 2.1.0 or later: earlier releases exposed only `window.Formatter.default`).
 
 ---
 
@@ -104,7 +104,7 @@ format('4111111111111111', 'creditCardType')
 
 | `formatType` | What it does | Default output |
 | --- | --- | --- |
-| `'general'` | Block-based masking with custom delimiter/delimiters | Unformatted body; digits-only when `numericOnly` is enabled |
+| `'general'` | Block-based masking with custom delimiter/delimiters | Typed body without delimiters (`rawPrefix`/`rawSuffix` for the canonical value) |
 | `'phone'` | Country-aware phone formatting via `libphonenumber-js` | Space-delimited, digits-only raw (preserves leading `+`) |
 | `'numeral'` | Thousand separators, optional decimals | `'1,234.56'` style raw |
 | `'date'` | Raw `Y-m-d` → display pattern | `'12/05/2026'`, raw `'2026-05-12'` |
@@ -114,23 +114,22 @@ format('4111111111111111', 'creditCardType')
 
 ## Documentation
 
-Full API reference, guides, and examples are available at **[samline.github.io/formatter](https://samline.github.io/formatter)**.
+The website includes a landing page, six live examples with copyable files and the complete documentation: **[samline.github.io/formatter](https://samline.github.io/formatter/)**.
 
-| Doc | Purpose |
+| Page | What it covers |
 | --- | --- |
-| [docs/getting-started.md](docs/getting-started.md) | Concepts, observable contract, lifecycle, and side-effects table. |
-| [docs/recipes.md](docs/recipes.md) | End-to-end patterns: React, Vue, Svelte, vanilla, server-side. |
-| [docs/styling-and-ux.md](docs/styling-and-ux.md) | Accessible markup, CSS states, input attributes, and caret behavior. |
-| [docs/options.md](docs/options.md) | Full `FormatOptions` reference, with `general` prefix/suffix deep-dive. |
-| [docs/api/format.md](docs/api/format.md) | `format()` signature, behaviour, edge cases, advanced helpers. |
-| [docs/api/regex.md](docs/api/regex.md) | Validation dictionary, parametric variants, custom regex. |
-| [docs/api/index.md](docs/api/index.md) | API surface at a glance. |
-| [docs/typescript.md](docs/typescript.md) | Every exported TypeScript type, with examples. |
-| [docs/entrypoints.md](docs/entrypoints.md) | ESM / CJS / browser / vanilla entrypoints and distribution matrix. |
-| [docs/browser.md](docs/browser.md) | Browser global (`window.Formatter`) usage. |
-| [docs/regex.md](docs/regex.md) | Standalone reference for the validation pattern dictionary. |
+| [Getting started](https://samline.github.io/formatter/docs/getting-started/) | Installation, quick start and working starter files. |
+| [Examples](https://samline.github.io/formatter/examples/) | Phone, amount, date, time, card and custom-mask fields with HTML / CDN and Package / ESM files. |
+| [Framework integrations](https://samline.github.io/formatter/docs/guides/frameworks/) | React, Vue, Svelte, vanilla and server-side patterns. |
+| [Styling and UX](https://samline.github.io/formatter/docs/guides/styling-and-ux/) | Accessible markup, CSS states, input attributes and caret behavior. |
+| [Recipes](https://samline.github.io/formatter/docs/guides/recipes/) | End-to-end patterns for real forms. |
+| [API reference](https://samline.github.io/formatter/docs/reference/api/) | `format()` and the advanced helpers. |
+| [Configuration](https://samline.github.io/formatter/docs/reference/configuration/) | Every `FormatOptions` field, with the `general` prefix/suffix deep-dive. |
+| [Validation patterns](https://samline.github.io/formatter/docs/reference/regex/) | Static and parametric `regex` entries with paired messages. |
+| [Entrypoints](https://samline.github.io/formatter/docs/reference/entrypoints/) · [Browser global](https://samline.github.io/formatter/docs/reference/browser/) · [TypeScript](https://samline.github.io/formatter/docs/reference/typescript/) | Distribution matrix, `window.Formatter` and exported types. |
+| [Changelog](https://samline.github.io/formatter/docs/changelog/) | Release notes. |
 
----
+The website source lives in `landing/`, `docs/` and `shared/`; see [SITE.md](SITE.md) to run or maintain it.
 
 ## License
 

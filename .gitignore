@@ -36,3 +36,13 @@ skills-lock.json
 # Local files
 .local/
 AGENTS.md
+# Website build output and derived assets
+.astro/
+test-results/
+playwright-report/
+brief/
+**/public/fonts/
+**/public/favicon.svg
+**/public/font-licenses/
+*.tgz
+.claude/

@@ -22,14 +22,14 @@ declare global {
   }
 }
 
-const Formatter: FormatterGlobal = {
-  format,
-  regex,
-  version: packageJson.version
-}
+/** Library version, mirrors the `version` field in `package.json`. */
+export const version: string = packageJson.version
 
-if (typeof window !== 'undefined') {
-  window.Formatter = Formatter
-}
+export { format, regex }
 
-export default Formatter
+/*
+ * The IIFE build (`globalName: 'Formatter'`) assigns this module's named
+ * exports to `window.Formatter`. A default export would become
+ * `window.Formatter.default` and hide `format`/`regex`, so this entry
+ * intentionally exposes named exports only.
+ */

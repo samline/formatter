@@ -5,7 +5,7 @@ import { extname, join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import packageJson from '../../package.json'
 
-const documentationRoots = ['README.md', 'docs', 'example/src/content/docs']
+const documentationRoots = ['README.md', 'docs/src/content/docs']
 const cdnUrlPattern = /https:\/\/(?:unpkg\.com\/|cdn\.jsdelivr\.net\/npm\/)@samline\/formatter(?:@([^/\s"`]+))?\/[^\s"`)]+/g
 
 async function findMarkdownFiles(path: string): Promise<string[]> {

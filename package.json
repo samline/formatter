@@ -1,6 +1,6 @@
 {
   "name": "@samline/formatter",
-  "version": "2.0.3",
+  "version": "2.1.0",
   "description": "Lightweight, framework-agnostic input formatter (phone, numeral, date, time, credit card, general) that returns split formatted/raw outputs.",
   "type": "module",
   "license": "MIT",
@@ -12,7 +12,8 @@
   },
   "sideEffects": false,
   "files": [
-    "dist"
+    "dist",
+    "CHANGELOG.md"
   ],
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
@@ -41,7 +42,21 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "prepublishOnly": "npm run clean && npm run build && npm run typecheck && npm test"
+    "test:dist": "vitest run --config vitest.dist.config.ts",
+    "prepublishOnly": "npm run clean && npm run build && npm run typecheck && npm test && npm run test:dist",
+    "site:dev": "node site-tools/assets.mjs && node site-tools/dev.mjs",
+    "site:build": "node site-tools/assets.mjs && npm --workspace docs run build && npm --workspace landing run build && node site-tools/assemble.mjs && node site-tools/check-site.mjs",
+    "site:preview": "npm --workspace landing run preview -- --host 127.0.0.1 --port 4350 --ignore-lock",
+    "site:check": "node site-tools/check-config.mjs && npm run site:check:design && npm --workspace landing run check && npm --workspace docs run check",
+    "site:format": "prettier --plugin prettier-plugin-astro --write landing docs/src docs/scripts shared site-tools site-tests site-e2e playwright.site.config.ts project.config.json content-audit.json design-reference.json SITE.md --ignore-path .site-prettierignore",
+    "site:format:check": "prettier --plugin prettier-plugin-astro --check landing docs/src docs/scripts shared site-tools site-tests site-e2e playwright.site.config.ts project.config.json content-audit.json design-reference.json SITE.md --ignore-path .site-prettierignore",
+    "site:test": "node --test site-tests/*.test.mjs",
+    "site:test:browser": "playwright test --config playwright.site.config.ts",
+    "site:verify": "npm run site:check && npm run site:format:check && npm run site:test && npm run site:test:adaptation && npm run site:build && npm run site:test:browser",
+    "site:configure": "node site-tools/configure.mjs",
+    "site:check:release": "node site-tools/check-release.mjs",
+    "site:test:adaptation": "node site-tools/test-adaptation.mjs",
+    "site:check:design": "node site-tools/check-design.mjs"
   },
   "keywords": [
     "formatter",
@@ -74,6 +89,15 @@
     "jsdom": "^26.1.0",
     "tsup": "^8.5.0",
     "typescript": "^5.8.3",
-    "vitest": "^3.1.1"
-  }
+    "vitest": "^3.1.1",
+    "@playwright/test": "1.62.1",
+    "axe-core": "^4.14.0",
+    "prettier": "^3.9.10",
+    "prettier-plugin-astro": "^1.1.1"
+  },
+  "workspaces": [
+    "landing",
+    "docs",
+    "shared"
+  ]
 }

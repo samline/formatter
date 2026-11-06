@@ -7,9 +7,20 @@ tsconfig.json
 tsup.config.ts
 vitest.config.ts
 
-# Docs & examples
+# Website (the package.json `files` allowlist already excludes it)
 docs/
-example/
+landing/
+shared/
+site-tools/
+site-tests/
+site-e2e/
+playwright.site.config.ts
+project.config.json
+content-audit.json
+design-reference.json
+REFERENCE.md
+SITE.md
+.claude/
 
 # Tooling & lockfiles
 .agents/

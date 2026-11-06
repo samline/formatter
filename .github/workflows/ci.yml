@@ -1,43 +1,79 @@
 name: CI
 
 on:
-  pull_request:
   push:
     branches: [main]
+  pull_request:
+  workflow_dispatch:
 
 permissions:
   contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   package:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 10
-      # Astro 7 requires Node >=22.12.0; align with deploy.yml.
-      - uses: actions/setup-node@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: pnpm
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm run typecheck
-      - run: pnpm test
-      - run: pnpm run build
-      - run: npm pack --dry-run
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+      - name: Typecheck
+        run: bun run typecheck
+      - name: Test
+        run: bun run test
+      - name: Build package
+        run: bun run build
+      - name: Smoke-test the built output
+        run: bun run test:dist
+      - name: Inspect the npm archive
+        run: npm pack --dry-run
 
-  docs:
+  website:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: example
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
-          node-version: 22
-          cache: npm
-          cache-dependency-path: example/package-lock.json
-      - run: npm ci
-      - run: npm run build
+          node-version: 24
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+      - name: Build package for copied examples
+        run: bun run build
+      - name: Check both apps and design conventions
+        run: bun run site:check
+      - name: Check website formatting
+        run: bun run site:format:check
+      - name: Test website tooling
+        run: bun run site:test
+      - name: Test alternate package and deployment bases
+        run: bun run site:test:adaptation
+      - name: Build site and verify links
+        run: bun run site:build
+      - name: Check release documentation evidence
+        run: bun run site:check:release
+      - name: Install Chromium
+        run: bunx playwright install --with-deps chromium
+      - name: Run browser and copied example regressions
+        run: bun run site:test:browser
+      - name: Save failure diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: website-test-results
+          path: test-results/
+          if-no-files-found: ignore
+          retention-days: 7

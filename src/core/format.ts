@@ -152,4 +152,9 @@ const getValueForFormatting = (
   return value
 }
 
+/**
+ * @internal Pipeline steps used by `format()`. They are reachable from the
+ * package entrypoints for backward compatibility only; they are not part of
+ * the documented API and may change without a major release.
+ */
 export { formatValue, getValueForFormatting, resolveRuntimeOptions }

@@ -30,6 +30,9 @@ export default defineConfig([
     clean: false,
     globalName: 'Formatter',
     platform: 'browser',
-    minify: false
+    // The CDN file bundles libphonenumber metadata; minifying it cuts the
+    // transfer size substantially without changing the global API.
+    minify: true,
+    sourcemap: true
   }
 ])

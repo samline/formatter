@@ -162,3 +162,25 @@ The user has signaled they like the structural shape of `@samline/forms`' docume
 - 2026-09-23, pre-release draft of formatter docs. I structurally matched `forms` (sidebar with "Guide / Reference / Examples", side-effects table, recipes collection) and then backfilled recipes by analogy. Two of the backfilled recipes introduced real bugs (see lesson #2). The structural mirroring was the right call; the analogical recipe-writing was the wrong call.
 
 WHY: structural mirroring gets the navigation and lookup ergonomics right; substance mirroring smuggles in mismatched promises.
+
+---
+
+## 6. Test the built browser bundle, not only its source module
+
+Type: rule
+
+A unit test that imports `src/browser/global.ts` cannot catch how the IIFE wrapper assigns the global. With `globalName: 'Formatter'` and a default export, a classic `<script>` overwrote `window.Formatter` with `{ default }`, so every CDN example in 2.0.x failed while the source tests passed.
+
+**Rule:** keep `test/build/bundle.test.ts` (`npm run test:dist`) running the built IIFE as a classic script after every build, and keep the browser entry on named exports only.
+
+**Evidence:** 2026-11-05 audit, fixed in 2.1.0.
+
+---
+
+## 7. Raw values must be stable under re-formatting
+
+Type: rule
+
+An input listener feeds the previous `formatted` value back into `format()` on every keystroke. Any `raw` that keeps the formatter's own delimiters changes between the first call and the next (`12345678` vs `1234-5678`). When changing affix or raw logic, assert `format(format(x).formatted).raw === format(x).raw`.
+
+**Evidence:** 2026-11-05 audit, prefixed `general` values; fixed in 2.1.0 with tests in `test/core/audit-2.1.test.ts`.
