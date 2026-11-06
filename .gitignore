@@ -45,4 +45,5 @@ brief/
 **/public/favicon.svg
 **/public/font-licenses/
 *.tgz
-.claude/
+.claude/*
+!.claude/skills
