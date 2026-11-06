@@ -22,8 +22,8 @@ export default {
       'One pure function formats phones, amounts, dates, times, card numbers and custom masks as people type,',
     descriptionContinuation: 'and returns the clean value your backend expects alongside it.',
     footnotes: ['Pure function', 'Seven format types', 'Paired validation'],
-    compatibilityLabel: 'Works anywhere JavaScript runs',
-    platforms: ['Browsers', 'Node.js 20+', 'React', 'Vue', 'Svelte', 'Shopify', 'WordPress'],
+    compatibilityLabel: 'ONE SMALL SCRIPT. RIGHT AT HOME IN YOUR STACK.',
+    platforms: ['JavaScript', 'TypeScript', 'React', 'Vue', 'Svelte', 'Shopify', 'WordPress'],
   },
   features: {
     eyebrow: '01 / The package at a glance',
