@@ -16,6 +16,7 @@ export default {
   hero: {
     kicker: 'Input formatting for the open web.',
     title: project.name,
+    seoTitle: `${project.name} — Input formatting with formatted and raw values for JavaScript`,
     titleAccent: 'Formatted and raw, at once.',
     description:
       'One pure function formats phones, amounts, dates, times, card numbers and custom masks as people type,',
@@ -212,22 +213,76 @@ field.addEventListener('input', () => {
     eyebrow: '05 / Before you build',
     heading: heading('A few details.', 'Clearly answered.'),
     items: {
-      docs: {
+      submit: {
+        question: text('Which value should my form submit?'),
+        answer: text(
+          'Submit raw. It drops delimiters and decorations, keeps a leading + for international phones, uses a dot as the decimal mark and follows the raw date or time pattern. Keep formatted for display only: mirror raw into a hidden input, a form state field or the request body.'
+        ),
+      },
+      prefill: {
+        question: text('How do I show a value that is already stored?'),
+        answer: text(
+          'Pass the stored raw value through format() and put formatted in the field. Dates and times use interpretInputAs: "auto" by default, so an ISO value such as 1990-12-31 is recognized as raw and converted to the display pattern. Use "raw" or "display" when your data is ambiguous.'
+        ),
+      },
+      paste: {
+        question: text('What happens when people paste text?'),
+        answer: text(
+          'Each call formats the whole value, so pasting works like typing. Phones ignore spaces, dashes and parentheses; card numbers and numerals drop separators; a pasted prefix or suffix that is already present is recognized instead of being added twice.'
+        ),
+      },
+      caret: {
         question: text('Does Formatter keep the caret position?'),
         answer: text(
-          'No. Formatter is a pure function and never reads the selection. Assigning the formatted value moves the caret to the end in most browsers; the Styling and UX guide explains how to restore it when people edit in the middle.'
+          'No. Formatter is a pure function and never reads the selection. Assigning the formatted value moves the caret to the end in most browsers, which suits fields typed from left to right. For editing in the middle, save selectionStart before formatting and restore an adjusted position with setSelectionRange(); the Styling and UX guide covers this.'
         ),
       },
-      copy: {
-        question: text('Which value should I submit?'),
+      inputType: {
+        question: text('Should I use type="number" or type="tel"?'),
         answer: text(
-          'Submit raw. It removes delimiters and decorations, keeps a leading + for international phones and uses the raw date or time pattern. Keep formatted only for display.'
+          'Use type="text" with an inputmode hint (numeric, decimal or tel) and the matching autocomplete value. type="number" rejects separators, prefixes and suffixes, so the formatted value cannot be shown in it.'
         ),
       },
-      changes: {
-        question: text('Is it a replacement for server-side validation?'),
+      validation: {
+        question: text('Does formatting validate the value?'),
         answer: text(
-          'No. The regex catalog gives quick feedback with consistent messages, and card formatting is not payment validation. Always validate again on the server.'
+          'No. Formatting shapes input; it does not decide whether it is correct. Pair it with the regex catalog, which gives each pattern a ready error message for setCustomValidity() or your own UI, and always validate again on the server. Card formatting is not payment validation.'
+        ),
+      },
+      countries: {
+        question: text('Which countries and regional formats are supported?'),
+        answer: text(
+          'Phones use libphonenumber-js, so any ISO 3166-1 country code works, in upper or lower case; MX is the default. Numerals switch the decimal mark, grouping delimiter and currency position, and dates and times take any order of their segments.'
+        ),
+      },
+      frameworks: {
+        question: text('Can I use it with React, Vue, Svelte or a CMS?'),
+        answer: text(
+          'Yes. There is no adapter to install: call format() in the input handler you already have, store raw in state and render formatted. In Shopify or WordPress, load the CDN script once and attach listeners to your own fields. The framework guide has complete controlled-input examples.'
+        ),
+      },
+      server: {
+        question: text('Can I run it on the server?'),
+        answer: text(
+          'Yes. format() has no DOM access, timers or global state, so it runs in Node.js 20+, workers and tests with the same output. Use it to normalize imported data, render formatted values in emails, or re-check what a form submitted.'
+        ),
+      },
+      size: {
+        question: text('How large is it?'),
+        answer: text(
+          'The standalone browser script is about 165 KB minified before compression, because it bundles libphonenumber-js metadata and cleave-zen. With a bundler, the package uses those two dependencies directly and shares them with the rest of your application.'
+        ),
+      },
+      errors: {
+        question: text('What happens with empty or invalid input?'),
+        answer: text(
+          'null, undefined and empty strings return empty formatted and raw values. An unknown format type throws a TypeError, and a general mask without blocks throws a descriptive error; use isFormatType() to check a type that comes from configuration or a URL.'
+        ),
+      },
+      upgrade: {
+        question: text('Is upgrading from 2.0 safe?'),
+        answer: text(
+          'Yes for most code. 2.1.0 fixes the CDN global, which exposed only window.Formatter.default in 2.0.x, stabilizes raw values for decorated masks and tightens two validation patterns. Read the changelog for every behavior change before you upgrade.'
         ),
       },
     },

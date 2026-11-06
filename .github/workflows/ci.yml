@@ -34,7 +34,7 @@ jobs:
       - name: Build package
         run: bun run build
       - name: Smoke-test the built output
-        run: bun run test:dist
+        run: bun run test:package
       - name: Inspect the npm archive
         run: npm pack --dry-run
 

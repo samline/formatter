@@ -116,9 +116,10 @@ test('file tabs copy exact highlighted source and feedback resets independently'
   context,
 }) => {
   await context.grantPermissions(['clipboard-read', 'clipboard-write'])
-  for (const path of ['examples/', 'docs/guides/examples/']) {
-    await page.goto(path || './')
-    await page.getByText('Explore the code', { exact: true }).first().click()
+  for (const path of ['examples/', 'docs/getting-started/']) {
+    await page.goto(path)
+    if (path === 'examples/')
+      await page.getByText('Explore the code', { exact: true }).first().click()
     const viewer = page.locator('[data-code-files]:visible').first()
     for (const label of ['HTML', 'CSS', 'JavaScript', 'Complete file']) {
       await viewer.getByRole('tab', { name: label, exact: true }).click()
@@ -133,25 +134,27 @@ test('file tabs copy exact highlighted source and feedback resets independently'
     }
   }
 })
-test('copied CDN and ESM files run for every scenario', async ({ page, context }) => {
+test('copied CDN and ESM files run for all fifteen scenarios', async ({ page, context }) => {
   // The CDN URL is served from this checkout's build; this proves the copied
   // code, not unpkg availability or npm publication.
   const iife = readFileSync(new URL('../dist/browser/global.global.js', import.meta.url), 'utf8')
-  const expected: Record<string, [string, string]> = {
-    phone: ['55 9876 5432', '5598765432'],
-    amount: ['$2,500.75', '2500.75'],
-    date: ['24/12/2026', '2026-12-24'],
-    time: ['18:05', '18:05'],
-    card: ['5555 5555 5555 4444', '5555555555554444'],
-    reference: ['ORD-1111-2222', '11112222'],
-  }
-  const typed: Record<string, string> = {
-    phone: '5598765432',
-    amount: '2500.755',
-    date: '24/12/2026',
-    time: '1805',
-    card: '5555555555554444',
-    reference: '11112222',
+  // [typed, formatted, raw]; the validator has no raw, only a status.
+  const cases: Record<string, [string, string, string]> = {
+    phone: ['5598765432', '55 9876 5432', '5598765432'],
+    amount: ['2500.755', '$2,500.75', '2500.75'],
+    euro: ['2500,755', '2.500,75 €', '2500.75'],
+    quantity: ['-0042', '42', '42'],
+    date: ['24/12/2026', '24/12/2026', '2026-12-24'],
+    expiry: ['0731', '07/31', '07/31'],
+    time: ['1805', '18:05', '18:05'],
+    card: ['5555555555554444', '5555 5555 5555 4444', '5555555555554444'],
+    reference: ['11112222', 'ORD-1111-2222', '11112222'],
+    weight: ['250', '250 kg', '250'],
+    promo: ['save40', 'SAVE40', '40'],
+    postal: ['100011234', '10001-1234', '100011234'],
+    curp: ['lopj921215mdfrrs05', 'LOPJ921215MDFRRS05', 'LOPJ921215MDFRRS05'],
+    color: ['00aa55', '#00AA55', '#00AA55'],
+    validator: ['not-an-email', 'not-an-email', ''],
   }
   await page.goto('examples/')
   const example = await context.newPage()
@@ -167,7 +170,7 @@ test('copied CDN and ESM files run for every scenario', async ({ page, context }
       contentType: 'text/javascript',
     })
   )
-  for (const [preset, [formatted, raw]] of Object.entries(expected)) {
+  for (const [preset, [input, formatted, raw]] of Object.entries(cases)) {
     const section = page.locator(`#${preset}`)
     await section.getByText('Explore the code', { exact: true }).click()
     for (const mode of ['HTML / CDN', 'Package / ESM']) {
@@ -198,8 +201,17 @@ test('copied CDN and ESM files run for every scenario', async ({ page, context }
       expect(errors, `${preset} ${mode}`).toEqual([])
       const field = example.locator('input[type=text]')
       await expect(field).not.toHaveValue('')
-      await field.fill(typed[preset]!)
+      await field.fill(input)
       await expect(field, `${preset} ${mode}`).toHaveValue(formatted)
+      if (preset === 'validator') {
+        await expect(example.locator('[data-status]')).toHaveText(
+          'Please enter a valid email address.'
+        )
+        await example.locator('select').selectOption('slug')
+        await field.fill('my-post')
+        await expect(example.locator('[data-status]')).toHaveText('Looks valid')
+        continue
+      }
       await expect(example.locator('input[type=hidden]')).toHaveValue(raw)
       await expect(example.locator('output[data-raw]')).toHaveText(raw)
     }
@@ -282,12 +294,13 @@ test('all pages pass automated accessibility checks in both themes', async ({ pa
 test('highlighting has the same computed palette across all three routes', async ({ page }) => {
   for (const theme of ['dark', 'light']) {
     let reference: unknown
-    for (const path of ['', 'examples/', 'docs/guides/examples/']) {
+    for (const path of ['', 'examples/', 'docs/getting-started/']) {
       await page.goto(path || './')
       await page.evaluate(theme => {
         document.documentElement.dataset.theme = theme
       }, theme)
-      if (path) await page.getByText('Explore the code', { exact: true }).first().click()
+      if (path === 'examples/')
+        await page.getByText('Explore the code', { exact: true }).first().click()
       const code = path
         ? page.locator('[data-code-files] pre[data-language=html]:visible').first()
         : page.locator('#how pre[data-language=html]:visible').first()
@@ -315,4 +328,28 @@ test('ToC follows the clicked section and anchors retain the 2.5rem header gap',
     expected: parseFloat(getComputedStyle(document.documentElement).fontSize) * 2.5,
   }))
   expect(Math.abs(spacing.gap - spacing.expected)).toBeLessThan(2)
+})
+
+test('selects are styled controls and the package skill downloads its source', async ({ page }) => {
+  await page.goto('examples/')
+  const select = page.locator('#phone select')
+  const style = await select.evaluate(el => ({
+    cursor: getComputedStyle(el).cursor,
+    appearance: getComputedStyle(el).appearance,
+    padding: parseFloat(getComputedStyle(el).paddingRight),
+  }))
+  expect(style).toMatchObject({ cursor: 'pointer', appearance: 'none' })
+  expect(style.padding).toBeGreaterThan(30)
+  await expect(page.locator('#phone .select-field svg')).toBeVisible()
+  for (const link of [
+    page.locator('footer a[download="SKILL.md"]'),
+    page.locator('.resources a[download="SKILL.md"]'),
+  ]) {
+    const href = (await link.getAttribute('href'))!
+    expect(href).toBe(`${project.base}skills/formatter/SKILL.md`)
+    const response = await page.request.get(href)
+    expect(await response.text()).toBe(
+      readFileSync(new URL('../skills/formatter/SKILL.md', import.meta.url), 'utf8')
+    )
+  }
 })

@@ -3,8 +3,9 @@ locale: en
 sidebar:
   group: reference
   order: 3
-title: 'Regex'
-description: 'Validation patterns bundled with @samline/formatter, each paired with a ready-to-use error message.'
+title: 'Validation patterns'
+titleAccent: 'patterns'
+description: 'The regex catalog of @samline/formatter: static and parametric validation patterns, each paired with a ready-to-use error message.'
 ---
 
 The `regex` export is a readonly TypeScript object of validation patterns. Static entries pair a `RegExp` with an `errorMessage`; parametric-only helpers return that pair when called.

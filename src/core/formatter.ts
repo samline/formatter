@@ -150,9 +150,20 @@ export const format = (
             : rawPrefix)
         : ''
 
-      let body = stringValue
+      // Match decorations against the case-transformed value so a prefix
+      // typed in another case is recognized instead of being duplicated.
+      // `raw` keeps the typed body's original case (historical contract).
+      const cased = runtime.uppercase
+        ? stringValue.toUpperCase()
+        : runtime.lowercase
+          ? stringValue.toLowerCase()
+          : stringValue
+      const caseSafe = cased.length === stringValue.length
+      let body = caseSafe ? cased : stringValue
       let typedHead = ''
       let typedTail = ''
+      let headCut = 0
+      let tailCut = 0
 
       if (effPrefix) {
         const r = stripTypedAffix(
@@ -162,6 +173,7 @@ export const format = (
           runtime.prefixMode === 'passthrough'
         )
         typedHead = r.typed
+        headCut = body.length - r.core.length
         body = r.core
       }
 
@@ -173,6 +185,7 @@ export const format = (
           runtime.suffixMode === 'passthrough'
         )
         typedTail = r.typed
+        tailCut = body.length - r.core.length
         body = r.core
       }
 
@@ -215,7 +228,10 @@ export const format = (
       }
       // Default: the typed body without the formatter's own delimiters, so
       // re-formatting a displayed value (every keystroke) keeps `raw` stable.
-      let raw = getRawValue(body, formatType, delimiterOptions)
+      const typedBody = caseSafe
+        ? stringValue.slice(headCut, stringValue.length - tailCut)
+        : body
+      let raw = getRawValue(typedBody, formatType, delimiterOptions)
       if (wantsCanonicalRaw) {
         raw = getRawValue(bodyFormatted, formatType, delimiterOptions).replace(/\s/g, '')
         if (runtime.numericOnly) raw = raw.replace(/\D/g, '')

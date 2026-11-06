@@ -1,14 +1,15 @@
 ---
 import type { HTMLAttributes } from 'astro/types'
-import { format, regex } from '@samline/formatter'
+import { format, regex, type FormatOptions } from '@samline/formatter'
 import DemoStudio from './DemoStudio.astro'
 import DemoPanel from './DemoPanel.astro'
 import DemoFooter from './DemoFooter.astro'
 import Button from './Button.astro'
+import Select from './Select.astro'
 import Disclosure from './Disclosure.astro'
 import DemoCode from './DemoCode.astro'
-import t, { scenarios, type DemoPreset, type ScenarioCheck } from '../i18n/translations/en/demo'
-import type { FormatOptions } from '@samline/formatter'
+import t, { scenarios, type DemoPreset, type Scenario } from '../i18n/translations/en/demo'
+import { callSignature } from '../lib/demo-source'
 interface Props extends HTMLAttributes<'div'> {
   showCode?: boolean
   preset?: DemoPreset
@@ -22,50 +23,63 @@ const {
   class: className,
   ...attributes
 } = Astro.props
-const item = scenarios[preset]
+type Rule = { pattern: RegExp; errorMessage: string }
+const item: Scenario = scenarios[preset]
 const field = item.field
 const fieldId = `${id}-${field.id}`
+const choice = item.choice
+const validation = item.formatType === null
+const options = (
+  choice?.role === 'country' ? { ...item.options, country: choice.initial } : item.options
+) as FormatOptions
+const resolveRule = (key: string, args?: readonly unknown[]): Rule => {
+  const entry = regex[key as keyof typeof regex] as unknown
+  return typeof entry === 'function'
+    ? (entry as (...values: unknown[]) => Rule)(...(args ?? []))
+    : (entry as Rule)
+}
 // Render the initial result at build time so the preview is complete without
 // JavaScript and does not shift when the script takes over.
-const options = item.options as FormatOptions
-const initial = format(field.value, item.formatType, options)
-const brand =
-  'brand' in item ? format(initial.raw, 'creditCardType').formatted || item.brand.empty : null
-const check: ScenarioCheck | null = 'check' in item ? item.check : null
-const rule = check
-  ? (() => {
-      const entry = regex[check.key as keyof typeof regex] as unknown
-      return typeof entry === 'function' && check.args
-        ? (entry as (...args: unknown[]) => { pattern: RegExp; errorMessage: string })(
-            ...check.args
-          )
-        : (entry as { pattern: RegExp; errorMessage: string })
-    })()
+const initial = item.formatType
+  ? format(field.value, item.formatType, options)
+  : { formatted: field.value, raw: field.value }
+const brand = item.brand
+  ? format(initial.raw, 'creditCardType').formatted || item.brand.empty
   : null
-const valid = check && rule ? rule.pattern.test(initial[check.on]) : null
+const check = item.check ?? null
+const rule = validation
+  ? resolveRule(choice!.initial)
+  : check
+    ? resolveRule(check.key, check.args)
+    : null
+const valid = rule ? rule.pattern.test(validation ? field.value : initial[check!.on]) : null
+const validLabel = validation ? t.validLabel : (check?.valid ?? '')
+const ruleLabel = validation
+  ? t.ruleLabel
+  : check
+    ? `regex.${check.key}${check.args ? `(${check.args.join(', ')})` : ''}`
+    : ''
 const Frame = framed ? DemoStudio : 'div'
 ---
 
 <div {...attributes} data-ui class:list={['playground', className]}>
   <package-site-demo data-preset={preset} role="group" aria-labelledby={`${id}-label`}>
     <Frame>
-      <DemoPanel label={item.title} tagline={t.previewTagline}>
+      <DemoPanel label={item.tab} tagline={validation ? t.validationTagline : t.previewTagline}>
         <div class:list={['specimen']}>
           <div class:list={['field-column']}>
-            <p id={`${id}-label`} class:list={['preview-eyebrow']}>
-              {item.eyebrow}
+            <p id={`${id}-label`} class:list={['sr-only']}>
+              {item.title}
             </p>
-            {'country' in item && (
-              <div class:list={['control']}>
-                <label for={`${id}-${item.country.id}`}>{item.country.label}</label>
-                <select id={`${id}-${item.country.id}`} data-country>
-                  {item.country.choices.map(([code, label]) => (
-                    <option value={code} selected={code === options.country}>
-                      {label}
-                    </option>
-                  ))}
-                </select>
-              </div>
+            <code class:list={['signature']}>{callSignature(preset)}</code>
+            {choice && (
+              <Select
+                id={`${id}-${choice.id}`}
+                label={choice.label}
+                options={choice.choices}
+                value={choice.initial}
+                data-choice={choice.role}
+              />
             )}
             <div class:list={['control']}>
               <label for={fieldId}>{field.label}</label>
@@ -77,26 +91,39 @@ const Frame = framed ? DemoStudio : 'div'
                 placeholder={field.placeholder}
                 value={initial.formatted}
                 spellcheck="false"
-                aria-describedby={`${id}-raw${check ? ` ${id}-status` : ''}`}
+                aria-describedby={
+                  validation ? `${id}-status` : `${id}-raw${rule ? ` ${id}-status` : ''}`
+                }
                 data-field
               />
             </div>
             <p class:list={['preview-description']}>{item.description}</p>
           </div>
           <dl class:list={['readout']}>
-            <div>
-              <dt>{t.formattedLabel}</dt>
-              <dd>
-                <output data-formatted>{initial.formatted || t.emptyRaw}</output>
-              </dd>
-            </div>
-            <div class:list={['raw']}>
-              <dt id={`${id}-raw`}>{t.rawLabel}</dt>
-              <dd>
-                <output data-raw>{initial.raw || t.emptyRaw}</output>
-              </dd>
-            </div>
-            {brand !== null && 'brand' in item && (
+            {validation ? (
+              <div>
+                <dt>{t.patternLabel}</dt>
+                <dd>
+                  <output data-pattern>{rule!.pattern.source}</output>
+                </dd>
+              </div>
+            ) : (
+              <>
+                <div>
+                  <dt>{t.formattedLabel}</dt>
+                  <dd>
+                    <output data-formatted>{initial.formatted || t.emptyRaw}</output>
+                  </dd>
+                </div>
+                <div class:list={['raw']}>
+                  <dt id={`${id}-raw`}>{t.rawLabel}</dt>
+                  <dd>
+                    <output data-raw>{initial.raw || t.emptyRaw}</output>
+                  </dd>
+                </div>
+              </>
+            )}
+            {brand !== null && item.brand && (
               <div>
                 <dt>{item.brand.label}</dt>
                 <dd>
@@ -104,17 +131,19 @@ const Frame = framed ? DemoStudio : 'div'
                 </dd>
               </div>
             )}
-            {check && rule && (
+            {rule && (
               <div>
-                <dt>{`regex.${check.key}${check.args ? `(${check.args.join(', ')})` : ''}`}</dt>
+                <dt>{ruleLabel}</dt>
                 <dd>
                   <span
                     id={`${id}-status`}
+                    class:list={['status']}
                     data-status
                     data-valid={String(valid)}
+                    data-valid-label={validLabel}
                     aria-live="polite"
                   >
-                    {valid ? check.valid : rule.errorMessage}
+                    {valid ? validLabel : rule.errorMessage}
                   </span>
                 </dd>
               </div>
@@ -126,7 +155,12 @@ const Frame = framed ? DemoStudio : 'div'
         <div class:list={['samples']}>
           <span class:list={['samples-label']}>{t.samplesLabel}</span>
           {item.samples.map(sample => (
-            <Button variant="secondary" data-sample={sample.value} disabled>
+            <Button
+              variant="secondary"
+              data-sample={sample.value}
+              data-sample-choice={sample.choice}
+              disabled
+            >
               {sample.label}
             </Button>
           ))}
@@ -151,53 +185,64 @@ const Frame = framed ? DemoStudio : 'div'
 </div>
 
 <script>
-  import { format, regex } from '@samline/formatter'
+  import { format, regex, type FormatOptions } from '@samline/formatter'
   import { mountElements } from '../lib/mount-elements'
-  import type { FormatOptions } from '@samline/formatter'
-  import { scenarios, type DemoPreset, type ScenarioCheck } from '../i18n/translations/en/demo'
+  import { scenarios, type DemoPreset, type Scenario } from '../i18n/translations/en/demo'
   import t from '../i18n/translations/en/demo'
 
   type Rule = { pattern: RegExp; errorMessage: string }
+  const resolveRule = (key: string, args?: readonly unknown[]): Rule => {
+    const entry = regex[key as keyof typeof regex] as unknown
+    return typeof entry === 'function'
+      ? (entry as (...values: unknown[]) => Rule)(...(args ?? []))
+      : (entry as Rule)
+  }
 
   mountElements('package-site-demo', element => {
-    const item = scenarios[element.dataset.preset as DemoPreset]
+    const item: Scenario | undefined = scenarios[element.dataset.preset as DemoPreset]
     const field = element.querySelector<HTMLInputElement>('[data-field]')
-    const formattedOutput = element.querySelector('output[data-formatted]')
-    const rawOutput = element.querySelector('output[data-raw]')
-    if (!item || !field || !formattedOutput || !rawOutput) return
+    if (!item || !field) return
     const lifecycle = new AbortController()
     const { signal } = lifecycle
-    const country = element.querySelector<HTMLSelectElement>('[data-country]')
+    const select = element.querySelector<HTMLSelectElement>('select[data-choice]')
+    const formattedOutput = element.querySelector('output[data-formatted]')
+    const rawOutput = element.querySelector('output[data-raw]')
+    const patternOutput = element.querySelector('output[data-pattern]')
     const brand = element.querySelector('output[data-brand]')
     const status = element.querySelector<HTMLElement>('[data-status]')
-    const check: ScenarioCheck | null = 'check' in item ? item.check : null
     const baseOptions = item.options as FormatOptions
-    const rule = check
-      ? (() => {
-          const entry = regex[check.key as keyof typeof regex] as unknown
-          return typeof entry === 'function' && check.args
-            ? (entry as (...args: unknown[]) => Rule)(...check.args)
-            : (entry as Rule)
-        })()
-      : null
 
     const update = () => {
-      const options = country ? { ...baseOptions, country: country.value } : baseOptions
+      if (!item.formatType) {
+        const rule = resolveRule(select?.value ?? '')
+        const valid = rule.pattern.test(field.value)
+        if (patternOutput) patternOutput.textContent = rule.pattern.source
+        if (status) {
+          status.dataset.valid = String(valid)
+          status.textContent = valid ? t.validLabel : rule.errorMessage
+        }
+        return
+      }
+      const options =
+        item.choice?.role === 'country' && select
+          ? { ...baseOptions, country: select.value }
+          : baseOptions
       const { formatted, raw } = format(field.value, item.formatType, options)
       field.value = formatted
-      formattedOutput.textContent = formatted || t.emptyRaw
-      rawOutput.textContent = raw || t.emptyRaw
-      if (brand && 'brand' in item)
+      if (formattedOutput) formattedOutput.textContent = formatted || t.emptyRaw
+      if (rawOutput) rawOutput.textContent = raw || t.emptyRaw
+      if (brand && item.brand)
         brand.textContent = format(raw, 'creditCardType').formatted || item.brand.empty
-      if (status && check && rule) {
-        const valid = rule.pattern.test(check.on === 'raw' ? raw : formatted)
+      if (status && item.check) {
+        const rule = resolveRule(item.check.key, item.check.args)
+        const valid = rule.pattern.test(item.check.on === 'raw' ? raw : formatted)
         status.dataset.valid = String(valid)
-        status.textContent = valid ? check.valid : rule.errorMessage
+        status.textContent = valid ? item.check.valid : rule.errorMessage
       }
     }
 
     field.addEventListener('input', update, { signal })
-    country?.addEventListener('change', update, { signal })
+    select?.addEventListener('change', update, { signal })
     for (const button of element.querySelectorAll<HTMLButtonElement>(
       '[data-sample], [data-reset]'
     )) {
@@ -205,8 +250,10 @@ const Frame = framed ? DemoStudio : 'div'
       button.addEventListener(
         'click',
         () => {
+          const reset = button.hasAttribute('data-reset')
           field.value = button.dataset.sample ?? button.dataset.reset ?? ''
-          if (country) country.value = baseOptions.country ?? country.value
+          const choice = reset ? item.choice?.initial : button.dataset.sampleChoice
+          if (select && choice) select.value = choice
           update()
         },
         { signal }
@@ -240,11 +287,15 @@ const Frame = framed ? DemoStudio : 'div'
     gap: 0.875rem;
     min-width: 0;
   }
-  .preview-eyebrow {
-    margin: 0;
-    font: 0.68rem/1.6 var(--font-mono);
-    letter-spacing: 0.08em;
-    color: var(--color-text-muted);
+  .signature {
+    justify-self: start;
+    max-width: 100%;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.375rem;
+    background: var(--theme-accent-soft);
+    color: var(--color-text);
+    font: 0.75rem/1.5 var(--font-mono);
+    overflow-wrap: anywhere;
   }
   .control {
     display: grid;
@@ -255,27 +306,27 @@ const Frame = framed ? DemoStudio : 'div'
     font-weight: 600;
     color: var(--color-text);
   }
-  .control input,
-  .control select {
+  .control input {
     box-sizing: border-box;
     width: 100%;
     min-height: 3rem;
     padding: 0.75rem 0.875rem;
-    border: 0.0625rem solid var(--palette-control-border, var(--color-border));
+    border: 0.0625rem solid var(--color-border);
     border-radius: var(--radius-control);
     background: var(--color-bg-soft);
     color: var(--color-text);
-    font: inherit;
-    font-size: 1.0625rem;
+    font: 1.125rem/1.4 var(--font-mono);
     font-variant-numeric: tabular-nums;
-    letter-spacing: 0.01em;
+    cursor: text;
+    transition: border-color 0.15s ease;
   }
-  .control input {
-    font-family: var(--font-mono);
-    font-size: 1.125rem;
+  .control input:hover {
+    border-color: var(--palette-border-hover, var(--color-accent));
   }
-  .control input:focus-visible,
-  .control select:focus-visible {
+  .control input::placeholder {
+    color: var(--color-text-subtle);
+  }
+  .control input:focus-visible {
     outline: 0.125rem solid var(--color-accent);
     outline-offset: 0.1875rem;
   }
@@ -287,7 +338,6 @@ const Frame = framed ? DemoStudio : 'div'
   }
   .readout {
     display: grid;
-    gap: 0;
     margin: 0;
     border: 0.0625rem solid var(--color-border);
     border-radius: 0.875rem;
@@ -311,6 +361,7 @@ const Frame = framed ? DemoStudio : 'div'
     letter-spacing: 0.1em;
     text-transform: uppercase;
     color: var(--color-text-subtle);
+    overflow-wrap: anywhere;
   }
   .readout dd {
     margin: 0;
@@ -319,18 +370,18 @@ const Frame = framed ? DemoStudio : 'div'
     color: var(--color-text);
     overflow-wrap: anywhere;
   }
-  [data-status] {
+  .status {
     font-family: var(--font-sans, inherit);
     font-size: 0.875rem;
   }
-  [data-status][data-valid='true'] {
+  .status[data-valid='true'] {
     color: var(--color-text);
   }
-  [data-status][data-valid='true']::before {
+  .status[data-valid='true']::before {
     content: '✓ ';
     color: var(--color-accent);
   }
-  [data-status][data-valid='false'] {
+  .status[data-valid='false'] {
     color: var(--color-text-muted);
   }
   .samples {
@@ -365,6 +416,11 @@ const Frame = framed ? DemoStudio : 'div'
       grid-template-columns: minmax(0, 1fr);
       gap: 1.25rem;
       min-height: 0;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .control input {
+      transition: none;
     }
   }
 </style>

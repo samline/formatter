@@ -3,8 +3,9 @@ locale: en
 sidebar:
   group: reference
   order: 2
-title: 'Configuration'
-description: 'Every option accepted by format(), with defaults and per-formatType behavior.'
+title: 'Configuration options'
+titleAccent: 'options'
+description: 'Every option accepted by format(), with defaults, per-format behavior and the prefix and suffix rules for general masks.'
 ---
 
 `format(value, formatType, options?)` accepts an `options` object whose shape depends on `formatType`. All fields are optional; sensible defaults cover the common case (space-delimited MX phones, slash-delimited dates, etc.).

@@ -25,6 +25,7 @@ export default {
       project: 'Project',
       setup: 'Installation guide',
       examples: 'Working examples',
+      skill: 'Formatter skill for AI agents',
       changelog: 'Changelog',
       backToTop: 'Back to top',
       credit: `${project.author} · Made for the open web.`,
@@ -60,12 +61,16 @@ export default {
     recipeEyebrow: '01 / A formatted field',
     eyebrow: 'Examples',
     title: `${project.name} examples.`,
+    seoTitle: `${project.name} examples — phone, money, date, card and mask fields`,
+    seoDescription:
+      'Fifteen live input formatting examples: phones by country, currencies, ISO dates, card numbers, custom masks and validation rules, with copyable HTML / CDN and Package / ESM files.',
     accent: 'examples.',
     description:
-      'Six real form fields, each with live formatted and raw values and copyable HTML / CDN and Package / ESM files.',
+      'Fifteen real form fields with live formatted and raw values, validation and copyable HTML / CDN and Package / ESM files.',
     possibilities:
       'These examples show a few possibilities. Combine format types, options and regex rules with your own forms, frameworks and validation to build the fields your project needs.',
     guide: 'Read the example guide',
+    skill: 'Download the Formatter skill for AI agents',
     navigation: 'Choose an example',
     accessibility:
       'Every field keeps a visible label, a native inputmode and autocomplete hint, and a described raw value. Formatter supplies strings; your markup supplies accessibility.',

@@ -35,7 +35,6 @@ skills-lock.json
 
 # Local files
 .local/
-AGENTS.md
 # Website build output and derived assets
 .astro/
 test-results/

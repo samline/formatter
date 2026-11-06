@@ -11,8 +11,8 @@ interface Props {
   title?: string
   description?: string
 }
-const { title = project.name, description = project.description } = Astro.props
 const i18n = getI18n(Astro)
+const { title = i18n.sections.hero.seoTitle, description = project.description } = Astro.props
 ---
 
 <!doctype html>

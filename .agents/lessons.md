@@ -171,7 +171,7 @@ Type: rule
 
 A unit test that imports `src/browser/global.ts` cannot catch how the IIFE wrapper assigns the global. With `globalName: 'Formatter'` and a default export, a classic `<script>` overwrote `window.Formatter` with `{ default }`, so every CDN example in 2.0.x failed while the source tests passed.
 
-**Rule:** keep `test/build/bundle.test.ts` (`npm run test:dist`) running the built IIFE as a classic script after every build, and keep the browser entry on named exports only.
+**Rule:** keep `test/build/bundle.test.ts` (`npm run test:package`) running the built IIFE as a classic script after every build, and keep the browser entry on named exports only.
 
 **Evidence:** 2026-11-05 audit, fixed in 2.1.0.
 

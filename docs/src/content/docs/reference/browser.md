@@ -3,8 +3,9 @@ locale: en
 sidebar:
   group: reference
   order: 5
-title: 'Browser'
-description: 'Using @samline/formatter directly in the browser without a bundler.'
+title: 'Browser global'
+titleAccent: 'global'
+description: 'Use @samline/formatter without a bundler: the minified CDN script, window.Formatter and wiring it to a form.'
 ---
 
 @samline/formatter ships a pre-built **IIFE bundle** that works in plain HTML pages, Shopify themes, WordPress templates, or any project without a bundler.

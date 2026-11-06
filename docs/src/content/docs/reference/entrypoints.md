@@ -3,8 +3,9 @@ locale: en
 sidebar:
   group: reference
   order: 4
-title: 'Entrypoints'
-description: 'ESM, CJS, browser module, and global IIFE entrypoints for @samline/formatter.'
+title: 'Entrypoints and builds'
+titleAccent: 'and builds'
+description: 'The ESM, CommonJS, vanilla and browser IIFE entrypoints of @samline/formatter and when to choose each one.'
 ---
 
 Every public surface exposes the same `format()` and `regex` exports — what changes is the bundle shape and the installation footprint. Pick the entrypoint that matches your build target.

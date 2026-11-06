@@ -1,3 +1,4 @@
+import { execFileSync } from 'node:child_process'
 import { readFileSync, existsSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { fileURLToPath } from 'node:url'
@@ -42,5 +43,25 @@ describe('built package', () => {
   it('exposes the vanilla subpath', async () => {
     const vanilla = await import(dist('vanilla/index.js'))
     expect(typeof vanilla.format).toBe('function')
+  })
+
+  it('publishes only the runtime, its declarations and release notes', () => {
+    const [packed] = JSON.parse(
+      execFileSync('npm', ['pack', '--dry-run', '--json', '--ignore-scripts'], { cwd: root, encoding: 'utf8' })
+    ) as [{ files: { path: string }[] }]
+    const files = packed.files.map(file => file.path)
+    for (const required of [
+      'package.json',
+      'README.md',
+      'LICENSE.md',
+      'CHANGELOG.md',
+      'dist/index.js',
+      'dist/index.cjs',
+      'dist/index.d.ts',
+      'dist/vanilla/index.js',
+      'dist/browser/global.global.js'
+    ])
+      expect(files).toContain(required)
+    expect(files.filter(file => !/^(dist\/|package\.json$|README\.md$|LICENSE\.md$|CHANGELOG\.md$)/.test(file))).toEqual([])
   })
 })

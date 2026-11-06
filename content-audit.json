@@ -4,14 +4,14 @@
   "sources": [
     {
       "source": "README.md",
-      "sha256": "dfc1d481efa3e39f37c3ceeee35684da098b7914d9167bf765dbf57f2477f17c",
+      "sha256": "78e4346f7da0ddb8f9ebf669cb6ed5639744c0c200e98c02fb645c5ac5da029b",
       "destination": "docs/src/content/docs/index.mdx",
       "reviewed": true,
       "reviewScope": "Package README remains the npm guide; its documentation table links to the website."
     },
     {
       "source": "CHANGELOG.md",
-      "sha256": "c37cb78e7a24a84e63427c7adac0b4a2c173942a6c85c512ab4afdc5942eaa8a",
+      "sha256": "beddc6e1828e273370c8ea72cf272858df757aa726092a296aba9df9cfe56f08",
       "destination": "CHANGELOG.md",
       "reviewed": true,
       "reviewScope": "Single release history, loaded into the docs collection as /docs/changelog/."
@@ -434,8 +434,26 @@
         "reviewed": true
       },
       {
+        "name": "European price",
+        "evidence": "shared/i18n/translations/en/demo.ts#euro; live preview and copied CDN/ESM files executed in site-e2e/site.spec.ts",
+        "destination": "landing/src/sections/ExamplesGallery.astro",
+        "reviewed": true
+      },
+      {
+        "name": "Whole positive quantity",
+        "evidence": "shared/i18n/translations/en/demo.ts#quantity; live preview and copied CDN/ESM files executed in site-e2e/site.spec.ts",
+        "destination": "landing/src/sections/ExamplesGallery.astro",
+        "reviewed": true
+      },
+      {
         "name": "Date for display, ISO for storage",
         "evidence": "shared/i18n/translations/en/demo.ts#date; live preview and copied CDN/ESM files executed in site-e2e/site.spec.ts",
+        "destination": "landing/src/sections/ExamplesGallery.astro",
+        "reviewed": true
+      },
+      {
+        "name": "Card expiry",
+        "evidence": "shared/i18n/translations/en/demo.ts#expiry; live preview and copied CDN/ESM files executed in site-e2e/site.spec.ts",
         "destination": "landing/src/sections/ExamplesGallery.astro",
         "reviewed": true
       },
@@ -452,8 +470,44 @@
         "reviewed": true
       },
       {
-        "name": "Custom mask with a prefix",
+        "name": "Locked prefix",
         "evidence": "shared/i18n/translations/en/demo.ts#reference; live preview and copied CDN/ESM files executed in site-e2e/site.spec.ts",
+        "destination": "landing/src/sections/ExamplesGallery.astro",
+        "reviewed": true
+      },
+      {
+        "name": "Unit suffix",
+        "evidence": "shared/i18n/translations/en/demo.ts#weight; live preview and copied CDN/ESM files executed in site-e2e/site.spec.ts",
+        "destination": "landing/src/sections/ExamplesGallery.astro",
+        "reviewed": true
+      },
+      {
+        "name": "Passthrough prefix",
+        "evidence": "shared/i18n/translations/en/demo.ts#promo; live preview and copied CDN/ESM files executed in site-e2e/site.spec.ts",
+        "destination": "landing/src/sections/ExamplesGallery.astro",
+        "reviewed": true
+      },
+      {
+        "name": "ZIP code with optional block",
+        "evidence": "shared/i18n/translations/en/demo.ts#postal; live preview and copied CDN/ESM files executed in site-e2e/site.spec.ts",
+        "destination": "landing/src/sections/ExamplesGallery.astro",
+        "reviewed": true
+      },
+      {
+        "name": "Uppercase identifier (CURP)",
+        "evidence": "shared/i18n/translations/en/demo.ts#curp; live preview and copied CDN/ESM files executed in site-e2e/site.spec.ts",
+        "destination": "landing/src/sections/ExamplesGallery.astro",
+        "reviewed": true
+      },
+      {
+        "name": "Prefix kept in raw (hex color)",
+        "evidence": "shared/i18n/translations/en/demo.ts#color; live preview and copied CDN/ESM files executed in site-e2e/site.spec.ts",
+        "destination": "landing/src/sections/ExamplesGallery.astro",
+        "reviewed": true
+      },
+      {
+        "name": "Validation rules catalog",
+        "evidence": "shared/i18n/translations/en/demo.ts#validator; live preview and copied CDN/ESM files executed in site-e2e/site.spec.ts",
         "destination": "landing/src/sections/ExamplesGallery.astro",
         "reviewed": true
       }
@@ -461,6 +515,11 @@
     "onboarding": {
       "equivalentModes": true,
       "scope": "Home shows install, two inputs and one input listener; Getting started and Examples provide complete HTML / CDN and Package / ESM files from one generator."
+    },
+    "skill": {
+      "source": "skills/formatter/SKILL.md",
+      "endpoint": "landing/src/pages/skills/formatter/SKILL.md.ts",
+      "reviewed": true
     }
   }
 }

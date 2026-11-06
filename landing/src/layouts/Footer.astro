@@ -30,12 +30,15 @@ const t = i18n.navigation.footer
         </div>
         <div class:list={['footer-group']}>
           <h2>{t.project}</h2>
+          <a href={`${import.meta.env.BASE_URL}skills/formatter/SKILL.md`} download="SKILL.md">
+            {t.skill}
+          </a>
           <a href={project.repository} target="_blank" rel="noopener noreferrer">
             {i18n.common.links.github}
             <span aria-hidden="true">↗</span>
             <span class:list={['sr-only']}>{i18n.common.externalLinkHint}</span>
           </a>
-          <a href={docsHref('changelog')}>{t.changelog}</a>
+          <a href={`${project.docsBase}changelog/`}>{t.changelog}</a>
           <a
             href={`https://www.npmjs.com/package/${project.npmName}`}
             target="_blank"

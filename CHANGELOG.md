@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Restored a locked `prefix`/`suffix` (default `'lock'` mode) when a single character of the decoration is deleted, instead of duplicating it (`100 US` → `100 USD`, not `100 US USD`).
 - `format(value, 'general')` without a non-empty `blocks` array now throws a descriptive `TypeError` instead of an internal `cleave-zen` error.
 - Phone country codes are now case-insensitive (`'mx'` behaves like `'MX'`).
+- With `uppercase` or `lowercase`, a `prefix`/`suffix` typed or pasted in another case is now recognized instead of duplicated (`prefixMode: 'passthrough'`: `save20` → `SAVE20`, not `SAVESAVE20`). In lock mode, a pasted prefix in another case is now excluded from `raw`, as documented for `rawPrefix: false`; the typed body keeps its original case.
 - Anchored `regex.numeral` to the whole value; it previously matched any string containing a digit. It accepts plain or comma-grouped digits with an optional sign and decimals.
 - `regex.password()` rules are now requirements rather than an allow-list: characters outside the enabled rule groups (such as `!` with `special: false`) no longer fail validation, and disabling every rule produces a working length-only policy.
 - Parametric regex builders (`digits`, `phone`, `creditCard`, `password`) throw a descriptive `RangeError` for negative, fractional or inverted (`min > max`) ranges instead of an invalid-regex `SyntaxError`.
@@ -24,10 +25,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The browser IIFE is now minified (about 165 KB instead of 272 KB before compression) and ships a source map.
 - Replaced the Starlight documentation app with a combined Home, Examples and Docs website built from the shared package website theme. Website commands use the `site:` prefix; the npm package remains runtime-only (`dist` and `CHANGELOG.md`).
 - Switched repository tooling to Bun workspaces, matching the other `@samline` packages.
+- Renamed `LICENSE` to `LICENSE.md` and restructured the README to match the other `@samline` packages.
 
 ### Added
 
-- Added a built-output smoke suite (`npm run test:dist`) that runs the IIFE as a classic script and compares ESM/CommonJS exports. It runs in CI and `prepublishOnly`.
+- Added a built-output smoke suite (`npm run test:package`) that runs the IIFE as a classic script, compares ESM/CommonJS exports and checks the npm archive contents. It runs in CI and `prepublishOnly`.
+- Added the downloadable Formatter integration skill (`skills/formatter/SKILL.md`), published at `/skills/formatter/SKILL.md`.
 - Added regression tests for every fix above.
 
 ## [2.0.3] - 2026-09-23

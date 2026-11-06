@@ -11,7 +11,8 @@ export default {
   footer: 'Made for the web. Built with care.',
   changelog: {
     title: 'Changelog',
-    description: 'Verified release notes, including explicit breaking changes.',
+    description:
+      'Release history for @samline/formatter: fixes, behavior changes and explicitly marked breaking changes.',
   },
   reading: 'Guide',
   apiReading: 'Reference',

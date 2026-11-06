@@ -4,8 +4,8 @@ sidebar:
   group: guides
   order: 3
 title: 'Styling and UX'
-titleAccent: 'UX'
-description: 'Style formatted inputs and handle accessibility, native attributes, validation states, and caret behavior.'
+titleAccent: 'and UX'
+description: 'Style formatted inputs and handle labels, native input attributes, validation states, accessibility and caret behavior.'
 ---
 
 `@samline/formatter` does not ship CSS, inject classes, or mutate attributes. It returns strings; your application owns the markup, styling, validation state, and accessibility.

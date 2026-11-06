@@ -9,7 +9,7 @@ export default defineConfig({
       }
     },
     include: ['test/**/*.test.ts'],
-    // Built-output smoke tests run separately through `npm run test:dist`.
+    // Built-output smoke tests run separately through `npm run test:package`.
     exclude: ['test/build/**', '**/node_modules/**']
   }
 })

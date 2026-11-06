@@ -26,23 +26,24 @@ The combined Pages artifact is `landing/dist/` (Pagefind search, sitemaps and re
 ## Maintain
 
 - `project.config.json` owns site identity, public URL, accent palette, CDN script and package version. Keep the version aligned with `package.json`; the CDN URL is pinned to the release and only works once that version is published to npm.
-- `shared/i18n/translations/en/demo.ts` is the single source for the six scenarios (phone, amount, date, time, card, custom mask): options, samples and paired `regex` rules. `shared/components/Playground.astro` renders the live preview from it on Home, Examples and Docs; `shared/lib/demo-source.ts` and `demo-files.ts` generate the copied HTML / CDN and Package / ESM files from the same records. Previews import `@samline/formatter`, which both Astro configs alias to this checkout's `src/index.ts`.
+- `shared/i18n/translations/en/demo.ts` is the single source for the fifteen scenarios grouped by category (phones, numbers and money, dates and times, payment cards, custom masks and validation): options, samples, choices and paired `regex` rules. `homePresets` selects the six shown on Home. `shared/components/Playground.astro` renders the live preview from it on Home, Examples and Docs; `shared/lib/demo-source.ts` and `demo-files.ts` generate the copied HTML / CDN and Package / ESM files from the same records. Previews import `@samline/formatter`, which both Astro configs alias to this checkout's `src/index.ts`.
 - Landing copy lives in `landing/src/i18n/translations/en/`; article prose in `docs/src/content/docs/`; shared UI copy in `shared/i18n/`. Every value quoted in copy was traced through the built package; re-check them when behavior changes.
 - `CHANGELOG.md` is the single release history and is loaded as `/docs/changelog/`.
 - `content-audit.json` maps the retired Markdown (`docs/*.md`) and Starlight (`example/`) sources, pinned to their last commit, plus every public export, to reviewed destinations. Update it with API changes.
 - `site-tools/assemble.mjs` merges the apps and keeps the old Starlight URLs (`/formatter/getting-started/`, `/formatter/reference/*`, `/formatter/guides/*`) as noindex redirects into `/formatter/docs/`.
-- Website commands use the `site:` prefix. Runtime `build`, `test`, `test:dist`, `typecheck` and `prepublishOnly` keep their roles. The npm `files` allowlist (`dist`, `CHANGELOG.md`) excludes the website; inspect `npm pack --dry-run` before publishing.
-- Formatter has no package-integration skill, so the template's skill download links were removed.
+- Website commands use the `site:` prefix. Runtime `build`, `test`, `test:package`, `typecheck` and `prepublishOnly` keep their roles. The npm `files` allowlist (`dist`, `CHANGELOG.md`) excludes the website; inspect `npm pack --dry-run` before publishing.
+- `skills/formatter/SKILL.md` is the single package-integration skill source. `landing/src/pages/skills/formatter/SKILL.md.ts` serves it at `/skills/formatter/SKILL.md`; the Examples closing resources, the shared footer and the README link to it with `download="SKILL.md"`.
+- Form selects use `shared/components/Select.astro`; native selects with default styling are not used.
 
 ## Verification
 
 ```sh
-bun run typecheck && bun run test && bun run build && bun run test:dist
+bun run typecheck && bun run test && bun run build && bun run test:package
 bun run site:verify
 bun run site:check:release
 ```
 
-`site:verify` covers both Astro diagnostics, the protected visual contract, formatting, tooling tests, alternate base builds, combined link checks and the Playwright suite. The browser suite executes every scenario's copied files in both loading modes; the unpkg URL is served from the local `dist/` build, so it does not prove CDN availability or npm publication. Framework recipes (React/Vue/Svelte) were migrated and reviewed against the API but are not compiled by this suite.
+`site:verify` covers both Astro diagnostics, the protected visual contract, formatting, tooling tests, alternate base builds, combined link checks and the Playwright suite. The browser suite executes every scenario's copied files in both loading modes (fifteen scenarios × two modes); the unpkg URL is served from the local `dist/` build, so it does not prove CDN availability or npm publication. Framework recipes (React/Vue/Svelte) were migrated and reviewed against the API but are not compiled by this suite.
 
 ## Theme provenance
 

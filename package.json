@@ -38,12 +38,10 @@
     "clean": "rm -rf dist coverage",
     "build": "tsup --config tsup.config.ts",
     "dev": "tsup --config tsup.config.ts --watch",
-    "pack:check": "npm pack --dry-run",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:dist": "vitest run --config vitest.dist.config.ts",
-    "prepublishOnly": "npm run clean && npm run build && npm run typecheck && npm test && npm run test:dist",
+    "prepublishOnly": "npm run clean && npm run build && npm run typecheck && npm test && npm run test:package",
     "site:dev": "node site-tools/assets.mjs && node site-tools/dev.mjs",
     "site:build": "node site-tools/assets.mjs && npm --workspace docs run build && npm --workspace landing run build && node site-tools/assemble.mjs && node site-tools/check-site.mjs",
     "site:preview": "npm --workspace landing run preview -- --host 127.0.0.1 --port 4350 --ignore-lock",
@@ -56,7 +54,8 @@
     "site:configure": "node site-tools/configure.mjs",
     "site:check:release": "node site-tools/check-release.mjs",
     "site:test:adaptation": "node site-tools/test-adaptation.mjs",
-    "site:check:design": "node site-tools/check-design.mjs"
+    "site:check:design": "node site-tools/check-design.mjs",
+    "test:package": "vitest run --config vitest.dist.config.ts"
   },
   "keywords": [
     "formatter",
@@ -99,5 +98,6 @@
     "landing",
     "docs",
     "shared"
-  ]
+  ],
+  "packageManager": "bun@1.3.14"
 }

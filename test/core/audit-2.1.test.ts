@@ -106,3 +106,18 @@ describe('2.1.0 audit: idempotent decorated raw values', () => {
     expect(format(first.formatted, 'general', suffixed).raw).toBe('100200')
   })
 })
+
+describe('2.1.0 audit: case transforms and decorations', () => {
+  const promo = { blocks: [8], prefix: 'SAVE', prefixMode: 'passthrough' as const, uppercase: true }
+
+  it('recognizes a passthrough prefix typed in lower case', () => {
+    expect(format('save20', 'general', promo)).toMatchObject({ formatted: 'SAVE20', raw: '20' })
+    expect(format('s', 'general', promo).formatted).toBe('S')
+  })
+
+  it('recognizes a locked prefix pasted in another case', () => {
+    expect(format('ord-12', 'general', { prefix: 'ORD-', blocks: [4], uppercase: true }).formatted).toBe(
+      'ORD-12'
+    )
+  })
+})

@@ -222,9 +222,11 @@ describe('format', () => {
         uppercase: true
       })
       expect(result.formatted).toBe('EASY12345')
-      // The typed input is the raw mirror; cleave-zen's numericOnly /
-      // uppercase filtering applies to the display, not to raw.
-      expect(result.raw).toBe('easy12345abc')
+      // The typed body is the raw mirror; cleave-zen's numericOnly /
+      // uppercase filtering applies to the display, not to raw. Since 2.1.0
+      // the pasted prefix is matched case-insensitively and excluded from
+      // raw, as documented for `rawPrefix: false`.
+      expect(result.raw).toBe('12345abc')
     })
 
     it('preserves a tailPrefix (suffix) at the end of the display', () => {
