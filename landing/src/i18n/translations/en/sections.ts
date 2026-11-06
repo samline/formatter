@@ -14,19 +14,18 @@ const code = (filename: string, source: string, language: 'html' | 'javascript' 
 })
 export default {
   hero: {
-    kicker: 'Input formatting for the open web.',
+    kicker: 'Small library. Clean input.',
     title: project.name,
     seoTitle: `${project.name} — Input formatting with formatted and raw values for JavaScript`,
-    titleAccent: 'Formatted and raw, at once.',
-    description:
-      'One pure function formats phones, amounts, dates, times, card numbers and custom masks as people type,',
-    descriptionContinuation: 'and returns the clean value your backend expects alongside it.',
-    footnotes: ['Pure function', 'Seven format types', 'Paired validation'],
+    titleAccent: 'Keep every field readable.',
+    description: 'Input formatting for the fields that matter.',
+    descriptionContinuation: 'Group a phone, price a total, or store a date as ISO.',
+    footnotes: ['One pure function', 'JavaScript & TypeScript', 'MIT licensed'],
     compatibilityLabel: 'ONE SMALL SCRIPT. RIGHT AT HOME IN YOUR STACK.',
     platforms: ['JavaScript', 'TypeScript', 'React', 'Vue', 'Svelte', 'Shopify', 'WordPress'],
   },
   features: {
-    eyebrow: '01 / The package at a glance',
+    eyebrow: '01 / More than a mask',
     title: 'Formatted while typing.',
     titleAccent: 'Clean when it is sent.',
     items: {
@@ -78,8 +77,8 @@ export default {
     },
   },
   runtimes: {
-    eyebrow: '02 / Choose your integration',
-    heading: heading('One function.', 'Three ways to load it.'),
+    eyebrow: '02 / Fit it into your stack',
+    heading: heading('Two ways in.', 'One format() call.'),
     description:
       'Every entrypoint exposes the same format() and regex. Pick the one that matches how your project loads JavaScript.',
     items: {
@@ -118,8 +117,8 @@ export default {
     },
   },
   gettingStarted: {
-    eyebrow: '03 / From install to interaction',
-    heading: heading('Three steps.', 'A formatted field.'),
+    eyebrow: '03 / From install to input',
+    heading: heading('One field.', 'Two clean values.'),
     integrationDescription:
       'Format the visible input on every keystroke and mirror the raw value into a hidden input that your form submits.',
     integrationLabel: 'Read the installation guide',
@@ -139,9 +138,9 @@ export default {
     },
   },
   recipes: {
-    eyebrow: '04 / Useful patterns',
-    title: 'Small examples.',
-    titleAccent: 'Practical context.',
+    eyebrow: '04 / After the first field',
+    title: 'Keep the display familiar.',
+    titleAccent: 'Keep the data clean.',
     description:
       'Patterns that come up in real forms: server-filled values, regional numbers and validation messages.',
     examplesLabel: 'Explore working examples',
@@ -288,11 +287,11 @@ field.addEventListener('input', () => {
     },
   },
   callToAction: {
-    eyebrow: 'Format with confidence',
-    heading: heading('Ready for the details?', 'Start here.'),
-    description: 'Continue with installation, or look up a specific option or validation rule.',
+    eyebrow: 'A little structure goes a long way',
+    heading: heading('Make every field', 'a clean one.'),
+    description: 'Try a working field or format your first input.',
     docs: {
-      description: 'Guides, the complete option reference and release notes, in one place.',
+      description: `Installation, practical guides and the complete API for ${project.name} ${project.version}.`,
       label: 'Read the documentation',
     },
   },
