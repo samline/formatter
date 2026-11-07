@@ -45,6 +45,18 @@ bun run site:check:release
 
 `site:verify` covers both Astro diagnostics, the protected visual contract, formatting, tooling tests, alternate base builds, combined link checks and the Playwright suite. The browser suite executes every scenario's copied files in both loading modes (fifteen scenarios × two modes); the unpkg URL is served from the local `dist/` build, so it does not prove CDN availability or npm publication. Framework recipes (React/Vue/Svelte) were migrated and reviewed against the API but are not compiled by this suite.
 
+## Header synchronization — 2026-11-06
+
+Ported the landing Header and Logo adjustment from template `61cc0d8`: GitHub
+is icon-only and the version badge hides between 64rem and 75rem. The accessible
+GitHub label and Get started action remain available. Home, Examples and Docs
+are covered at 1024, 1100, 1200, 1280 and 1440 pixels, including the longest
+sibling package name. The regression fails on the previous build at 1024px.
+
+Validation: `site:verify` and `site:check:release` passed, including both Astro
+checks, formatting, 12 tooling tests, alternate-base builds, 928 links across
+26 pages and all 30 Chromium tests. This is a website change; npm remains 2.1.0.
+
 ## Theme provenance
 
 Adapted from <https://github.com/samline/package-landing-docs.git>, commit `54822b6dc3ad6d81e611490bcf5302b5938aeef9`, embedded following the Drawer layout. Ticker remains the visual reference pinned in `design-reference.json` / `REFERENCE.md`; protected component styles are unchanged. The maintainer-selected lime-green accent is `#4d7c0f` (light, chosen for text contrast on white) and `#a3e635` (dark), recorded in `content-audit.json.themeReview`. The shared logo was allowed to wrap so the longer scoped name fits 320 px at enlarged text.
