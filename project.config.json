@@ -24,7 +24,8 @@
     "url": "https://samline.github.io/formatter/",
     "repository": "https://github.com/samline/formatter",
     "namespace": "pkg-samline-formatter",
-    "template": false
+    "template": false,
+    "credit": "samline"
   },
   "theme": {
     "accentLight": "#4d7c0f",

@@ -40,3 +40,14 @@ Performance is a shared site requirement for Home, Examples and Docs: aim for 95
 ## Agent skills and memory location
 
 Agents, Claude included, store and read project skills and memory in `.agents/`. Skills are created and edited only in `.agents/skills/`. `.claude/skills` is a tracked relative symlink to `../.agents/skills` because Claude Code loads project skills only from `.claude/skills/`; never keep a second copy there. On Windows, clone with `git config core.symlinks true`.
+
+## Identity convention — 2026-11-06
+
+README structure follows the canonical template proposal, including TOC/resource
+roles, installation blocks, API/guide tables, entrypoints and skill source/download.
+Shared site-identity.mjs composes `<subject> — <npm name>` once for document and
+social titles. Footer display credit is explicitly samline, independent of npm
+author metadata. Keep the identity check in verify/release/CI, and test the real
+configured header name before a substituted sibling. The maintained policy is
+https://github.com/samline/package-landing-docs/blob/main/.agents/identity.md;
+package-specific API content and runtime publication remain separate.

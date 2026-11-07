@@ -1,4 +1,5 @@
 import sections from './sections'
+import { footerCredit } from '../../../../../shared/lib/site-identity.mjs'
 import common from '../../../../../shared/i18n/translations/en/common'
 import controls from '../../../../../shared/i18n/translations/en/controls'
 import { project } from '../../../../../shared/lib/project.mjs'
@@ -22,13 +23,13 @@ export default {
       description: project.description,
       label: 'Footer navigation',
       explore: 'Explore',
-      project: 'Package',
+      project: 'Project',
       setup: 'Installation guide',
       examples: 'Working examples',
       skill: 'Formatter skill for AI agents',
       changelog: 'Changelog',
       backToTop: 'Back to top',
-      credit: `${project.author} · Made for the open web.`,
+      credit: footerCredit(project.credit),
     },
     items: [
       {
@@ -69,7 +70,7 @@ export default {
     recipeEyebrow: '01 / A formatted field',
     eyebrow: 'Examples',
     title: `${project.name} examples.`,
-    seoTitle: `${project.name} examples — phone, money, date, card and mask fields`,
+    seoTitle: 'Examples',
     seoDescription:
       'Fifteen live input formatting examples: phones by country, currencies, ISO dates, card numbers, custom masks and validation rules, with copyable HTML / CDN and Package / ESM files.',
     accent: 'examples.',

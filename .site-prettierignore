@@ -13,3 +13,4 @@ brief/
 .agents/skills/*
 !.agents/skills/package-site/
 skills-lock.json
+site-tools/package-readme-template.md

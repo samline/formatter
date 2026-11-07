@@ -64,3 +64,22 @@ Adapted from <https://github.com/samline/package-landing-docs.git>, commit `5482
 ## Performance
 
 The PageSpeed contract in the template's AGENTS.md applies (95+ mobile, 100 desktop, 100 accessibility/best practices/SEO are goals, not measured results). No Lighthouse baseline has been recorded for this site yet. The live demo bundles the formatter (including libphonenumber metadata) into the page script; measure Home before optimizing it further.
+
+## Shared identity convention — 2026-11-06
+
+README roles now match the canonical package template beyond section headings:
+manager commands, API/entrypoint and guide tables, resource links and skill
+source/download. The importer writes a reviewable README proposal and carries
+its scaffold beside site-tools/configure.mjs; it preserves source evidence.
+
+Document, Open Graph and Twitter titles compose an unbranded subject with
+` — @samline/formatter` once. Docs index uses Documentation and Examples uses
+Examples. Footer credit is explicit site.credit: samline, independent of npm
+author metadata. Keep shared/lib/site-identity.mjs and the identity checker/library
+in sync with ../package-landing-docs; its .agents/identity.md owns the convention.
+
+Validation: site:verify passed both Astro checks, formatting, 23 tooling tests,
+alternate-package builds at / and /tools/widget/, the combined 928-link audit
+and all 31 browser tests. site:check:release passed with the new identity gate.
+The header regression covers the configured identity and the longest sibling.
+These website/documentation changes do not require an npm release.

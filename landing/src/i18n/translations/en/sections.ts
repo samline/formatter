@@ -16,7 +16,7 @@ export default {
   hero: {
     kicker: 'Small library. Clean input.',
     title: project.name,
-    seoTitle: `${project.name} — Input formatting with formatted and raw values for JavaScript`,
+    seoTitle: 'Input formatting and raw values',
     titleAccent: 'Keep every field readable.',
     description: 'Input formatting for the fields that matter.',
     descriptionContinuation: 'Group a phone, price a total, or store a date as ISO.',

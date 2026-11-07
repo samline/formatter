@@ -18,15 +18,15 @@ Input formatting for JavaScript, TypeScript and browser-based forms: phones, num
 
 ## Installation
 
-```bash
+```sh
 npm install @samline/formatter
 ```
 
-```bash
+```sh
 pnpm add @samline/formatter
 ```
 
-```bash
+```sh
 bun add @samline/formatter
 ```
 
@@ -104,22 +104,22 @@ The script is a minified IIFE (about 165 KB before compression; it bundles libph
 
 ## API at a glance
 
-| Group           | API                                                                                                                                                   |
-| --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Format          | `format(value, formatType, options?)`                                                                                                                 |
-| Format types    | `'phone'`, `'numeral'`, `'date'`, `'time'`, `'creditCard'`, `'creditCardType'`, `'general'`                                                           |
-| Type checks     | `FORMAT_TYPES`, `isFormatType()`                                                                                                                      |
-| Validation      | `regex` (static entries and the `digits`, `phone`, `creditCard`, `url`, `password` and `custom` builders)                                             |
-| Helpers         | `formatPhone()`, `getRawValue()`, `stripPrefixAndSuffix()`, `getDateValueFromRaw()`, `getTimeValueFromRaw()`, `looksLikeRawDateValue()`, `looksLikeRawTimeValue()` |
-| Browser global  | `window.Formatter.format`, `window.Formatter.regex`, `window.Formatter.version`                                                                       |
+| API                                                                                                                                                                | Purpose        |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------- |
+| `format(value, formatType, options?)`                                                                                                                              | Format         |
+| `'phone'`, `'numeral'`, `'date'`, `'time'`, `'creditCard'`, `'creditCardType'`, `'general'`                                                                        | Format types   |
+| `FORMAT_TYPES`, `isFormatType()`                                                                                                                                   | Type checks    |
+| `regex` (static entries and the `digits`, `phone`, `creditCard`, `url`, `password` and `custom` builders)                                                          | Validation     |
+| `formatPhone()`, `getRawValue()`, `stripPrefixAndSuffix()`, `getDateValueFromRaw()`, `getTimeValueFromRaw()`, `looksLikeRawDateValue()`, `looksLikeRawTimeValue()` | Helpers        |
+| `window.Formatter.format`, `window.Formatter.regex`, `window.Formatter.version`                                                                                    | Browser global |
 
 ### Entrypoints
 
-| Entrypoint                    | Use                                                         |
-| ----------------------------- | ----------------------------------------------------------- |
-| `@samline/formatter`          | ESM and CommonJS with type declarations.                    |
-| `@samline/formatter/vanilla`  | The same API under an explicit subpath.                     |
-| `@samline/formatter/browser`  | The standalone IIFE that defines `window.Formatter`.        |
+| Entrypoint                   | When to use                                          |
+| ---------------------------- | ---------------------------------------------------- |
+| `@samline/formatter`         | ESM and CommonJS with type declarations.             |
+| `@samline/formatter/vanilla` | The same API under an explicit subpath.              |
+| `@samline/formatter/browser` | The standalone IIFE that defines `window.Formatter`. |
 
 ### Validation
 
@@ -139,21 +139,21 @@ The package includes declarations. Import `FormatType`, `FormatOptions` and `For
 
 ## Documentation
 
-Read the [documentation](https://samline.github.io/formatter/docs/) for the full guides and contracts, and explore [working examples](https://samline.github.io/formatter/examples/) with complete and separate source files for both loading modes.
+Read the [documentation](https://samline.github.io/formatter/docs/) for the full guides and API contracts, and explore [working examples](https://samline.github.io/formatter/examples/) with complete and separate source files for both loading modes.
 
-| Guide                                                                                    | Purpose                                                       |
-| ---------------------------------------------------------------------------------------- | ------------------------------------------------------------- |
-| [Getting started](https://samline.github.io/formatter/docs/getting-started/)             | Installation, the first field and starter files.              |
-| [Configuration](https://samline.github.io/formatter/docs/reference/configuration/)       | Every option per type, with prefix and suffix rules.          |
-| [Validation patterns](https://samline.github.io/formatter/docs/reference/regex/)         | The regex catalog and its parametric builders.                |
-| [Framework integrations](https://samline.github.io/formatter/docs/guides/frameworks/)    | React, Vue, Svelte, vanilla and server-side use.              |
-| [Styling and UX](https://samline.github.io/formatter/docs/guides/styling-and-ux/)        | Markup, input attributes, validation states and caret.        |
-| [Recipes](https://samline.github.io/formatter/docs/guides/recipes/)                      | End-to-end patterns for real forms.                           |
-| [API reference](https://samline.github.io/formatter/docs/reference/api/)                 | `format()` and the helpers, with errors and returns.          |
+| Guide                                                                                 | What it covers                                         |
+| ------------------------------------------------------------------------------------- | ------------------------------------------------------ |
+| [Getting started](https://samline.github.io/formatter/docs/getting-started/)          | Installation, the first field and starter files.       |
+| [Configuration](https://samline.github.io/formatter/docs/reference/configuration/)    | Every option per type, with prefix and suffix rules.   |
+| [Validation patterns](https://samline.github.io/formatter/docs/reference/regex/)      | The regex catalog and its parametric builders.         |
+| [Framework integrations](https://samline.github.io/formatter/docs/guides/frameworks/) | React, Vue, Svelte, vanilla and server-side use.       |
+| [Styling and UX](https://samline.github.io/formatter/docs/guides/styling-and-ux/)     | Markup, input attributes, validation states and caret. |
+| [Recipes](https://samline.github.io/formatter/docs/guides/recipes/)                   | End-to-end patterns for real forms.                    |
+| [API reference](https://samline.github.io/formatter/docs/reference/api/)              | `format()` and the helpers, with errors and returns.   |
 
 ## Changelog
 
-Read [CHANGELOG.md](CHANGELOG.md) or the [published changelog](https://samline.github.io/formatter/docs/changelog/) for release history and explicitly marked behavior changes.
+Read [CHANGELOG.md](CHANGELOG.md) or the [published changelog](https://samline.github.io/formatter/docs/changelog/) for release history and explicitly marked breaking and behavior changes. Review the notes before upgrading.
 
 ### Upgrading to 2.1
 
@@ -164,6 +164,8 @@ Read [CHANGELOG.md](CHANGELOG.md) or the [published changelog](https://samline.g
 <a id="agent-integration"></a>
 
 The [Formatter skill](https://samline.github.io/formatter/skills/formatter/SKILL.md) describes 2.1 integration: loading modes, the formatted/raw contract, options per type, validation and host ownership. Pass it to an agent or install it using a skills-compatible tool. Verify the installed package version before applying its guidance.
+
+The maintained [repository source](skills/formatter/SKILL.md) and website download are the same file.
 
 Download [SKILL.md](https://samline.github.io/formatter/skills/formatter/SKILL.md) into a `formatter/` folder in your agent's supported skill directory. For agents that discover project skills from `.agents/skills/`:
 
