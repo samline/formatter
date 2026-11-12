@@ -16,19 +16,19 @@ import type { FormatOptions, FormatType } from '@samline/formatter'
 function format(value: unknown, formatType: FormatType, options?: FormatOptions): FormatterResult
 ```
 
-Internally `FormatOptions` is the intersection of [`cleave-zen`](https://github.com/FirstWhack/cleave-zen)'s per-type option interfaces plus a few package-specific extras (`country`, `dateRawPattern`, `timeRawPattern`, `prefixMode`, `rawPrefix`, `suffix`, `suffixMode`, `rawSuffix`, `tailPrefix`). Only the fields relevant to your `formatType` are read; everything else is ignored.
+Internally `FormatOptions` is the intersection of the built-in engine's per-type option interfaces (numeral, date, time, card and general; the engine started as a port of `cleave-zen` 0.0.17 and is maintained in this package since 3.0.0) plus a few package-specific extras (`country`, `dateRawPattern`, `timeRawPattern`, `prefixMode`, `rawPrefix`, `suffix`, `suffixMode`, `rawSuffix`, `tailPrefix`). Only the fields relevant to your `formatType` are read; everything else is ignored.
 
 ## Common fields
 
 These apply to most format types.
 
-| Field        | Type                          | Default                                    | Applies to           | Notes                                                                                                                                                                   |
-| ------------ | ----------------------------- | ------------------------------------------ | -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `country`    | `string` (ISO 3166-1 alpha-2) | `'MX'` for phone, `''` otherwise           | `phone`              | Passed to `libphonenumber-js`'s `AsYouType`.                                                                                                                            |
-| `delimiter`  | `string`                      | phone: `' '`; others: `cleave-zen` default | all                  | Separator for the formatted display. An empty string disables visible separation while preserving date/time auto-detection.                                             |
-| `delimiters` | `string[]`                    | `[]`                                       | `general`, `numeral` | Additional separators (e.g. `[' ', '-']`).                                                                                                                              |
-| `prefix`     | `string`                      | `''`                                       | `general`, `numeral` | Prepended to the display. See [Prefix & suffix on `general`](#prefix--suffix-on-general) for how the formatter manages it (including `prefixMode` and `rawPrefix`).     |
-| `tailPrefix` | `boolean`                     | `false`                                    | `general`, `numeral` | **Legacy**: when `true` (and `suffix` is not provided), `prefix` is treated as a suffix (stripped from the end). Prefer the new dedicated `suffix` option for new code. |
+| Field        | Type                          | Default                                                                                                  | Applies to           | Notes                                                                                                                                                                   |
+| ------------ | ----------------------------- | -------------------------------------------------------------------------------------------------------- | -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `country`    | `string` (ISO 3166-1 alpha-2) | `'MX'` for phone, `''` otherwise                                                                         | `phone`              | Passed to `libphonenumber-js`'s `AsYouType`. Phones need `registerPhone()` (see [`phone`](#phone)).                                                                     |
+| `delimiter`  | `string`                      | phone: `' '`; numeral: `','` (`'.'` with a `','` mark); date `'/'`; time `':'`; card `' '`; general `''` | all                  | Separator for the formatted display. An empty string disables visible separation while preserving date/time auto-detection.                                             |
+| `delimiters` | `string[]`                    | `[]`                                                                                                     | `general`, `numeral` | Additional separators (e.g. `[' ', '-']`).                                                                                                                              |
+| `prefix`     | `string`                      | `''`                                                                                                     | `general`, `numeral` | Prepended to the display. See [Prefix & suffix on `general`](#prefix--suffix-on-general) for how the formatter manages it (including `prefixMode` and `rawPrefix`).     |
+| `tailPrefix` | `boolean`                     | `false`                                                                                                  | `general`, `numeral` | **Legacy**: when `true` (and `suffix` is not provided), `prefix` is treated as a suffix (stripped from the end). Prefer the new dedicated `suffix` option for new code. |
 
 ## `general`
 
@@ -51,7 +51,7 @@ Block-based masking with custom `delimiter` / `delimiters`. Pair with `blocks` t
 
 ### Prefix & suffix on `general`
 
-`general` formats can decorate the visible value with a head (`prefix`) and/or a tail (`suffix`). The formatter manages both entirely on its own — it never delegates prefix handling to `cleave-zen` (whose internal `stripPrefix` discards any input that doesn't already start with the configured prefix, freezing the field at the literal prefix).
+`general` formats can decorate the visible value with a head (`prefix`) and/or a tail (`suffix`). The formatter manages both entirely on its own — it never delegates prefix handling to the general engine, whose own prefix step discards any input that doesn't already start with the configured prefix, freezing the field at the literal prefix.
 
 #### `prefixMode` — how the user interacts with the head decoration
 
@@ -156,11 +156,12 @@ The historical `prefix + tailPrefix: true` shape (where `prefix` was repurposed 
 
 ```ts
 // Legacy shape still works
-format('123456789', 'general', { prefix: 'USD', tailPrefix: true })
+format('123456789', 'general', { blocks: [12], prefix: 'USD', tailPrefix: true })
 // => { formatted: '123456789USD', raw: '123456789', type: 'general' }
 
 // `suffix` wins when both are set
 format('12345', 'general', {
+  blocks: [8],
   prefix: 'X',
   tailPrefix: true,
   suffix: 'OK',
@@ -174,15 +175,73 @@ format('12345', 'general', {
 
 Thousand separators with optional decimal scaling.
 
-| Field                        | Type                                      | Default      | Notes                                 |
-| ---------------------------- | ----------------------------------------- | ------------ | ------------------------------------- |
-| `numeralDecimalMark`         | `string`                                  | `'.'`        | Decimal separator.                    |
-| `numeralThousandsGroupStyle` | `'thousand' \| 'lakh' \| 'wan' \| 'none'` | `'thousand'` | Grouping style.                       |
-| `numeralIntegerScale`        | `number`                                  | `0`          | Max integer digits.                   |
-| `numeralDecimalScale`        | `number`                                  | `2`          | Max decimal digits.                   |
-| `stripLeadingZeroes`         | `boolean`                                 | `false`      | Strip leading `0`s.                   |
-| `numeralPositiveOnly`        | `boolean`                                 | `false`      | Disallow negative numbers.            |
-| `signBeforePrefix`           | `boolean`                                 | `false`      | Place the `-` sign before the prefix. |
+| Field                        | Type                                      | Default      | Notes                                                                                                                             |
+| ---------------------------- | ----------------------------------------- | ------------ | --------------------------------------------------------------------------------------------------------------------------------- |
+| `numeralDecimalMark`         | `string`                                  | `'.'`        | Decimal separator.                                                                                                                |
+| `numeralThousandsGroupStyle` | `'thousand' \| 'lakh' \| 'wan' \| 'none'` | `'thousand'` | Grouping style.                                                                                                                   |
+| `numeralIntegerScale`        | `number`                                  | `0`          | Max integer digits.                                                                                                               |
+| `numeralDecimalScale`        | `number`                                  | `2`          | Max decimal digits.                                                                                                               |
+| `numeralDecimalPadding`      | `boolean`                                 | `false`      | Pad decimals with zeros up to `numeralDecimalScale` in `formatted`. Since 3.0.0; see [Decimal padding](#decimal-padding).         |
+| `rawDecimalPadding`          | `boolean`                                 | `false`      | Pad decimals with zeros up to `numeralDecimalScale` in `raw` (`'1234.50'`). Since 3.0.0; see [Decimal padding](#decimal-padding). |
+| `stripLeadingZeroes`         | `boolean`                                 | `true`       | Strip leading `0`s (`'0042'` → `'42'`).                                                                                           |
+| `numeralPositiveOnly`        | `boolean`                                 | `false`      | Disallow negative numbers.                                                                                                        |
+| `signBeforePrefix`           | `boolean`                                 | `false`      | Place the `-` sign before the prefix.                                                                                             |
+
+`raw` always uses a dot as the decimal mark. The default group `delimiter` is `','`, or `'.'` when `numeralDecimalMark` is `','` (since 3.0.0; before, both used `','` and `1234,5` displayed as `1,234,5`).
+
+### Decimal padding
+
+`numeralDecimalPadding: true` pads the decimal part of `formatted` with zeros up to `numeralDecimalScale`. An integer gains the full set of zeros and a bare decimal part gains a leading `0`. `raw` stays unpadded and dot-decimal — trailing decimal zeros are dropped — so it is the same before and after padding, and formatting the padded value again returns the same result.
+
+```ts
+format('1234567.5', 'numeral', { prefix: '$', numeralDecimalPadding: true })
+// => { formatted: '$1,234,567.50', raw: '1234567.5', type: 'numeral' }
+
+format('1234,5', 'numeral', {
+  numeralDecimalMark: ',',
+  delimiter: '.',
+  prefix: ' €',
+  tailPrefix: true,
+  numeralDecimalPadding: true,
+})
+// => { formatted: '1.234,50 €', raw: '1234.5', type: 'numeral' }
+```
+
+To send the padded value to the backend, add `rawDecimalPadding: true`. It pads `raw` to exactly `numeralDecimalScale` digits, independently of `numeralDecimalPadding`, so it also works on every `input` event while the display stays unpadded:
+
+```ts
+format('1234.5', 'numeral', { rawDecimalPadding: true })
+// => { formatted: '1,234.5', raw: '1234.50', type: 'numeral' }
+
+format('1234', 'numeral', { numeralDecimalPadding: true, rawDecimalPadding: true })
+// => { formatted: '1,234.00', raw: '1234.00', type: 'numeral' }
+```
+
+| Options                                       | `formatted` for `1234.5` | `raw`       |
+| --------------------------------------------- | ------------------------ | ----------- |
+| none                                          | `'1,234.5'`              | `'1234.5'`  |
+| `numeralDecimalPadding`                       | `'1,234.50'`             | `'1234.5'`  |
+| `rawDecimalPadding`                           | `'1,234.5'`              | `'1234.50'` |
+| `numeralDecimalPadding` + `rawDecimalPadding` | `'1,234.50'`             | `'1234.50'` |
+
+Values without digits (`''`, `'-'`) and `numeralDecimalScale: 0` are never padded. Either way `raw` is stable when the displayed value is formatted again.
+
+Padding while typing fights the caret (typing after `4.00` would hit the decimal limit), so apply it when the field loses focus or when you show a stored value, and format without it on `input`:
+
+```js
+const options = { prefix: '$', numeralDecimalScale: 2 }
+amount.addEventListener('input', () => {
+  amount.value = format(amount.value, 'numeral', options).formatted
+})
+amount.addEventListener('blur', () => {
+  const { formatted, raw } = format(amount.value, 'numeral', {
+    ...options,
+    numeralDecimalPadding: true,
+  })
+  amount.value = formatted
+  hidden.value = raw
+})
+```
 
 ## `date`
 
@@ -205,31 +264,31 @@ Formats display-order or canonical raw dates. The default `interpretInputAs: 'au
 
 Formats display-order or canonical raw times using the same input interpretation modes as dates.
 
-| Field                     | Type                                       | Default           | Notes                                                                 |
-| ------------------------- | ------------------------------------------ | ----------------- | --------------------------------------------------------------------- |
-| `timePattern`             | `TimePatternType` (`['h', 'm', 's'] \| …`) | `['h', 'm', 's']` | Display pattern.                                                      |
-| `timeRawPattern`          | `TimePatternType`                          | `['h', 'm']`      | Pattern used to derive the raw value from the formatted display.      |
-| `timeRawPatternDelimiter` | `string`                                   | `':'`             | Delimiter used in the raw value.                                      |
-| `interpretInputAs`        | `'auto' \| 'display' \| 'raw'`             | `'auto'`          | Select automatic shape detection or force display/raw interpretation. |
-| `timeFormat`              | `'12' \| '24'`                             | `'24'`            | 12-hour or 24-hour clock.                                             |
-| `delimiter`               | `string`                                   | `':'`             | Display delimiter.                                                    |
+| Field                     | Type                                       | Default           | Notes                                                                                      |
+| ------------------------- | ------------------------------------------ | ----------------- | ------------------------------------------------------------------------------------------ |
+| `timePattern`             | `TimePatternType` (`['h', 'm', 's'] \| …`) | `['h', 'm', 's']` | Display pattern.                                                                           |
+| `timeRawPattern`          | `TimePatternType`                          | `['h', 'm']`      | Pattern used to derive the raw value from the formatted display.                           |
+| `timeRawPatternDelimiter` | `string`                                   | `':'`             | Delimiter used in the raw value.                                                           |
+| `interpretInputAs`        | `'auto' \| 'display' \| 'raw'`             | `'auto'`          | Select automatic shape detection or force display/raw interpretation.                      |
+| `timeFormat`              | `'12' \| '24'`                             | `'24'`            | 12-hour or 24-hour clock. On a 12-hour clock a typed `00` hour becomes `12` (since 3.0.0). |
+| `delimiter`               | `string`                                   | `':'`             | Display delimiter.                                                                         |
 
 ## `creditCard`
 
 > Type: `'creditCard'`
 
-Brand-aware grouping. The package detects Visa, Mastercard, Amex, Discover, JCB, Diners, UnionPay, Maestro, Mir, Elo, Hiper, and Hipercard.
+Brand-aware grouping. The package detects Visa, Mastercard, American Express, Discover, JCB (15 and 16 digits), Diners Club, UnionPay, Maestro, Mir, Dankort, InstaPayment and UATP; anything else groups as `general` in blocks of four.
 
-| Field                  | Type      | Default | Notes                                      |
-| ---------------------- | --------- | ------- | ------------------------------------------ |
-| `creditCardStrictMode` | `boolean` | `false` | Strict 19-digit padding.                   |
-| `delimiter`            | `string`  | `' '`   | Group separator (set to `'-'` for dashes). |
+| Field        | Type      | Default | Notes                                      |
+| ------------ | --------- | ------- | ------------------------------------------ |
+| `strictMode` | `boolean` | `false` | Allow up to 19 digits (adds a last block). |
+| `delimiter`  | `string`  | `' '`   | Group separator (set to `'-'` for dashes). |
 
 ## `creditCardType`
 
 > Type: `'creditCardType'`
 
-Returns the card brand name as `formatted`. The `raw` is always digits-only.
+Returns the card brand as `formatted` (`'visa'`, `'mastercard'`, `'amex'`, `'diners'`, `'discover'`, `'jcb'`, `'jcb15'`, `'maestro'`, `'mir'`, `'unionpay'`, `'dankort'`, `'instapayment'`, `'uatp'` or `'general'`). The `raw` is always digits-only.
 
 This type does not consume any extra options — pass the card number and read `result.formatted` to get the brand.
 
@@ -238,6 +297,15 @@ This type does not consume any extra options — pass the card number and read `
 > Type: `'phone'`
 
 Country-aware phone formatting via `libphonenumber-js`. The leading `+` is preserved in `raw` so international numbers keep their prefix.
+
+Since 3.0.0 phone support is opt-in, so the core does not bundle `libphonenumber-js`. Call `registerPhone()` once before formatting phones, or load `formatter.phone.global.js` in the browser. Without it, `format(value, 'phone')` throws a `TypeError` that explains the fix.
+
+```ts
+import { format } from '@samline/formatter'
+import { registerPhone } from '@samline/formatter/phone'
+
+registerPhone()
+```
 
 | Field       | Type     | Default | Notes                                                                                        |
 | ----------- | -------- | ------- | -------------------------------------------------------------------------------------------- |
@@ -249,11 +317,11 @@ Country-aware phone formatting via `libphonenumber-js`. The leading `+` is prese
 ```ts
 // US phone with dash delimiter
 format('2025551234', 'phone', { country: 'US', delimiter: '-' })
-// => { formatted: '202-555-1234', raw: '2025551234', type: 'phone' }
+// => { formatted: '(202)-555-1234', raw: '2025551234', type: 'phone' }
 
 // Numeral with comma decimal mark (European style)
-format('1234,5', 'numeral', { numeralDecimalMark: ',' })
-// => { formatted: '1.234,5', raw: '1234,5', type: 'numeral' }
+format('1234,5', 'numeral', { numeralDecimalMark: ',', delimiter: '.' })
+// => { formatted: '1.234,5', raw: '1234.5', type: 'numeral' }
 
 // Date with explicit dash delimiter and Y-m-d display
 format('20260512', 'date', {
@@ -285,4 +353,4 @@ format('12345', 'general', {
 // => { formatted: 'PRE-12345-END', raw: 'PRE-12345-END', type: 'general' }
 ```
 
-For the underlying option semantics, see [`cleave-zen`'s docs](https://github.com/FirstWhack/cleave-zen).
+To show stored values in a locale (currency, dates, relative time) rather than mask typing, see the [Intl display helpers](../intl/).

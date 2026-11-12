@@ -58,7 +58,7 @@ Before documenting a type as "exported from `@samline/formatter`", confirm the f
 **Rule:**
 
 - For every type listed in `docs/typescript.md` or `example/src/content/docs/reference/typescript.md`, run `grep -R "export" src/` and confirm the symbol leaves through `src/core/index.ts` (which both `index.ts` and `vanilla/index.ts` already `export *` from).
-- When documenting "re-exported from `cleave-zen`", add an explicit `export type { … } from 'cleave-zen'` in `src/core/raw.ts` (the leaf) so the chain `index → vanilla → core → raw → cleave-zen` is intact.
+- Engine types live in `src/core/engine/types.ts` since 3.0.0 (cleave-zen was internalized). Public ones leave through an explicit `export type { … } from './engine/index.js'` in `src/core/raw.ts` and are mirrored in `src/core/types.ts`, so the chain `index → vanilla → core → raw → engine` is intact.
 
 **Evidence:**
 
@@ -184,3 +184,24 @@ Type: rule
 An input listener feeds the previous `formatted` value back into `format()` on every keystroke. Any `raw` that keeps the formatter's own delimiters changes between the first call and the next (`12345678` vs `1234-5678`). When changing affix or raw logic, assert `format(format(x).formatted).raw === format(x).raw`.
 
 **Evidence:** 2026-11-05 audit, prefixed `general` values; fixed in 2.1.0 with tests in `test/core/audit-2.1.test.ts`.
+
+---
+
+## 8. Ported code inherits its bugs — audit it after parity, not before
+
+Type: rule
+
+Port a dependency in two steps: first prove exact parity (record upstream outputs, compare randomized inputs), then audit and fix deliberately, each fix with its own regression test and changelog bullet. Fixing while porting hides which output changes are intentional.
+
+**Evidence:** 2026-11-12, 3.0.0. The cleave-zen port matched 100,000 randomized cases; the audit afterwards found real upstream bugs (an `M` placeholder in `unformatNumeral`, `,` as both decimal mark and default delimiter, Mastercard 2220/2721–2799, hour `00` on a 12-hour clock, mutation of the caller's `delimiters`). Tests: `test/core/engine.test.ts`, `test/core/release-3.0.test.ts`.
+
+---
+
+## 9. Module state shared across entrypoints needs one bundle graph
+
+Type: rule
+
+`registerPhone()` stores the phone formatter in module state. Separate tsup configs per entry would give `.`, `/vanilla` and `/phone` their own copies and registration would silently do nothing. Keep all module entries in one tsup config with `splitting: true` (ESM and CJS) and keep `test/build/bundle.test.ts` asserting that registering through `/phone` enables `.` and `/vanilla` in both formats.
+
+**Evidence:** 2026-11-12, 3.0.0 (`tsup.config.ts`).
+

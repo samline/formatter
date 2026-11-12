@@ -25,12 +25,17 @@ import { href } from '../../lib/routes'
 
 <Installer />
 
-The **HTML / CDN** tab loads the minified standalone build, which defines `window.Formatter` with `format`, `regex` and `version`.
+The **HTML / CDN** tab loads the minified standalone build with phone support, which defines `window.Formatter` with `format`, `intl`, `regex` and `version`. Pages that format no phones can load the smaller `formatter.global.js` instead; see [HTML / CDN](../reference/browser/).
+
+Phone support is opt-in since 3.0.0 so bundles that never format phones skip `libphonenumber-js`. With a package manager, import `registerPhone` from `@samline/formatter/phone` and call it once, as below.
 
 ## Quick start
 
 ```ts
 import { format } from '@samline/formatter'
+import { registerPhone } from '@samline/formatter/phone'
+
+registerPhone()
 
 // Phone (Mexico by default, space-delimited)
 format('5512345678', 'phone')

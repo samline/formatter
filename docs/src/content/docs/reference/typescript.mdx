@@ -5,7 +5,7 @@ sidebar:
   order: 6
 title: 'TypeScript reference'
 titleAccent: 'reference'
-description: 'Every type exported by @samline/formatter, including FormatOptions, FormatterResult, FormatType and the regex types, with examples.'
+description: 'Every type exported by @samline/formatter, including FormatOptions, FormatterResult, FormatType, the regex types and the Intl option types, with examples.'
 ---
 
 import Callout from '../../../../../shared/components/Callout.astro'
@@ -20,7 +20,7 @@ import {
   isFormatType,
   FORMAT_TYPES,
   regex,
-  formatPhone,
+  isPhoneRegistered,
   getRawValue,
   getDateValueFromRaw,
   getTimeValueFromRaw,
@@ -31,8 +31,24 @@ import {
   type FormatType,
   type FormatterResult,
   type DatePatternType,
+  type NumeralThousandsGroupStyle,
   type TimePatternType,
 } from '@samline/formatter'
+
+import { formatPhone, registerPhone } from '@samline/formatter/phone'
+
+import {
+  formatCurrency,
+  formatDate,
+  formatNumber,
+  formatPercent,
+  formatRelativeTime,
+  type IntlCurrencyOptions,
+  type IntlDateOptions,
+  type IntlNumberOptions,
+  type IntlPercentOptions,
+  type IntlRelativeTimeOptions,
+} from '@samline/formatter/intl'
 ```
 
 ---
@@ -52,7 +68,7 @@ const type: FormatType = 'phone' // ✓
 
 ### `FormatOptions`
 
-Per-type configuration bag passed to `format()`'s third argument. Internally it is the intersection of `cleave-zen`'s per-type option interfaces plus a few package-specific extras (`country`, `dateRawPattern`, `dateRawPatternDelimiter`, `timeRawPattern`, `timeRawPatternDelimiter`, `prefixMode`, `rawPrefix`, `suffix`, `suffixMode`, `rawSuffix`, `tailPrefix`, `interpretInputAs`).
+Per-type configuration bag passed to `format()`'s third argument. Internally it is the intersection of the built-in engine's per-type option interfaces plus a few package-specific extras (`country`, `dateRawPattern`, `dateRawPatternDelimiter`, `timeRawPattern`, `timeRawPatternDelimiter`, `prefixMode`, `rawPrefix`, `suffix`, `suffixMode`, `rawSuffix`, `rawDecimalPadding`, `tailPrefix`, `interpretInputAs`).
 
 See the [Configuration reference](../configuration/) for the full per-`formatType` field reference.
 
@@ -86,7 +102,7 @@ result.type // 'phone'
 
 ### `DatePatternType` / `TimePatternType`
 
-Re-exported from `cleave-zen`. Used in `FormatOptions.datePattern` / `timePattern` / `dateRawPattern` / `timeRawPattern` to define the segment order.
+Defined by the built-in engine (they were re-exported from `cleave-zen` before 3.0.0, with the same shape). Used in `FormatOptions.datePattern` / `timePattern` / `dateRawPattern` / `timeRawPattern` to define the segment order.
 
 ```ts
 import type { DatePatternType, TimePatternType } from '@samline/formatter'
@@ -232,6 +248,9 @@ The callable entries carry the static `.pattern` and `.errorMessage` so callers 
 The lower-level helpers used internally by `format()`. They are exported because they are useful in isolation, but the public contract is `format()`.
 
 ```ts
+// From '@samline/formatter/phone'
+function registerPhone(): void
+function isPhoneRegistered(): boolean // also exported from the root
 function formatPhone(
   value: string,
   country?: string, // ISO 3166-1 alpha-2; defaults to 'MX'
@@ -275,8 +294,9 @@ function handleInput(rawEvent: Event): FormatterResult | null {
 
 ```ts
 // Format-side defaults
-type DatePatternType = ('d' | 'm' | 'y' | 'Y')[] // re-exported from cleave-zen
-type TimePatternType = ('h' | 'm' | 's')[]    // re-exported from cleave-zen
+type DatePatternType = ('d' | 'm' | 'y' | 'Y')[]
+type TimePatternType = ('h' | 'm' | 's')[]
+type NumeralThousandsGroupStyle = 'thousand' | 'lakh' | 'wan' | 'none'
 
 // Regex-side defaults
 type RegexKey = /* union of static-entry keys */
@@ -284,7 +304,21 @@ type Regex = typeof regex
 interface RegexEntry { pattern: RegExp; errorMessage: string }
 ```
 
-These are the literal aliases exported by the package. Anything beyond them comes from `cleave-zen` and is not directly re-exported.
+These are the literal aliases exported by the package. Since 3.0.0 `numeralThousandsGroupStyle` accepts the plain strings; the `NumeralThousandGroupStyles` enum from `cleave-zen` is no longer needed.
+
+## Intl option types
+
+Exported from `@samline/formatter/intl`. Each extends `IntlCommonOptions` (`locale?: string | readonly string[]`, `fallback?: string`).
+
+| Type                      | Used by              | Adds                                                                           |
+| ------------------------- | -------------------- | ------------------------------------------------------------------------------ |
+| `IntlNumberOptions`       | `formatNumber`       | `decimals`, `minDecimals`, `maxDecimals` and `Intl.NumberFormatOptions` fields |
+| `IntlCurrencyOptions`     | `formatCurrency`     | the number fields plus required `currency`, `display`, `currencySign`          |
+| `IntlPercentOptions`      | `formatPercent`      | the number fields                                                              |
+| `IntlDateOptions`         | `formatDate`         | `preset`, `pattern` and `Intl.DateTimeFormatOptions` fields                    |
+| `IntlRelativeTimeOptions` | `formatRelativeTime` | `now`, `style`, `numeric`, `unit`, `pattern`                                   |
+
+Input types: `IntlNumberInput` (`number | bigint | string | null | undefined`) and `IntlDateInput` (`Date | number | string | null | undefined`). See the [Intl display reference](../intl/).
 
 ## Related
 

@@ -18,7 +18,7 @@ Open the code under each example to copy its files. They run in two loading mode
 
 ### Phone by country
 
-`format(value, 'phone', { country })` groups digits for the selected country through `libphonenumber-js`. Changing the country reformats the current digits; the listener reads the country on every call instead of being re-attached.
+`format(value, 'phone', { country })` groups digits for the selected country through `libphonenumber-js`. Phones are opt-in: the copied ESM file calls `registerPhone()` from `@samline/formatter/phone`, and the CDN file loads `formatter.phone.global.js`; every other example uses the smaller core script. Changing the country reformats the current digits; the listener reads the country on every call instead of being re-attached.
 
 <Playground preset="phone" showCode />
 

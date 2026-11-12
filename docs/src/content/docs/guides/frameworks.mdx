@@ -25,6 +25,9 @@ The shape is always the same:
 
 ```ts
 import { format } from '@samline/formatter'
+import { registerPhone } from '@samline/formatter/phone'
+
+registerPhone()
 
 input.addEventListener('input', () => {
   const { formatted, raw } = format(input.value, 'phone')
@@ -41,6 +44,9 @@ That listener is the entire pattern. The rest of this page shows how each framew
 ```tsx title="PhoneField.tsx"
 import { useState } from 'react'
 import { format } from '@samline/formatter'
+import { registerPhone } from '@samline/formatter/phone'
+
+registerPhone()
 
 export function PhoneField({ name, country = 'MX' }: { name: string; country?: string }) {
   const [display, setDisplay] = useState('')
@@ -100,6 +106,7 @@ export function useFormatted(
 
 <script setup>
 import { useFormatted } from './use-formatted'
+// registerPhone() from '@samline/formatter/phone' runs once in main.ts.
 
 const { display, raw, onInput } = useFormatted('', 'phone', { country: 'MX' })
 </script>
@@ -113,6 +120,9 @@ const { display, raw, onInput } = useFormatted('', 'phone', { country: 'MX' })
 ```svelte title="PhoneField.svelte"
 <script>
   import { format } from '@samline/formatter'
+  import { registerPhone } from '@samline/formatter/phone'
+
+  registerPhone()
 
   let display = ''
 
@@ -147,6 +157,9 @@ Svelte's reactive `$:` block keeps the hidden mirror in lockstep with the visibl
 
 <script type="module">
   import { format } from '@samline/formatter'
+  import { registerPhone } from '@samline/formatter/phone'
+
+  registerPhone()
 
   const phone = document.getElementById('phone')
   const phoneRaw = document.getElementById('phone_raw')
@@ -166,6 +179,9 @@ When the form posts natively (no `onSubmit` handler), the browser submits `phone
 
 ```ts title="format-server.ts"
 import { format } from '@samline/formatter'
+import { registerPhone } from '@samline/formatter/phone'
+
+registerPhone()
 
 // Normalize a phone number coming from a CRM webhook
 const stored = format('+525512345678', 'phone', { country: 'MX' })

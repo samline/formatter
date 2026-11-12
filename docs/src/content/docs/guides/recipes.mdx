@@ -22,6 +22,9 @@ The standard entrypoint — `import { format } from '@samline/formatter'`. Works
 
 ```ts
 import { format } from '@samline/formatter'
+import { registerPhone } from '@samline/formatter/phone'
+
+registerPhone()
 
 const result = format('5512345678', 'phone')
 console.log(result.formatted) // '55 1234 5678'
@@ -34,7 +37,7 @@ console.log(result.raw) // '5512345678'
 No bundler required. Drop the CDN script and use `window.Formatter.format(...)`.
 
 ```html
-<script src="https://unpkg.com/@samline/formatter@2.1.0/dist/browser/global.global.js"></script>
+<script src="https://unpkg.com/@samline/formatter@3.0.0/dist/browser/formatter.phone.global.js"></script>
 <script>
   const result = window.Formatter.format('5512345678', 'phone')
   console.log(result.formatted)
@@ -50,6 +53,9 @@ Drive `format()` off a country picker so the same input formats MX vs US numbers
 
 ```ts title="src/phone.ts"
 import { format } from '@samline/formatter'
+import { registerPhone } from '@samline/formatter/phone'
+
+registerPhone()
 
 const COUNTRY_CODES = ['MX', 'US', 'AR', 'ES'] as const
 type Country = (typeof COUNTRY_CODES)[number]
@@ -304,7 +310,7 @@ When the form is rendered server-side (Blade, ERB, classic Rails) and you only n
   <button type="submit">Checkout</button>
 </form>
 
-<script src="https://unpkg.com/@samline/formatter@2.1.0/dist/browser/global.global.js"></script>
+<script src="https://unpkg.com/@samline/formatter@3.0.0/dist/browser/formatter.phone.global.js"></script>
 <script>
   const F = window.Formatter
 
@@ -334,6 +340,9 @@ The browser submits `phone` and `amount` as the canonical values; the visible fi
 
 ```ts title="src/server-format.ts"
 import { format } from '@samline/formatter'
+import { registerPhone } from '@samline/formatter/phone'
+
+registerPhone()
 
 // Normalize a phone number from a CRM webhook before storing it.
 const stored = format('+525512345678', 'phone', { country: 'MX' })
@@ -355,6 +364,9 @@ When you use `@samline/forms` for validation and submit handling, drive `format(
 ```ts title="src/forms-integration.ts"
 import { form, regex } from '@samline/forms'
 import { format } from '@samline/formatter'
+import { registerPhone } from '@samline/formatter/phone'
+
+registerPhone()
 
 const checkout = form('checkout-form', {
   validators: { phone: { required: true, pattern: regex.phone.pattern } },

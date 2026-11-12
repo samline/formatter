@@ -6,9 +6,9 @@ import {
   formatTime,
   getCreditCardType,
   type FormatGeneralOptions
-} from 'cleave-zen'
+} from './engine/index.js'
 
-import { formatPhone } from './phone.js'
+import { getPhoneFormatter, PHONE_NOT_REGISTERED_MESSAGE } from './phone-registry.js'
 import {
   getDateValueFromRaw,
   getTimeValueFromRaw,
@@ -45,7 +45,7 @@ const PHONE_DEFAULT_COUNTRY = 'MX'
 /**
  * Internal: pick a country/delimiter-aware runtime options object with
  * phone-specific defaults applied. For non-phone formats the `delimiter`
- * is left as the user supplied it (or absent) so cleave-zen falls back to
+ * is left as the user supplied it (or absent) so the engine falls back to
  * its idiomatic defaults.
  */
 const resolveRuntimeOptions = (
@@ -71,7 +71,7 @@ const resolveRuntimeOptions = (
 
 /**
  * Internal: format a pre-processed value into its display representation
- * by delegating to the matching `cleave-zen` (or `formatPhone`) helper.
+ * by delegating to the matching engine (or registered phone) helper.
  */
 const formatValue = (
   value: string,
@@ -79,8 +79,11 @@ const formatValue = (
   options: RuntimeOptions
 ): string => {
   switch (formatType) {
-    case 'phone':
-      return formatPhone(value, options.country, options.delimiter)
+    case 'phone': {
+      const formatPhone = getPhoneFormatter()
+      if (!formatPhone) throw new TypeError(PHONE_NOT_REGISTERED_MESSAGE)
+      return formatPhone(value, options.country, options.delimiter ?? PHONE_DEFAULT_DELIMITER)
+    }
 
     case 'numeral':
       return formatNumeral(value, options)
@@ -98,9 +101,8 @@ const formatValue = (
       return getCreditCardType(value, options.delimiter)
 
     case 'general':
-      // cleave-zen's `formatGeneral` requires `blocks` in its options;
-      // `FormatOptions` does not declare it (consumers pick blocks via
-      // their own configuration). This cast is the documented seam.
+      // `formatGeneral` requires `blocks`; `format()` has already rejected
+      // a missing or empty array, so the cast only narrows the optional type.
       return formatGeneral(
         value,
         options as unknown as FormatGeneralOptions
@@ -116,7 +118,7 @@ const formatValue = (
  * matches the raw pattern, it is treated as raw (so a server-pre-filled
  * raw like `"19901212"` is correctly converted to display); otherwise
  * it is treated as display (so user keystrokes in display order pass
- * through and cleave-zen inserts any missing separators). `'display'`
+ * through and the engine inserts any missing separators). `'display'`
  * and `'raw'` are preserved as opt-ins for callers that know the
  * convention unambiguously.
  */

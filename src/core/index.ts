@@ -1,6 +1,6 @@
 export * from './formatter.js'
 export * from './format.js'
-export * from './phone.js'
+export { isPhoneRegistered } from './phone-registry.js'
 export * from './raw.js'
 export * from './regex.js'
 export * from './types.js'

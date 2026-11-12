@@ -2,6 +2,7 @@ export type {
   DatePatternType,
   FormatOptions,
   FormatType,
+  NumeralThousandsGroupStyle,
   TimePatternType
 } from './raw.js'
 

@@ -137,7 +137,14 @@ test('file tabs copy exact highlighted source and feedback resets independently'
 test('copied CDN and ESM files run for all fifteen scenarios', async ({ page, context }) => {
   // The CDN URL is served from this checkout's build; this proves the copied
   // code, not unpkg availability or npm publication.
-  const iife = readFileSync(new URL('../dist/browser/global.global.js', import.meta.url), 'utf8')
+  const coreIife = readFileSync(
+    new URL('../dist/browser/formatter.global.js', import.meta.url),
+    'utf8'
+  )
+  const phoneIife = readFileSync(
+    new URL('../dist/browser/formatter.phone.global.js', import.meta.url),
+    'utf8'
+  )
   // [typed, formatted, raw]; the validator has no raw, only a status.
   const cases: Record<string, [string, string, string]> = {
     phone: ['5598765432', '55 9876 5432', '5598765432'],
@@ -160,15 +167,22 @@ test('copied CDN and ESM files run for all fifteen scenarios', async ({ page, co
   const example = await context.newPage()
   const errors: string[] = []
   example.on('pageerror', error => errors.push(error.message))
-  await example.route('https://unpkg.com/**', route =>
-    route.fulfill({ body: iife, contentType: 'text/javascript' })
-  )
+  // Only the phone scenario may copy the phone build; the rest get the core.
+  await example.route('https://unpkg.com/**', route => {
+    const url = route.request().url()
+    const body = url.endsWith('/formatter.phone.global.js') ? phoneIife : coreIife
+    return route.fulfill({ body, contentType: 'text/javascript' })
+  })
   // ESM files import the package by name; map it to the same build for the test.
   await example.route('https://example.test/formatter.js', route =>
     route.fulfill({
       body: 'export const { format, regex, version } = window.Formatter',
       contentType: 'text/javascript',
     })
+  )
+  // The inlined phone build has already registered phones.
+  await example.route('https://example.test/formatter-phone.js', route =>
+    route.fulfill({ body: 'export const registerPhone = () => {}', contentType: 'text/javascript' })
   )
   for (const [preset, [input, formatted, raw]] of Object.entries(cases)) {
     const section = page.locator(`#${preset}`)
@@ -184,13 +198,23 @@ test('copied CDN and ESM files run for all fifteen scenarios', async ({ page, co
         .textContent())!
       if (mode === 'Package / ESM') {
         expect(complete).toContain("from '@samline/formatter'")
+        const usesPhone = complete.includes("from '@samline/formatter/phone'")
+        expect(usesPhone, preset).toBe(preset === 'phone')
+        const iife = usesPhone ? phoneIife : coreIife
         complete = complete
           .replace("from '@samline/formatter'", "from 'https://example.test/formatter.js'")
+          .replace(
+            "from '@samline/formatter/phone'",
+            "from 'https://example.test/formatter-phone.js'"
+          )
           .replace(
             '<head>',
             () => `<head><script>${iife.replaceAll('</script', '<\\/script')}</script>`
           )
-      } else expect(complete).toContain('https://unpkg.com/@samline/formatter@')
+      } else {
+        expect(complete).toContain('https://unpkg.com/@samline/formatter@')
+        expect(complete.includes('formatter.phone.global.js'), preset).toBe(preset === 'phone')
+      }
       // Navigate (instead of setContent) so each document gets fresh globals.
       const document = complete
       await example.route('https://example.test/index.html', route =>

@@ -7,6 +7,7 @@ const routes = {
   lifecycle: 'reference/configuration/',
   accessibility: 'guides/styling-and-ux/',
   regex: 'reference/regex/',
+  intl: 'reference/intl/',
   recipes: 'guides/recipes/',
   frameworks: 'guides/frameworks/',
   examples: 'guides/examples/',

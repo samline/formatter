@@ -1,8 +1,14 @@
 import { format, resolveConfig } from 'prettier'
 import demo, { scenarios, type DemoPreset } from '../i18n/translations/en/demo'
 import controls from '../i18n/translations/en/controls'
-import { htmlFor, javascriptFor, stylesFor, quickStart, type DemoMode } from './demo-source'
-import { project } from './project.mjs'
+import {
+  cdnScriptFor,
+  htmlFor,
+  javascriptFor,
+  stylesFor,
+  quickStart,
+  type DemoMode,
+} from './demo-source'
 
 export type { DemoMode }
 
@@ -23,7 +29,7 @@ ${separate ? '<link rel="stylesheet" href="./style.css">' : `<style>\n${stylesFo
 ${htmlFor(preset)}
 </main>
 
-${mode === 'cdn' && project.delivery.cdnScript ? `<script src="${project.delivery.cdnScript}"></script>` : ''}
+${mode === 'cdn' && cdnScriptFor(preset) ? `<script src="${cdnScriptFor(preset)}"></script>` : ''}
 ${
   separate
     ? mode === 'esm'

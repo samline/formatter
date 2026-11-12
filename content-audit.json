@@ -1,6 +1,6 @@
 {
   "status": "verified",
-  "packageVersion": "2.1.0",
+  "packageVersion": "3.0.0",
   "sources": [
     {
       "source": "README.md",
@@ -226,7 +226,7 @@
     {
       "name": "formatPhone",
       "kind": "function",
-      "source": "src/core/phone.ts",
+      "source": "src/phone/index.ts",
       "destination": "docs/src/content/docs/reference/api.mdx",
       "reviewed": true
     },
@@ -336,7 +336,7 @@
       "reviewed": true
     },
     {
-      "name": "window.Formatter (format, regex, version)",
+      "name": "window.Formatter (format, intl, regex, version)",
       "kind": "browser global",
       "source": "src/browser/global.ts",
       "destination": "docs/src/content/docs/reference/browser.md",
@@ -355,9 +355,93 @@
       "source": "src/browser/global.ts",
       "destination": "docs/src/content/docs/reference/entrypoints.md",
       "reviewed": true
+    },
+    {
+      "name": "registerPhone",
+      "kind": "function",
+      "source": "src/phone/index.ts",
+      "destination": "docs/src/content/docs/reference/api.mdx",
+      "reviewed": true
+    },
+    {
+      "name": "isPhoneRegistered",
+      "kind": "function",
+      "source": "src/core/phone-registry.ts",
+      "destination": "docs/src/content/docs/reference/api.mdx",
+      "reviewed": true
+    },
+    {
+      "name": "NumeralThousandsGroupStyle",
+      "kind": "type",
+      "source": "src/core/engine/types.ts",
+      "destination": "docs/src/content/docs/reference/typescript.mdx",
+      "reviewed": true
+    },
+    {
+      "name": "formatNumber",
+      "kind": "function",
+      "source": "src/intl/index.ts",
+      "destination": "docs/src/content/docs/reference/intl.md",
+      "reviewed": true
+    },
+    {
+      "name": "formatCurrency",
+      "kind": "function",
+      "source": "src/intl/index.ts",
+      "destination": "docs/src/content/docs/reference/intl.md",
+      "reviewed": true
+    },
+    {
+      "name": "formatPercent",
+      "kind": "function",
+      "source": "src/intl/index.ts",
+      "destination": "docs/src/content/docs/reference/intl.md",
+      "reviewed": true
+    },
+    {
+      "name": "formatDate",
+      "kind": "function",
+      "source": "src/intl/index.ts",
+      "destination": "docs/src/content/docs/reference/intl.md",
+      "reviewed": true
+    },
+    {
+      "name": "formatRelativeTime",
+      "kind": "function",
+      "source": "src/intl/index.ts",
+      "destination": "docs/src/content/docs/reference/intl.md",
+      "reviewed": true
+    },
+    {
+      "name": "IntlNumberOptions, IntlCurrencyOptions, IntlPercentOptions, IntlDateOptions, IntlRelativeTimeOptions",
+      "kind": "type",
+      "source": "src/intl/index.ts",
+      "destination": "docs/src/content/docs/reference/typescript.mdx",
+      "reviewed": true
+    },
+    {
+      "name": "@samline/formatter/phone",
+      "kind": "entrypoint",
+      "source": "src/phone/index.ts",
+      "destination": "docs/src/content/docs/reference/entrypoints.md",
+      "reviewed": true
+    },
+    {
+      "name": "@samline/formatter/intl",
+      "kind": "entrypoint",
+      "source": "src/intl/index.ts",
+      "destination": "docs/src/content/docs/reference/entrypoints.md",
+      "reviewed": true
+    },
+    {
+      "name": "@samline/formatter/browser/phone",
+      "kind": "entrypoint",
+      "source": "src/browser/phone.ts",
+      "destination": "docs/src/content/docs/reference/entrypoints.md",
+      "reviewed": true
     }
   ],
-  "notes": "Audit of public behavior for Formatter 2.1.0. Internal pipeline helpers (formatValue, getValueForFormatting, resolveRuntimeOptions) remain reachable for compatibility but are marked @internal and intentionally undocumented. This is content coverage, not proof of universal accessibility or production performance. CHANGELOG.md is the single history source.",
+  "notes": "Audit of public behavior for Formatter 3.0.0 (opt-in phones, built-in engine, numeralDecimalPadding, Intl subpath). Internal pipeline helpers (formatValue, getValueForFormatting, resolveRuntimeOptions) remain reachable for compatibility but are marked @internal and intentionally undocumented. This is content coverage, not proof of universal accessibility or production performance. CHANGELOG.md is the single history source.",
   "templateSource": {
     "url": "https://github.com/samline/package-landing-docs.git",
     "commit": "54822b6dc3ad6d81e611490bcf5302b5938aeef9"
@@ -415,7 +499,7 @@
       },
       {
         "name": "Browser global / CDN",
-        "evidence": "dist/browser/global.global.js executed as a classic script (test/build/bundle.test.ts and copied CDN files)",
+        "evidence": "dist/browser/formatter.global.js and formatter.phone.global.js executed as classic scripts (test/build/bundle.test.ts and copied CDN files)",
         "destination": "docs/src/content/docs/reference/browser.md",
         "reviewed": true
       }

@@ -1,5 +1,8 @@
-import { describe, it, expect } from 'vitest'
-import { format, formatPhone, regex } from '../../src'
+import { beforeAll, describe, it, expect } from 'vitest'
+import { format, regex } from '../../src'
+import { formatPhone, registerPhone } from '../../src/phone'
+
+beforeAll(registerPhone)
 
 // Regression guards for the 2.1.0 audit.
 describe('2.1.0 audit regressions', () => {

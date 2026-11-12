@@ -5,6 +5,71 @@ All notable changes to `@samline/formatter` are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.0.0] - 2026-11-12
+
+Phones become opt-in so the core no longer bundles libphonenumber-js, the
+cleave-zen engine moves into the package, numerals can pad decimals and a new
+`@samline/formatter/intl` subpath formats stored values for display.
+Resolves [#1](https://github.com/samline/formatter/issues/1),
+[#2](https://github.com/samline/formatter/issues/2),
+[#3](https://github.com/samline/formatter/issues/3) and
+[#4](https://github.com/samline/formatter/issues/4).
+
+### Breaking
+
+- **Phone support is opt-in.** `format(value, 'phone')` throws a `TypeError` until `registerPhone()` from the new `@samline/formatter/phone` subpath has run once; the error names the fix. Registration applies to every entrypoint (`.`, `/vanilla`, ESM and CommonJS share one registry). `formatPhone` moved from the root to `@samline/formatter/phone`.
+- **Browser scripts renamed.** `dist/browser/global.global.js` is replaced by `dist/browser/formatter.global.js` (no phones) and `dist/browser/formatter.phone.global.js` (phones registered on load). The `./browser` export points at the core build; `./browser/phone` is new.
+- **`cleave-zen` removed from `dependencies`.** `numeralThousandsGroupStyle` is now the exported string union `NumeralThousandsGroupStyle` (`'thousand' | 'lakh' | 'wan' | 'none'`) instead of cleave-zen's `NumeralThousandGroupStyles` enum. `DatePatternType` and `TimePatternType` keep their shape.
+
+#### Migration
+
+```diff
+  import { format } from '@samline/formatter'
++ import { registerPhone } from '@samline/formatter/phone'
++ registerPhone()
+
+- import { formatPhone } from '@samline/formatter'
++ import { formatPhone } from '@samline/formatter/phone'
+
+- <script src="https://unpkg.com/@samline/formatter@2.1.0/dist/browser/global.global.js"></script>
++ <script src="https://unpkg.com/@samline/formatter@3.0.0/dist/browser/formatter.phone.global.js"></script>
+```
+
+Pages that format no phones can load `formatter.global.js` instead.
+
+### Added
+
+- `@samline/formatter/intl`: `formatNumber`, `formatCurrency`, `formatPercent`, `formatDate` and `formatRelativeTime` on the native `Intl` APIs, with no dependencies. `null`, `undefined` and `''` return `''`; values that cannot be read return a configurable `fallback` instead of `NaN` or `Invalid Date`; `Intl.*Format` instances are cached by locale and options. `formatDate` reads formatter's raw dates (`'2026-11-12'`, `'20261112'`, or any `pattern`) as local calendar dates. The browser builds expose the same functions as `window.Formatter.intl`. Replaces `@samline/date` for display; the Intl reference page has migration notes.
+- `numeralDecimalPadding` pads the decimal part of a numeral's `formatted` value up to `numeralDecimalScale` (`1,234,567.5` → `1,234,567.50`). It defaults to `false`; apply it on blur or for display. `raw` stays unpadded and dot-decimal, and is stable when the padded value is formatted again.
+- `rawDecimalPadding` pads a numeral's `raw` to `numeralDecimalScale` (`'1234.5'` → `'1234.50'`, `'1234'` → `'1234.00'`) for backends that expect a fixed scale. It is independent of `numeralDecimalPadding`, defaults to `false`, and `raw` stays stable when formatted again.
+- `registerPhone()` and `isPhoneRegistered()` (the latter also exported from the root).
+- The `NumeralThousandsGroupStyle` type.
+- A size budget in `test:package`: the root entry stays under 25 KB minified (10 KB gzip) and the core IIFE under 30 KB. Measured for this release: root about 19 KB (7 KB gzip, from about 164 KB), core IIFE about 25 KB with `intl`, phone IIFE about 165 KB.
+- Engine unit tests (`test/core/engine.test.ts`) whose expected values were recorded from cleave-zen 0.0.17; before the switch a 100,000-case randomized comparison matched the port exactly.
+- Built-output tests for both IIFEs, the shared phone registry in ESM and CommonJS, the `intl` subpath and the absence of a cleave-zen import.
+
+### Changed
+
+- The numeral, date, time, credit-card and general engine is now `src/core/engine/`, a strict TypeScript port of the cleave-zen 0.0.17 modules formatter used (MIT notice kept in LICENSE.md). Unused code (the cursor tracker) was not ported, delimiter stripping no longer builds a `RegExp` per character, and steps that stripped delimiters from digit-only strings were removed.
+- Casing for `general` masks and for matching typed affixes goes through one `applyCase()` step, so new modes can be added in a single place.
+
+### Fixed
+
+These come from auditing the ported engine and change a few outputs:
+
+- A `','` `numeralDecimalMark` now groups with `'.'` when no `delimiter` is given. Before, both used `','`, so `1234,5` displayed `1,234,5` with raw `1.2345`.
+- Numeral `raw` no longer uses an `M` placeholder: a prefix containing `M` left in the value (`-MXN 5` with `signBeforePrefix`) produced raw `-.5` instead of `-5`. Only a minus before the first digit counts as the sign, so `getRawValue('12-3', 'numeral')` returns `123`.
+- An empty `numeralDecimalMark` falls back to `'.'` instead of producing raw values such as `.5`.
+- Mastercard detection is limited to 51–55 and 2221–2720; `2220` and `2721`–`2799` are `general`. Partial prefixes (`222`, `27`, `272`) still resolve while typing.
+- A 12-hour `time` turns a typed hour `00` into `12`.
+- `formatGeneral` no longer appends `delimiter` to the caller's `delimiters` array on every call.
+- With both `uppercase` and `lowercase`, affix matching now uses the same casing as the displayed mask (lowercase wins), instead of uppercase.
+
+### Documentation
+
+- Corrected examples that never matched the code: the US phone example returns `(202)-555-1234`, the `tailPrefix` examples need `blocks`, the card option is `strictMode` (not `creditCardStrictMode`), `stripLeadingZeroes` defaults to `true`, and the detected brands are listed as implemented (Elo, Hiper and Hipercard are not detected).
+- New Intl display reference, phone opt-in sections, decimal padding guide, two-build CDN tables and an updated entrypoint size matrix.
+
 ## [2.1.0] - 2026-11-05
 
 ### Fixed

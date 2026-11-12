@@ -34,6 +34,9 @@ Only the hidden input has the submitted `name`. This prevents the display and ca
 
 ```ts
 import { format, regex } from '@samline/formatter'
+import { registerPhone } from '@samline/formatter/phone'
+
+registerPhone()
 
 const display = document.querySelector<HTMLInputElement>('#phone_display')!
 const raw = document.querySelector<HTMLInputElement>('#phone')!

@@ -1,6 +1,7 @@
 import { format } from '../core/formatter.js'
 import { regex } from '../core/regex.js'
 import packageJson from '../../package.json'
+import * as intl from '../intl/index.js'
 import type {
   FormatOptions,
   FormatType,
@@ -10,6 +11,8 @@ import type {
 export interface FormatterGlobal {
   /** Format any value using the core formatter. */
   format: (value: unknown, formatType: FormatType, options?: FormatOptions) => FormatterResult
+  /** Intl display helpers, the same functions as `@samline/formatter/intl`. */
+  intl: typeof intl
   /** Validation regex patterns with paired error messages. */
   regex: typeof regex
   /** Library version, mirrors the `version` field in `package.json`. */
@@ -25,11 +28,11 @@ declare global {
 /** Library version, mirrors the `version` field in `package.json`. */
 export const version: string = packageJson.version
 
-export { format, regex }
+export { format, intl, regex }
 
 /*
  * The IIFE build (`globalName: 'Formatter'`) assigns this module's named
  * exports to `window.Formatter`. A default export would become
- * `window.Formatter.default` and hide `format`/`regex`, so this entry
+ * `window.Formatter.default` and hide `format`/`intl`/`regex`, so this entry
  * intentionally exposes named exports only.
  */

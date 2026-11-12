@@ -1,7 +1,7 @@
 {
   "name": "@samline/formatter",
-  "version": "2.1.0",
-  "description": "Lightweight, framework-agnostic input formatter (phone, numeral, date, time, credit card, general) that returns split formatted/raw outputs.",
+  "version": "3.0.0",
+  "description": "Lightweight, framework-agnostic input formatter (numeral, date, time, credit card, general, opt-in phone) that returns split formatted/raw outputs, plus Intl display helpers.",
   "type": "module",
   "license": "MIT",
   "publishConfig": {
@@ -29,9 +29,23 @@
       "import": "./dist/vanilla/index.js",
       "require": "./dist/vanilla/index.cjs"
     },
+    "./phone": {
+      "types": "./dist/phone/index.d.ts",
+      "import": "./dist/phone/index.js",
+      "require": "./dist/phone/index.cjs"
+    },
+    "./intl": {
+      "types": "./dist/intl/index.d.ts",
+      "import": "./dist/intl/index.js",
+      "require": "./dist/intl/index.cjs"
+    },
     "./browser": {
-      "types": "./dist/browser/global.d.ts",
-      "default": "./dist/browser/global.global.js"
+      "types": "./dist/browser/formatter.d.ts",
+      "default": "./dist/browser/formatter.global.js"
+    },
+    "./browser/phone": {
+      "types": "./dist/browser/formatter.phone.d.ts",
+      "default": "./dist/browser/formatter.phone.global.js"
     }
   },
   "scripts": {
@@ -68,7 +82,7 @@
     "credit-card",
     "format",
     "mask",
-    "cleave",
+    "intl",
     "libphonenumber"
   ],
   "author": "samline",
@@ -81,7 +95,6 @@
   },
   "homepage": "https://samline.github.io/formatter",
   "dependencies": {
-    "cleave-zen": "^0.0.17",
     "libphonenumber-js": "^1.13.7"
   },
   "devDependencies": {

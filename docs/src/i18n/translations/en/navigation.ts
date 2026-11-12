@@ -28,6 +28,7 @@ export default {
     'reference/entrypoints': 'Entrypoints and module formats',
     'reference/browser': 'HTML / CDN',
     'reference/typescript': 'TypeScript reference',
+    'reference/intl': 'Intl display helpers',
     changelog: 'Changelog',
   },
 }

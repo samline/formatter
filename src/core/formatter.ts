@@ -7,6 +7,8 @@ import {
   type FormatType
 } from './format.js'
 
+import { applyCase } from './engine/case.js'
+import { getPhoneFormatter, PHONE_NOT_REGISTERED_MESSAGE } from './phone-registry.js'
 import { getRawValue, stripPrefixAndSuffix } from './raw.js'
 
 import type { FormatterResult, FormatOptions } from './types.js'
@@ -95,7 +97,8 @@ const stripTypedAffix = (
  * @param formatType - One of the supported `FormatType` values.
  * @param options - Per-type options (see `FormatOptions`).
  * @returns A `FormatterResult` with `formatted`, `raw`, and the echoed `type`.
- * @throws {TypeError} When `formatType` is not one of the supported types.
+ * @throws {TypeError} When `formatType` is not one of the supported types,
+ *   or when it is `'phone'` and `registerPhone()` has not been called.
  */
 export const format = (
   value: unknown,
@@ -106,6 +109,10 @@ export const format = (
     throw new TypeError(
       `Invalid formatType: ${String(formatType)}. Expected one of: ${FORMAT_TYPES.join(', ')}`
     )
+  }
+
+  if (formatType === 'phone' && !getPhoneFormatter()) {
+    throw new TypeError(PHONE_NOT_REGISTERED_MESSAGE)
   }
 
   if (value === null || value === undefined || value === '') {
@@ -124,7 +131,7 @@ export const format = (
   const runtime = resolveRuntimeOptions(formatType, options)
   const stringValue = typeof value === 'string' ? value : String(value)
 
-  // Manage affixes here because cleave-zen has no independent suffix.
+  // Manage affixes here because the general engine has no independent suffix.
   if (formatType === 'general') {
     const rawPrefix = runtime.prefix
     const rawSuffix = runtime.suffix
@@ -153,11 +160,7 @@ export const format = (
       // Match decorations against the case-transformed value so a prefix
       // typed in another case is recognized instead of being duplicated.
       // `raw` keeps the typed body's original case (historical contract).
-      const cased = runtime.uppercase
-        ? stringValue.toUpperCase()
-        : runtime.lowercase
-          ? stringValue.toLowerCase()
-          : stringValue
+      const cased = applyCase(stringValue, runtime)
       const caseSafe = cased.length === stringValue.length
       let body = caseSafe ? cased : stringValue
       let typedHead = ''

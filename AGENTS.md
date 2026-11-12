@@ -7,6 +7,9 @@ This is the single project memory for the runtime and for Home, Examples and Doc
 - `format(value, formatType, options)` is pure and synchronous and returns `{ formatted, raw, type }`. It never touches the DOM; callers own listeners, labels, messages and caret.
 - `raw` must be stable when the displayed value is formatted again (`format(format(x).formatted).raw === format(x).raw`). Every listener feeds `formatted` back in on the next keystroke.
 - Decorated `general` values (`prefix`/`suffix`): default `raw` is the typed body without the formatter's delimiters; characters hidden by `numericOnly` are kept (historical contract, locked by tests). `rawPrefix`/`rawSuffix` derive the body from `formatted`. Undecorated `general` derives `raw` from `formatted`.
+- Phones are opt-in (3.0.0): `registerPhone()` from `src/phone/index.ts` sets the only module state (`src/core/phone-registry.ts`). All module entries build in one tsup config with `splitting` so that registry is shared; `formatter.global.js` has no phones, `formatter.phone.global.js` registers them on load.
+- The numeral/date/time/card/general engine is owned code in `src/core/engine/` (ported from cleave-zen 0.0.17, MIT notice in LICENSE.md). Casing goes through `engine/case.ts` `applyCase()` only. `src/intl/` holds the `Intl` display helpers and must stay dependency-free.
+- Size budgets (`test/build/bundle.test.ts`): root entry under 25 KB minified, core IIFE under 30 KB.
 - The browser entry (`src/browser/global.ts`) exports named members only. A default export would make the IIFE define `window.Formatter.default`.
 - `formatValue`, `getValueForFormatting` and `resolveRuntimeOptions` are `@internal`; do not document them as API.
 - Every public behavior change updates source, tests, docs collection, demo scenarios, README, CHANGELOG and the skill together, with the version swept through `package.json`, `project.config.json` and CDN URLs (`test/docs/cdn-version.test.ts` enforces pins).

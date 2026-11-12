@@ -55,7 +55,7 @@ export default {
       entrypoints: {
         title: 'Seven format types',
         description: text(
-          'Phones through libphonenumber-js, numerals, dates, times, card numbers and brands through cleave-zen, plus general block masks.'
+          'Numerals, dates, times, card numbers and brands, and general block masks from a built-in engine, plus opt-in phones through libphonenumber-js.'
         ),
       },
       frameworks: {
@@ -150,7 +150,7 @@ export default {
     title: 'Keep the display familiar.',
     titleAccent: 'Keep the data clean.',
     description:
-      'Patterns that come up in real forms: server-filled values, regional numbers and validation messages.',
+      'Patterns that come up in real forms: server-filled values, regional numbers, stored values and validation messages.',
     examplesLabel: 'Explore all fifteen examples',
     items: [
       {
@@ -194,6 +194,24 @@ field.value = formatted // '31/12/1990'`,
         ),
       },
       {
+        title: 'Display what you stored',
+        context: 'Display',
+        docsRoute: 'intl' as const,
+        docsLabel: 'Read about the Intl helpers',
+        description: text(
+          'Show stored amounts and dates in the reader’s locale with the Intl helpers. Empty or unreadable values return an empty string, never NaN.'
+        ),
+        code: code(
+          'invoice.js',
+          `import { formatCurrency, formatDate } from '${project.npmName}/intl'
+
+formatCurrency('1234.5', { locale: 'es-MX', currency: 'MXN' }) // '$1,234.50'
+formatDate('2026-11-12', { locale: 'es-MX', preset: 'long' }) // '12 de noviembre de 2026'
+formatCurrency(null, { currency: 'MXN' }) // ''`,
+          'javascript'
+        ),
+      },
+      {
         title: 'Validate with the paired message',
         context: 'Validation',
         docsRoute: 'regex' as const,
@@ -204,6 +222,9 @@ field.value = formatted // '31/12/1990'`,
         code: code(
           'validate.js',
           `import { format, regex } from '${project.npmName}'
+import { registerPhone } from '${project.npmName}/phone'
+
+registerPhone()
 
 field.addEventListener('input', () => {
   const { formatted, raw } = format(field.value, 'phone')
@@ -271,13 +292,13 @@ field.addEventListener('input', () => {
       server: {
         question: text('Can I run it on the server?'),
         answer: text(
-          'Yes. format() has no DOM access, timers or global state, so it runs in Node.js 20+, workers and tests with the same output. Use it to normalize imported data, render formatted values in emails, or re-check what a form submitted.'
+          'Yes. format() has no DOM access or timers, and its only module state is the one-time registerPhone() switch, so it runs in Node.js 20+, workers and tests with the same output. Use it to normalize imported data, render formatted values in emails, or re-check what a form submitted.'
         ),
       },
       size: {
         question: text('How large is it?'),
         answer: text(
-          'The standalone browser script is about 165 KB minified before compression, because it bundles libphonenumber-js metadata and cleave-zen. With a bundler, the package uses those two dependencies directly and shares them with the rest of your application.'
+          'The core is about 19 KB minified (7 KB gzip) with a bundler and has no runtime dependency. Phone support is opt-in: @samline/formatter/phone adds libphonenumber-js (about 143 KB minified). The browser scripts are about 25 KB without phones and 165 KB with them.'
         ),
       },
       errors: {
@@ -287,9 +308,9 @@ field.addEventListener('input', () => {
         ),
       },
       upgrade: {
-        question: text('Is upgrading from 2.0 safe?'),
+        question: text('Is upgrading from 2.x safe?'),
         answer: text(
-          'Yes for most code. 2.1.0 fixes the CDN global, which exposed only window.Formatter.default in 2.0.x, stabilizes raw values for decorated masks and tightens two validation patterns. Read the changelog for every behavior change before you upgrade.'
+          '3.0.0 makes phones opt-in: call registerPhone() from @samline/formatter/phone, or load formatter.phone.global.js instead of the renamed browser script. Every other format keeps its output. Read the changelog migration notes before you upgrade.'
         ),
       },
     },

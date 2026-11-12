@@ -1,6 +1,9 @@
-import { describe, it, expect } from 'vitest'
+import { beforeAll, describe, it, expect } from 'vitest'
+import { registerPhone } from '../../src/phone'
 import { format, FORMAT_TYPES, isFormatType } from '../../src/core/formatter'
 import type { FormatOptions } from '../../src/core/formatter'
+
+beforeAll(registerPhone)
 
 describe('format', () => {
   describe('empty / nullish input', () => {

@@ -1,6 +1,6 @@
 # Formatter website
 
-Landing, Examples and Docs for `@samline/formatter` 2.1.0. The package runtime, exports, Node 20+ requirement, README, license and release history remain the package contract. Website tooling requires Node **22.12+**.
+Landing, Examples and Docs for `@samline/formatter` 3.0.0. The package runtime, exports, Node 20+ requirement, README, license and release history remain the package contract. Website tooling requires Node **22.12+**.
 
 ## Run locally
 
@@ -57,13 +57,24 @@ Validation: `site:verify` and `site:check:release` passed, including both Astro
 checks, formatting, 12 tooling tests, alternate-base builds, 928 links across
 26 pages and all 30 Chromium tests. This is a website change; npm remains 2.1.0.
 
+## 3.0.0 release — 2026-11-12
+
+Phones became opt-in and the browser script was split. `project.config.json`
+`delivery.cdnScript` points at `formatter.phone.global.js` because Home and the
+installer show phones; `shared/lib/demo-source.ts` `cdnScriptFor()` gives copied
+non-phone scenarios the core `formatter.global.js`, and phone ESM files add
+`registerPhone()`. `Playground.astro` registers phones in its frontmatter and
+client script. Both Astro configs alias `@samline/formatter/phone` to source. The
+copied-example e2e test serves each build and asserts only the phone scenario
+uses the phone build. Docs gained `reference/intl.md`; Home's recipes link it.
+
 ## Theme provenance
 
 Adapted from <https://github.com/samline/package-landing-docs.git>, commit `54822b6dc3ad6d81e611490bcf5302b5938aeef9`, embedded following the Drawer layout. Ticker remains the visual reference pinned in `design-reference.json` / `REFERENCE.md`; protected component styles are unchanged. The maintainer-selected lime-green accent is `#4d7c0f` (light, chosen for text contrast on white) and `#a3e635` (dark), recorded in `content-audit.json.themeReview`. The shared logo was allowed to wrap so the longer scoped name fits 320 px at enlarged text.
 
 ## Performance
 
-The PageSpeed contract in the template's AGENTS.md applies (95+ mobile, 100 desktop, 100 accessibility/best practices/SEO are goals, not measured results). No Lighthouse baseline has been recorded for this site yet. The live demo bundles the formatter (including libphonenumber metadata) into the page script; measure Home before optimizing it further.
+The PageSpeed contract in the template's AGENTS.md applies (95+ mobile, 100 desktop, 100 accessibility/best practices/SEO are goals, not measured results). No Lighthouse baseline has been recorded for this site yet. The live demo bundles the formatter and, because its phone scenario calls `registerPhone()`, libphonenumber metadata into the page script; measure Home before optimizing it further.
 
 ## Shared identity convention — 2026-11-06
 

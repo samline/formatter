@@ -9,6 +9,27 @@ import { project } from './project.mjs'
 
 export type DemoMode = 'cdn' | 'esm'
 
+const PHONE_BUILD = 'formatter.phone.global.js'
+const CORE_BUILD = 'formatter.global.js'
+
+/**
+ * The configured CDN script is the phone build (Home's examples format
+ * phones). Scenarios without phones copy the smaller core build instead.
+ */
+export const cdnScriptFor = (preset: DemoPreset | 'quickStart') => {
+  const script = project.delivery.cdnScript
+  if (!script) return script
+  const usesPhone = preset === 'quickStart' || scenarios[preset].formatType === 'phone'
+  return usesPhone ? script : script.replace(PHONE_BUILD, CORE_BUILD)
+}
+
+/** ESM files that format phones register the opt-in phone module first. */
+const phoneSetup = [
+  `import { registerPhone } from '${project.npmName}/phone'`,
+  '',
+  'registerPhone()',
+]
+
 const escape = (value: string) =>
   value.replace(
     /[&<>"]/g,
@@ -159,9 +180,12 @@ export const javascriptFor = (preset: DemoPreset, mode: DemoMode = 'cdn') => {
   )
   const options = hasCountry ? `{ ...options, country: country.value }` : 'options'
   const lines = [
-    mode === 'esm'
-      ? `import { ${imports} } from '${project.npmName}'`
-      : `const { ${imports} } = window.Formatter`,
+    ...(mode === 'esm'
+      ? [
+          `import { ${imports} } from '${project.npmName}'`,
+          ...(item.formatType === 'phone' ? phoneSetup : []),
+        ]
+      : [`const { ${imports} } = window.Formatter`]),
     '',
     `const field = document.querySelector('#${field.id}')`,
     `const hidden = document.querySelector('input[name="${field.name}"]')`,
@@ -203,7 +227,7 @@ export const quickStart = {
 <input type="hidden" name="phone">`,
   script: (
     mode: DemoMode
-  ) => `${mode === 'esm' ? `import { format } from '${project.npmName}'` : 'const { format } = window.Formatter'}
+  ) => `${mode === 'esm' ? [`import { format } from '${project.npmName}'`, ...phoneSetup].join('\n') : 'const { format } = window.Formatter'}
 
 const field = document.querySelector('#phone')
 const hidden = document.querySelector('input[name="phone"]')

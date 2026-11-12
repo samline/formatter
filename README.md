@@ -1,6 +1,6 @@
 # @samline/formatter
 
-Input formatting for JavaScript, TypeScript and browser-based forms: phones, numerals, dates, times, card numbers and custom masks, returned as a display value and a backend-ready value from one pure call. No DOM access and no framework runtime.
+Input formatting for JavaScript, TypeScript and browser-based forms: numerals, dates, times, card numbers, custom masks and opt-in phones, returned as a display value and a backend-ready value from one pure call, plus `Intl` helpers to display stored numbers, currency and dates. No DOM access, no framework runtime and no runtime dependency in the core.
 
 [Demo](https://samline.github.io/formatter/) · [Examples](https://samline.github.io/formatter/examples/) · [Documentation](https://samline.github.io/formatter/docs/) · [Changelog](CHANGELOG.md)
 
@@ -44,6 +44,9 @@ Format the visible field on every keystroke and mirror the raw value into the fi
 
 ```js
 import { format } from '@samline/formatter'
+import { registerPhone } from '@samline/formatter/phone'
+
+registerPhone() // phones are opt-in since 3.0.0
 
 const field = document.querySelector('#phone')
 const hidden = document.querySelector('input[name="phone"]')
@@ -73,24 +76,48 @@ format('12345678', 'general', { prefix: 'ORD-', blocks: [4, 4], delimiter: '-' }
 
 `format()` is pure and synchronous: there is no instance to create or destroy. Your code owns the listener, labels, error messages and caret behavior.
 
+Pad a money field when it loses focus, and show stored values in a locale:
+
+```js
+format('1234.5', 'numeral', { prefix: '$', numeralDecimalPadding: true })
+// { formatted: '$1,234.50', raw: '1234.5', type: 'numeral' }
+
+format('1234.5', 'numeral', { prefix: '$', numeralDecimalPadding: true, rawDecimalPadding: true })
+// { formatted: '$1,234.50', raw: '1234.50', type: 'numeral' }
+
+import { formatCurrency, formatDate, formatRelativeTime } from '@samline/formatter/intl'
+
+formatCurrency(1234.5, { locale: 'es-MX', currency: 'MXN' }) // '$1,234.50'
+formatDate('2026-11-12', { locale: 'es-MX', preset: 'long' }) // '12 de noviembre de 2026'
+formatRelativeTime(threeDaysAgo, { locale: 'es-MX' }) // 'hace 3 días'
+```
+
 ## HTML / CDN
 
 Load the versioned standalone script, then use `window.Formatter`:
 
 ```html
-<script src="https://unpkg.com/@samline/formatter@2.1.0/dist/browser/global.global.js"></script>
+<script src="https://unpkg.com/@samline/formatter@3.0.0/dist/browser/formatter.phone.global.js"></script>
 <script>
   const { format, regex } = window.Formatter
   console.log(format('5512345678', 'phone').formatted) // '55 1234 5678'
 </script>
 ```
 
-The script is a minified IIFE (about 165 KB before compression; it bundles libphonenumber-js and cleave-zen) that defines `window.Formatter` with `format`, `regex` and `version`. Pin the version in production, or self-host the same file. Use 2.1.0 or later: 2.0.x exposed only `window.Formatter.default`.
+Both scripts are minified IIFEs that define `window.Formatter` with `format`, `intl`, `regex` and `version`:
+
+| Script                                                                               | Phones      | Size (minified)           |
+| ------------------------------------------------------------------------------------ | ----------- | ------------------------- |
+| `https://unpkg.com/@samline/formatter@3.0.0/dist/browser/formatter.global.js`        | no          | about 25 KB (9 KB gzip)   |
+| `https://unpkg.com/@samline/formatter@3.0.0/dist/browser/formatter.phone.global.js`  | registered  | about 165 KB (41 KB gzip) |
+
+Pin the version in production, or self-host the same file. 3.0.0 renamed the former `global.global.js`.
 
 ## Capabilities
 
-- Phones for any country through libphonenumber-js, with international `+` numbers kept in `raw`.
-- Numerals with currency prefixes or suffixes, regional decimal marks, decimal and integer limits, and positive-only values.
+- Opt-in phones for any country through libphonenumber-js, with international `+` numbers kept in `raw`.
+- Numerals with currency prefixes or suffixes, regional decimal marks, decimal and integer limits, optional decimal padding and positive-only values.
+- `Intl` display helpers for numbers, currency, percentages, dates and relative time, with safe handling of empty and invalid values.
 - Dates and times in any segment order, with a separate raw pattern (for example ISO for storage) and automatic recognition of stored values.
 - Card numbers grouped by brand, and brand detection.
 - General block masks with delimiters, case transforms, numeric-only input and locked or typed prefixes and suffixes.
@@ -110,16 +137,21 @@ The script is a minified IIFE (about 165 KB before compression; it bundles libph
 | `'phone'`, `'numeral'`, `'date'`, `'time'`, `'creditCard'`, `'creditCardType'`, `'general'`                                                                        | Format types   |
 | `FORMAT_TYPES`, `isFormatType()`                                                                                                                                   | Type checks    |
 | `regex` (static entries and the `digits`, `phone`, `creditCard`, `url`, `password` and `custom` builders)                                                          | Validation     |
-| `formatPhone()`, `getRawValue()`, `stripPrefixAndSuffix()`, `getDateValueFromRaw()`, `getTimeValueFromRaw()`, `looksLikeRawDateValue()`, `looksLikeRawTimeValue()` | Helpers        |
-| `window.Formatter.format`, `window.Formatter.regex`, `window.Formatter.version`                                                                                    | Browser global |
+| `getRawValue()`, `stripPrefixAndSuffix()`, `getDateValueFromRaw()`, `getTimeValueFromRaw()`, `looksLikeRawDateValue()`, `looksLikeRawTimeValue()`, `isPhoneRegistered()` | Helpers        |
+| `registerPhone()`, `formatPhone()` from `@samline/formatter/phone`                                                                                                 | Phones         |
+| `formatNumber()`, `formatCurrency()`, `formatPercent()`, `formatDate()`, `formatRelativeTime()` from `@samline/formatter/intl`                                     | Display        |
+| `window.Formatter.format`, `window.Formatter.intl`, `window.Formatter.regex`, `window.Formatter.version`                                                           | Browser global |
 
 ### Entrypoints
 
-| Entrypoint                   | When to use                                          |
-| ---------------------------- | ---------------------------------------------------- |
-| `@samline/formatter`         | ESM and CommonJS with type declarations.             |
-| `@samline/formatter/vanilla` | The same API under an explicit subpath.              |
-| `@samline/formatter/browser` | The standalone IIFE that defines `window.Formatter`. |
+| Entrypoint                         | When to use                                                               |
+| ---------------------------------- | ------------------------------------------------------------------------- |
+| `@samline/formatter`               | ESM and CommonJS with type declarations; about 19 KB minified (7 KB gzip). |
+| `@samline/formatter/vanilla`       | The same API under an explicit subpath.                                   |
+| `@samline/formatter/phone`         | `registerPhone()` and `formatPhone()`; adds libphonenumber-js.            |
+| `@samline/formatter/intl`          | `Intl` display helpers; no dependencies.                                  |
+| `@samline/formatter/browser`       | The standalone IIFE without phones (`formatter.global.js`).               |
+| `@samline/formatter/browser/phone` | The standalone IIFE with phones (`formatter.phone.global.js`).            |
 
 ### Validation
 
@@ -135,7 +167,7 @@ Patterns give quick feedback; validate again on the server. Card formatting is n
 
 ### TypeScript
 
-The package includes declarations. Import `FormatType`, `FormatOptions` and `FormatterResult` for formatting, `DatePatternType` and `TimePatternType` for patterns, and `RegexEntry`, `RegexKey` and `Regex` for validation. See the [TypeScript reference](https://samline.github.io/formatter/docs/reference/typescript/).
+The package includes declarations. Import `FormatType`, `FormatOptions` and `FormatterResult` for formatting, `DatePatternType`, `TimePatternType` and `NumeralThousandsGroupStyle` for patterns, `RegexEntry`, `RegexKey` and `Regex` for validation, and the `Intl*Options` types from `@samline/formatter/intl`. See the [TypeScript reference](https://samline.github.io/formatter/docs/reference/typescript/).
 
 ## Documentation
 
@@ -150,20 +182,27 @@ Read the [documentation](https://samline.github.io/formatter/docs/) for the full
 | [Styling and UX](https://samline.github.io/formatter/docs/guides/styling-and-ux/)     | Markup, input attributes, validation states and caret. |
 | [Recipes](https://samline.github.io/formatter/docs/guides/recipes/)                   | End-to-end patterns for real forms.                    |
 | [API reference](https://samline.github.io/formatter/docs/reference/api/)              | `format()` and the helpers, with errors and returns.   |
+| [Intl display helpers](https://samline.github.io/formatter/docs/reference/intl/)      | Numbers, currency, dates and relative time on `Intl`.  |
+| [Entrypoints](https://samline.github.io/formatter/docs/reference/entrypoints/)        | Every subpath, the browser builds and their sizes.     |
 
 ## Changelog
 
 Read [CHANGELOG.md](CHANGELOG.md) or the [published changelog](https://samline.github.io/formatter/docs/changelog/) for release history and explicitly marked breaking and behavior changes. Review the notes before upgrading.
 
-### Upgrading to 2.1
+### Upgrading to 3.0
 
-2.1.0 fixes the browser global, stabilizes `raw` for decorated `general` masks, restores locked decorations after a single deletion, recognizes passthrough prefixes in any case and tightens `regex.numeral` and `regex.password`. Read the [2.1.0 notes](CHANGELOG.md) before upgrading code that depends on the previous outputs.
+- Phones are opt-in. Call `registerPhone()` from `@samline/formatter/phone` once, and import `formatPhone` from that subpath; until then `format(value, 'phone')` throws a `TypeError` that says so.
+- The browser script `global.global.js` is now `formatter.phone.global.js` (with phones) or `formatter.global.js` (without).
+- `cleave-zen` is no longer a dependency; its engine is maintained in the package. `numeralThousandsGroupStyle` takes plain strings (`'thousand'`, `'lakh'`, `'wan'`, `'none'`).
+- Engine fixes change a few outputs: a `','` decimal mark groups with `'.'` by default, Mastercard detection is limited to 2221–2720, a 12-hour clock turns hour `00` into `12`, and numeral `raw` keeps only a leading minus.
+
+Read the [3.0.0 notes](CHANGELOG.md) before upgrading.
 
 ## AI agent skill
 
 <a id="agent-integration"></a>
 
-The [Formatter skill](https://samline.github.io/formatter/skills/formatter/SKILL.md) describes 2.1 integration: loading modes, the formatted/raw contract, options per type, validation and host ownership. Pass it to an agent or install it using a skills-compatible tool. Verify the installed package version before applying its guidance.
+The [Formatter skill](https://samline.github.io/formatter/skills/formatter/SKILL.md) describes 3.0 integration: loading modes, the formatted/raw contract, options per type, validation and host ownership. Pass it to an agent or install it using a skills-compatible tool. Verify the installed package version before applying its guidance.
 
 The maintained [repository source](skills/formatter/SKILL.md) and website download are the same file.
 
@@ -179,4 +218,4 @@ When working from this repository, copy `skills/formatter/SKILL.md` instead. Kee
 
 ## License
 
-MIT — [LICENSE.md](LICENSE.md).
+MIT — [LICENSE.md](LICENSE.md). The formatting engine includes code adapted from [cleave-zen](https://github.com/nosir/cleave-zen) (MIT); its notice is in LICENSE.md.

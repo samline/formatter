@@ -12,6 +12,9 @@
     "paths": {
       "@samline/formatter": [
         "../src/index.ts"
+      ],
+      "@samline/formatter/phone": [
+        "../src/phone/index.ts"
       ]
     }
   }

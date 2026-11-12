@@ -11,9 +11,9 @@ import {
   type FormatTimeOptions,
   type TimePatternType,
   type TimeUnit
-} from 'cleave-zen'
+} from './engine/index.js'
 
-export type { DatePatternType, TimePatternType } from 'cleave-zen'
+export type { DatePatternType, NumeralThousandsGroupStyle, TimePatternType } from './engine/index.js'
 
 export type FormatType =
   | 'general'
@@ -65,8 +65,8 @@ type ExtraFormatOptions = {
   /**
    * Tail decoration appended at the end of the displayed `general` value
    * (e.g. `' USD'` or `'-END'`). Symmetric with `prefix`: the formatter
-   * handles it on its own instead of delegating to cleave-zen (whose
-   * `tailPrefix` hack only reuses the `prefix` string).
+   * handles it on its own instead of the engine's `tailPrefix`, which only
+   * reuses the `prefix` string.
    *
    * When both `suffix` and `prefix + tailPrefix: true` are configured,
    * `suffix` wins.
@@ -94,9 +94,16 @@ type ExtraFormatOptions = {
    */
   rawSuffix?: boolean
   /**
+   * Pad the decimal part of a `'numeral'` `raw` with zeros up to
+   * `numeralDecimalScale` (`'1234.5'` → `'1234.50'`, `'1234'` → `'1234.00'`).
+   * Independent of `numeralDecimalPadding`, which only pads `formatted`.
+   * Defaults to `false`: `raw` keeps what was typed, without padding zeros.
+   */
+  rawDecimalPadding?: boolean
+  /**
    * Controls how `format()` interprets a `'date'` or `'time'` input during
    * the live-keystroke preprocessing step (the call that runs before
-   * cleave-zen's `formatDate` / `formatTime`).
+   * the engine's `formatDate` / `formatTime`).
    *
    * - `'auto'` (default since v2.0.0, recommended): the input is
    *   inspected for the presence of the configured `delimiter` and the
@@ -108,7 +115,7 @@ type ExtraFormatOptions = {
    *   raw (Blade `old()`) lands in the input without delimiters and is
    *   correctly converted to display; a user keystroke in display order
    *   (with delimiters, or a partial value) is processed as display and
-   *   cleave-zen inserts the missing separators. The only edge case is a
+   *   the engine inserts the missing separators. The only edge case is a
    *   paste of exactly the raw-pattern digit count with no delimiter
    *   (e.g. pasting `"12121990"` into a `d/m/Y` + `Ymd` field); callers
    *   that need to disambiguate that case can pass `'display'` or `'raw'`
@@ -258,7 +265,7 @@ const formatTimeSegments = (
 // Both helpers return `true` when the value looks like the canonical raw
 // form (no delimiters present, digit length matches the configured raw
 // pattern) and `false` otherwise. The caller is expected to fall back to
-// the display interpretation in the `false` branch — cleave-zen's
+// the display interpretation in the `false` branch — the engine's
 // `formatDate` / `formatTime` then segments the digits by `datePattern` /
 // `timePattern` as it does for any partial-typed value.
 
@@ -297,7 +304,7 @@ const looksLikeRawTime = (value: string, options: FormatOptions): boolean => {
  * display pattern (e.g. `12/05/2026` → `12052026`).
  *
  * The output is intentionally digits-only and un-delimited — the caller is
- * expected to pass the result through `cleave-zen`'s `formatDate` (or an
+ * expected to pass the result through the engine's `formatDate` (or an
  * equivalent) to add the configured delimiter. The source pattern is
  * `dateRawPattern`; the target pattern is `datePattern`.
  *
@@ -340,7 +347,7 @@ export const getDateValueFromRaw = (
  * display pattern (e.g. `14:30:00` → `1430`).
  *
  * The output is intentionally digits-only and un-delimited — the caller is
- * expected to pass the result through `cleave-zen`'s `formatTime` (or an
+ * expected to pass the result through the engine's `formatTime` (or an
  * equivalent) to add the configured delimiter and pad missing segments.
  * The source pattern is `timeRawPattern`; the target pattern is
  * `timePattern`.
@@ -435,6 +442,20 @@ export const stripPrefixAndSuffix = (
   return result
 }
 
+const DEFAULT_NUMERAL_DECIMAL_SCALE = 2
+
+/**
+ * Pad a dot-decimal raw numeral to exactly `scale` fraction digits. Values
+ * without digits (`''`, `'-'`) and a zero scale are left unchanged.
+ */
+const padRawDecimals = (raw: string, scale: number): string => {
+  if (scale <= 0 || !/\d/.test(raw)) return raw
+  const [integer = '', fraction = ''] = raw.split('.')
+  const sign = integer.startsWith('-') ? '-' : ''
+  const digits = integer.replace('-', '') || '0'
+  return `${sign}${digits}.${fraction.slice(0, scale).padEnd(scale, '0')}`
+}
+
 /**
  * Convert a formatted value back into its raw counterpart (digits only,
  * canonical structure ready to ship to a backend).
@@ -454,7 +475,15 @@ export const getRawValue = (
       if (options.numeralDecimalMark !== undefined) {
         numeralOpts.numeralDecimalMark = options.numeralDecimalMark
       }
-      return unformatNumeral(cleanValue, numeralOpts)
+      const raw = unformatNumeral(cleanValue, numeralOpts)
+      if (options.rawDecimalPadding === true) {
+        return padRawDecimals(raw, options.numeralDecimalScale ?? DEFAULT_NUMERAL_DECIMAL_SCALE)
+      }
+      // Padding zeros are display-only: drop trailing decimal zeros (and a
+      // bare decimal point) so `raw` is the same before and after padding.
+      return options.numeralDecimalPadding === true && raw.includes('.')
+        ? raw.replace(/\.?0+$/, '').replace(/\.$/, '')
+        : raw
     }
 
     case 'creditCard':

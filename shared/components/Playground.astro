@@ -1,6 +1,7 @@
 ---
 import type { HTMLAttributes } from 'astro/types'
 import { format, regex, type FormatOptions } from '@samline/formatter'
+import { registerPhone } from '@samline/formatter/phone'
 import DemoStudio from './DemoStudio.astro'
 import DemoPanel from './DemoPanel.astro'
 import DemoFooter from './DemoFooter.astro'
@@ -10,6 +11,8 @@ import Disclosure from './Disclosure.astro'
 import DemoCode from './DemoCode.astro'
 import t, { scenarios, type DemoPreset, type Scenario } from '../i18n/translations/en/demo'
 import { callSignature } from '../lib/demo-source'
+// The phone scenario renders on the server too; phone support is opt-in.
+registerPhone()
 interface Props extends HTMLAttributes<'div'> {
   showCode?: boolean
   preset?: DemoPreset
@@ -186,9 +189,12 @@ const Frame = framed ? DemoStudio : 'div'
 
 <script>
   import { format, regex, type FormatOptions } from '@samline/formatter'
+  import { registerPhone } from '@samline/formatter/phone'
   import { mountElements } from '../lib/mount-elements'
   import { scenarios, type DemoPreset, type Scenario } from '../i18n/translations/en/demo'
   import t from '../i18n/translations/en/demo'
+
+  registerPhone()
 
   type Rule = { pattern: RegExp; errorMessage: string }
   const resolveRule = (key: string, args?: readonly unknown[]): Rule => {

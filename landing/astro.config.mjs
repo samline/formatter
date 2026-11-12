@@ -21,6 +21,10 @@ export default defineConfig({
           find: /^@samline\/formatter$/,
           replacement: fileURLToPath(new URL('../src/index.ts', import.meta.url)),
         },
+        {
+          find: /^@samline\/formatter\/phone$/,
+          replacement: fileURLToPath(new URL('../src/phone/index.ts', import.meta.url)),
+        },
       ],
     },
     plugins: [

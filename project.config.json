@@ -2,8 +2,8 @@
   "package": {
     "name": "Formatter",
     "npmName": "@samline/formatter",
-    "version": "2.1.0",
-    "description": "A lightweight, framework-agnostic input formatter for phones, numerals, dates, times, credit cards and custom masks that returns display and backend-ready values from one call.",
+    "version": "3.0.0",
+    "description": "A lightweight, framework-agnostic input formatter for numerals, dates, times, credit cards, custom masks and opt-in phones that returns display and backend-ready values from one call, plus Intl display helpers.",
     "author": "samline",
     "license": "MIT",
     "keywords": [
@@ -16,7 +16,7 @@
       "credit-card",
       "format",
       "mask",
-      "cleave",
+      "intl",
       "libphonenumber"
     ]
   },
@@ -32,7 +32,7 @@
     "accentDark": "#a3e635"
   },
   "delivery": {
-    "cdnScript": "https://unpkg.com/@samline/formatter@2.1.0/dist/browser/global.global.js",
+    "cdnScript": "https://unpkg.com/@samline/formatter@3.0.0/dist/browser/formatter.phone.global.js",
     "cdnStylesheet": null
   }
 }
