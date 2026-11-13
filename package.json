@@ -1,6 +1,6 @@
 {
   "name": "@samline/formatter",
-  "version": "3.0.0",
+  "version": "3.1.0",
   "description": "Lightweight, framework-agnostic input formatter (numeral, date, time, credit card, general, opt-in phone) that returns split formatted/raw outputs, plus Intl display helpers.",
   "type": "module",
   "license": "MIT",
@@ -98,15 +98,16 @@
     "libphonenumber-js": "^1.13.7"
   },
   "devDependencies": {
+    "@playwright/test": "1.62.1",
+    "@samline/string": "^1.0.0",
     "@types/node": "^24.0.0",
+    "axe-core": "^4.14.0",
     "jsdom": "^26.1.0",
+    "prettier": "^3.9.10",
+    "prettier-plugin-astro": "^1.1.1",
     "tsup": "^8.5.0",
     "typescript": "^5.8.3",
-    "vitest": "^3.1.1",
-    "@playwright/test": "1.62.1",
-    "axe-core": "^4.14.0",
-    "prettier": "^3.9.10",
-    "prettier-plugin-astro": "^1.1.1"
+    "vitest": "^3.1.1"
   },
   "workspaces": [
     "landing",

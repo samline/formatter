@@ -1,6 +1,7 @@
 import { format } from '../core/formatter.js'
 import { regex } from '../core/regex.js'
-import packageJson from '../../package.json'
+// Named import: esbuild then inlines only `version`, not the whole manifest.
+import { version as packageVersion } from '../../package.json'
 import * as intl from '../intl/index.js'
 import type {
   FormatOptions,
@@ -26,7 +27,7 @@ declare global {
 }
 
 /** Library version, mirrors the `version` field in `package.json`. */
-export const version: string = packageJson.version
+export const version: string = packageVersion
 
 export { format, intl, regex }
 

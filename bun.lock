@@ -9,6 +9,7 @@
       },
       "devDependencies": {
         "@playwright/test": "1.62.1",
+        "@samline/string": "^1.0.0",
         "@types/node": "^24.0.0",
         "axe-core": "^4.14.0",
         "jsdom": "^26.1.0",
@@ -439,6 +440,8 @@
     "@rollup/rollup-win32-x64-msvc": ["@rollup/rollup-win32-x64-msvc@4.62.2", "", { "os": "win32", "cpu": "x64" }, "sha512-BfzEnDJOt9T8M989/lA37EcJgat01wLRnoi5dQf3QzOH7jzpqTAzdDbVfRljVr5r+jzKqpbHeyOfAaXxAd0PAA=="],
 
     "@samline/drawer": ["@samline/drawer@5.1.2", "", {}, "sha512-sTjWF80KRLWNmphkhpddAC4s93LKcQBSn/+gn89NxEbmjgGCSEwbif5fWlDpyBl3tqG3afKvt6RBIJwh2MI+pw=="],
+
+    "@samline/string": ["@samline/string@1.0.0", "", {}, "sha512-CFwi5N+wLUFVRGUOl2KZr0BAh7T9Z1mqC3qUdiA7fqdYZqbOrr/goLr86AtbunAhM59nYW9aUV55FunO78CsBQ=="],
 
     "@shikijs/core": ["@shikijs/core@4.6.0", "", { "dependencies": { "@shikijs/primitive": "4.6.0", "@shikijs/types": "4.6.0", "@shikijs/vscode-textmate": "^10.1.0", "@types/hast": "^3.0.5", "hast-util-to-html": "^9.0.6" } }, "sha512-bfd4OKgvoyXYiYmMRuleA656P4V7M/Du9lcTl38Ngm6KszMj7bq4J1IGZwSYR4c95Tv5UQALtYNWUwaI9UT3xw=="],
 

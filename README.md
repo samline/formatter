@@ -97,7 +97,7 @@ formatRelativeTime(threeDaysAgo, { locale: 'es-MX' }) // 'hace 3 días'
 Load the versioned standalone script, then use `window.Formatter`:
 
 ```html
-<script src="https://unpkg.com/@samline/formatter@3.0.0/dist/browser/formatter.phone.global.js"></script>
+<script src="https://unpkg.com/@samline/formatter@3.1.0/dist/browser/formatter.phone.global.js"></script>
 <script>
   const { format, regex } = window.Formatter
   console.log(format('5512345678', 'phone').formatted) // '55 1234 5678'
@@ -108,8 +108,8 @@ Both scripts are minified IIFEs that define `window.Formatter` with `format`, `i
 
 | Script                                                                               | Phones      | Size (minified)           |
 | ------------------------------------------------------------------------------------ | ----------- | ------------------------- |
-| `https://unpkg.com/@samline/formatter@3.0.0/dist/browser/formatter.global.js`        | no          | about 25 KB (9 KB gzip)   |
-| `https://unpkg.com/@samline/formatter@3.0.0/dist/browser/formatter.phone.global.js`  | registered  | about 165 KB (41 KB gzip) |
+| `https://unpkg.com/@samline/formatter@3.1.0/dist/browser/formatter.global.js`        | no          | about 25 KB (9 KB gzip)   |
+| `https://unpkg.com/@samline/formatter@3.1.0/dist/browser/formatter.phone.global.js`  | registered  | about 165 KB (41 KB gzip) |
 
 Pin the version in production, or self-host the same file. 3.0.0 renamed the former `global.global.js`.
 
@@ -120,6 +120,7 @@ Pin the version in production, or self-host the same file. 3.0.0 renamed the for
 - `Intl` display helpers for numbers, currency, percentages, dates and relative time, with safe handling of empty and invalid values.
 - Dates and times in any segment order, with a separate raw pattern (for example ISO for storage) and automatic recognition of stored values.
 - Card numbers grouped by brand, and brand detection.
+- Free text with title, sentence or capitalize casing (`'text'`) and live URL slugs (`'slug'`), built on [@samline/string](https://github.com/samline/utils/tree/main/packages/string).
 - General block masks with delimiters, case transforms, numeric-only input and locked or typed prefixes and suffixes.
 - A validation catalog that pairs each pattern with its error message, including parametric rules for digits, phones, cards, URLs and passwords.
 
@@ -134,7 +135,7 @@ Pin the version in production, or self-host the same file. 3.0.0 renamed the for
 | API                                                                                                                                                                | Purpose        |
 | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------- |
 | `format(value, formatType, options?)`                                                                                                                              | Format         |
-| `'phone'`, `'numeral'`, `'date'`, `'time'`, `'creditCard'`, `'creditCardType'`, `'general'`                                                                        | Format types   |
+| `'phone'`, `'numeral'`, `'date'`, `'time'`, `'creditCard'`, `'creditCardType'`, `'general'`, `'text'`, `'slug'`                                                                        | Format types   |
 | `FORMAT_TYPES`, `isFormatType()`                                                                                                                                   | Type checks    |
 | `regex` (static entries and the `digits`, `phone`, `creditCard`, `url`, `password` and `custom` builders)                                                          | Validation     |
 | `getRawValue()`, `stripPrefixAndSuffix()`, `getDateValueFromRaw()`, `getTimeValueFromRaw()`, `looksLikeRawDateValue()`, `looksLikeRawTimeValue()`, `isPhoneRegistered()` | Helpers        |

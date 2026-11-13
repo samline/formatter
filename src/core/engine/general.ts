@@ -38,7 +38,7 @@ export const formatGeneral = (value: string, options: FormatGeneralOptions): str
   let result = stripDelimiters(value, delimiters)
   result = stripPrefix(result, prefix)
   if (numericOnly) result = stripNonNumeric(result)
-  result = applyCase(result, { uppercase, lowercase })
+  result = applyCase(result, { ...options, uppercase, lowercase })
   if (prefix.length > 0) result = prefix + result
 
   return getFormattedValue(result, { blocks, delimiter, delimiters, delimiterLazyShow })

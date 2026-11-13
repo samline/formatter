@@ -41,6 +41,12 @@ export interface FormatGeneralOptions {
   numericOnly?: boolean
   uppercase?: boolean
   lowercase?: boolean
+  /** One casing mode (`'upper'`, `'lower'`, `'title'`, `'sentence'`, `'capitalize'`). */
+  case?: 'upper' | 'lower' | 'title' | 'sentence' | 'capitalize'
+  /** `case: 'title'` keeps these words lower case unless first. */
+  smallWords?: readonly string[]
+  /** Locale for casing. */
+  locale?: string | string[]
 }
 
 export interface FormatNumeralOptions {

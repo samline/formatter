@@ -1012,7 +1012,7 @@ describe('format', () => {
 })
 
 describe('FORMAT_TYPES', () => {
-  it('contains exactly the seven supported types', () => {
+  it('contains exactly the nine supported types', () => {
     expect(FORMAT_TYPES).toEqual([
       'general',
       'phone',
@@ -1020,7 +1020,9 @@ describe('FORMAT_TYPES', () => {
       'date',
       'time',
       'creditCard',
-      'creditCardType'
+      'creditCardType',
+      'text',
+      'slug'
     ])
   })
 })

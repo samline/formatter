@@ -96,11 +96,19 @@ interface FormatterResult {
 
 ## `FormatType`
 
-Union of the seven supported format types.
+Union of the nine supported format types.
 
 ```ts
 type FormatType =
-  'general' | 'phone' | 'numeral' | 'date' | 'time' | 'creditCard' | 'creditCardType'
+  | 'general'
+  | 'phone'
+  | 'numeral'
+  | 'date'
+  | 'time'
+  | 'creditCard'
+  | 'creditCardType'
+  | 'text'
+  | 'slug'
 ```
 
 ## `FormatOptions`
@@ -142,7 +150,7 @@ A `readonly` tuple of every supported type. Useful for iterating, building picke
 import { FORMAT_TYPES } from '@samline/formatter'
 
 FORMAT_TYPES
-// => ['general', 'phone', 'numeral', 'date', 'time', 'creditCard', 'creditCardType']
+// => ['general', 'phone', 'numeral', 'date', 'time', 'creditCard', 'creditCardType', 'text', 'slug']
 ```
 
 ## `isFormatType(value)`
@@ -198,11 +206,11 @@ interface FormatterGlobal {
 ```
 
 ```html
-<script src="https://unpkg.com/@samline/formatter@3.0.0/dist/browser/formatter.phone.global.js"></script>
+<script src="https://unpkg.com/@samline/formatter@3.1.0/dist/browser/formatter.phone.global.js"></script>
 <script>
   const result = window.Formatter.format('5512345678', 'phone')
   console.log(result.formatted) // '55 1234 5678'
-  console.log(window.Formatter.version) // '3.0.0'
+  console.log(window.Formatter.version) // '3.1.0'
 </script>
 ```
 

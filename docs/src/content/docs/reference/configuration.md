@@ -36,18 +36,19 @@ These apply to most format types.
 
 Block-based masking with custom `delimiter` / `delimiters`. Pair with `blocks` to define group sizes.
 
-| Field               | Type                      | Default  | Notes                                                                                                                                                                                                                                         |
-| ------------------- | ------------------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `blocks`            | `number[]`                | `[]`     | **Required.** Defines block sizes (e.g. `[4, 4, 4, 4]`). Since 2.1.0 a missing or empty array throws a descriptive `TypeError` for non-empty values.                                                                                          |
-| `delimiterLazyShow` | `boolean`                 | `false`  | Show delimiters only when the next block has content.                                                                                                                                                                                         |
-| `numericOnly`       | `boolean`                 | `false`  | Strip non-digit characters. Applied to both display and (when `rawPrefix: true` / `rawSuffix: true`) to the canonical raw mirror — see [Prefix & suffix on `general`](#prefix--suffix-on-general).                                            |
-| `uppercase`         | `boolean`                 | `false`  | Force uppercase.                                                                                                                                                                                                                              |
-| `lowercase`         | `boolean`                 | `false`  | Force lowercase.                                                                                                                                                                                                                              |
-| `prefixMode`        | `'lock' \| 'passthrough'` | `'lock'` | `'lock'` (default) auto-prepends the configured `prefix`; `'passthrough'` reflects whatever the user has typed of the prefix instead (so `E` sticks for a configured `EASY`). See [Prefix & suffix on `general`](#prefix--suffix-on-general). |
-| `rawPrefix`         | `boolean`                 | `false`  | When `true`, the `raw` mirror includes the configured `prefix`. The body is only digits-only when `numericOnly` is enabled.                                                                                                                   |
-| `suffix`            | `string`                  | `''`     | Tail decoration appended at the end of the display (e.g. `' USD'`, `'-END'`). Independent from `prefix`; can differ from it.                                                                                                                  |
-| `suffixMode`        | `'lock' \| 'passthrough'` | `'lock'` | `'lock'` (default) auto-appends the configured `suffix`; `'passthrough'` reflects whatever the user has typed of the suffix instead.                                                                                                          |
-| `rawSuffix`         | `boolean`                 | `false`  | When `true`, the `raw` mirror includes the configured `suffix`. Default `false`.                                                                                                                                                              |
+| Field               | Type                                                          | Default  | Notes                                                                                                                                                                                                                                         |
+| ------------------- | ------------------------------------------------------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `blocks`            | `number[]`                                                    | `[]`     | **Required.** Defines block sizes (e.g. `[4, 4, 4, 4]`). Since 2.1.0 a missing or empty array throws a descriptive `TypeError` for non-empty values.                                                                                          |
+| `delimiterLazyShow` | `boolean`                                                     | `false`  | Show delimiters only when the next block has content.                                                                                                                                                                                         |
+| `numericOnly`       | `boolean`                                                     | `false`  | Strip non-digit characters. Applied to both display and (when `rawPrefix: true` / `rawSuffix: true`) to the canonical raw mirror — see [Prefix & suffix on `general`](#prefix--suffix-on-general).                                            |
+| `uppercase`         | `boolean`                                                     | `false`  | Force uppercase.                                                                                                                                                                                                                              |
+| `lowercase`         | `boolean`                                                     | `false`  | Force lowercase.                                                                                                                                                                                                                              |
+| `case`              | `'upper' \| 'lower' \| 'title' \| 'sentence' \| 'capitalize'` | –        | Since 3.1.0. One casing mode; takes precedence over `uppercase` / `lowercase`. `smallWords` and `locale` apply as in [`text`](#text).                                                                                                         |
+| `prefixMode`        | `'lock' \| 'passthrough'`                                     | `'lock'` | `'lock'` (default) auto-prepends the configured `prefix`; `'passthrough'` reflects whatever the user has typed of the prefix instead (so `E` sticks for a configured `EASY`). See [Prefix & suffix on `general`](#prefix--suffix-on-general). |
+| `rawPrefix`         | `boolean`                                                     | `false`  | When `true`, the `raw` mirror includes the configured `prefix`. The body is only digits-only when `numericOnly` is enabled.                                                                                                                   |
+| `suffix`            | `string`                                                      | `''`     | Tail decoration appended at the end of the display (e.g. `' USD'`, `'-END'`). Independent from `prefix`; can differ from it.                                                                                                                  |
+| `suffixMode`        | `'lock' \| 'passthrough'`                                     | `'lock'` | `'lock'` (default) auto-appends the configured `suffix`; `'passthrough'` reflects whatever the user has typed of the suffix instead.                                                                                                          |
+| `rawSuffix`         | `boolean`                                                     | `false`  | When `true`, the `raw` mirror includes the configured `suffix`. Default `false`.                                                                                                                                                              |
 
 ### Prefix & suffix on `general`
 
@@ -291,6 +292,41 @@ Brand-aware grouping. The package detects Visa, Mastercard, American Express, Di
 Returns the card brand as `formatted` (`'visa'`, `'mastercard'`, `'amex'`, `'diners'`, `'discover'`, `'jcb'`, `'jcb15'`, `'maestro'`, `'mir'`, `'unionpay'`, `'dankort'`, `'instapayment'`, `'uatp'` or `'general'`). The `raw` is always digits-only.
 
 This type does not consume any extra options — pass the card number and read `result.formatted` to get the brand.
+
+## `text`
+
+> Type: `'text'` (since 3.1.0)
+
+Free text with a casing mode and no mask. `raw` equals `formatted`. Title, sentence and capitalize come from [`@samline/string`](https://github.com/samline/utils/tree/main/packages/string), bundled into formatter.
+
+| Field        | Type                                                          | Default | Notes                                                                      |
+| ------------ | ------------------------------------------------------------- | ------- | -------------------------------------------------------------------------- |
+| `case`       | `'upper' \| 'lower' \| 'title' \| 'sentence' \| 'capitalize'` | –       | Casing mode. Without it, `uppercase` / `lowercase` still apply.            |
+| `smallWords` | `string[]`                                                    | `[]`    | With `case: 'title'`, words kept lower case unless first (`['de', 'la']`). |
+| `locale`     | `string \| string[]`                                          | –       | Locale for casing, for example `'tr'`.                                     |
+
+```ts
+format('el señor de los anillos', 'text', { case: 'title', smallWords: ['de', 'los'] })
+// => { formatted: 'El Señor de los Anillos', raw: 'El Señor de los Anillos', type: 'text' }
+```
+
+## `slug`
+
+> Type: `'slug'` (since 3.1.0)
+
+A URL slug while the user types. `formatted` keeps a trailing separator so a space can become one; `raw` is the final, trimmed slug. Built on `slugify` from [`@samline/string`](https://github.com/samline/utils/tree/main/packages/string).
+
+| Field          | Type                     | Default | Notes                                                           |
+| -------------- | ------------------------ | ------- | --------------------------------------------------------------- |
+| `delimiter`    | `string`                 | `'-'`   | Word separator.                                                 |
+| `replacements` | `Record<string, string>` | `{}`    | Literal replacements applied first, for example `{ '&': 'y' }`. |
+| `maxLength`    | `number`                 | –       | Maximum length; cuts at a separator when possible.              |
+| `locale`       | `string \| string[]`     | –       | Locale for lower-casing.                                        |
+
+```ts
+format('Mi Página ', 'slug')
+// => { formatted: 'mi-pagina-', raw: 'mi-pagina', type: 'slug' }
+```
 
 ## `phone`
 

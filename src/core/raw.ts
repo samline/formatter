@@ -1,3 +1,4 @@
+import { slugify } from '@samline/string'
 import {
   unformatCreditCard,
   unformatGeneral,
@@ -23,8 +24,14 @@ export type FormatType =
   | 'time'
   | 'creditCard'
   | 'creditCardType'
+  | 'text'
+  | 'slug'
 
 type ExtraFormatOptions = {
+  /** `slug`: literal replacements applied first, for example `{ '&': 'y' }`. */
+  replacements?: Readonly<Record<string, string>>
+  /** `slug`: maximum length, cut at a separator when possible. */
+  maxLength?: number
   country?: string
   dateRawPattern?: DatePatternType
   dateRawPatternDelimiter?: string
@@ -489,6 +496,17 @@ export const getRawValue = (
     case 'creditCard':
     case 'creditCardType':
       return unformatCreditCard(cleanValue)
+
+    case 'text':
+      return cleanValue
+
+    case 'slug':
+      return slugify(cleanValue, {
+        separator: options.delimiter ?? '-',
+        ...(options.replacements && { replacements: options.replacements }),
+        ...(options.maxLength !== undefined && { maxLength: options.maxLength }),
+        ...(options.locale && { locale: options.locale })
+      })
 
     case 'general': {
       const generalOpts: {

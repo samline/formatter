@@ -1,6 +1,6 @@
 # Formatter website
 
-Landing, Examples and Docs for `@samline/formatter` 3.0.0. The package runtime, exports, Node 20+ requirement, README, license and release history remain the package contract. Website tooling requires Node **22.12+**.
+Landing, Examples and Docs for `@samline/formatter` 3.1.0. The package runtime, exports, Node 20+ requirement, README, license and release history remain the package contract. Website tooling requires Node **22.12+**.
 
 ## Run locally
 
@@ -67,6 +67,14 @@ non-phone scenarios the core `formatter.global.js`, and phone ESM files add
 client script. Both Astro configs alias `@samline/formatter/phone` to source. The
 copied-example e2e test serves each build and asserts only the phone scenario
 uses the phone build. Docs gained `reference/intl.md`; Home's recipes link it.
+
+## 3.1.0 release — 2026-11-13
+
+Added the `'text'` and `'slug'` format types and the `case` option, built on the
+bundled `@samline/string`. `reference/configuration.md` gained `## text` and
+`## slug`, `case` joined the `general` table, and the API / TypeScript type
+lists show nine types. CDN pins, `content-audit.json` and the skill moved to
+3.1.0.
 
 ## Theme provenance
 

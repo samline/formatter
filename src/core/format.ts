@@ -1,3 +1,6 @@
+import { slugify } from '@samline/string'
+
+import { applyCase } from './engine/case.js'
 import {
   formatCreditCard,
   formatDate,
@@ -27,7 +30,9 @@ export const FORMAT_TYPES = [
   'date',
   'time',
   'creditCard',
-  'creditCardType'
+  'creditCardType',
+  'text',
+  'slug'
 ] as const satisfies readonly FormatType[]
 
 export const isFormatType = (value: unknown): value is FormatType =>
@@ -99,6 +104,19 @@ const formatValue = (
 
     case 'creditCardType':
       return getCreditCardType(value, options.delimiter)
+
+    case 'text':
+      return applyCase(value, options)
+
+    case 'slug':
+      // Keep a trailing separator while typing; `raw` holds the trimmed slug.
+      return slugify(value, {
+        trim: false,
+        separator: options.delimiter ?? '-',
+        ...(options.replacements && { replacements: options.replacements }),
+        ...(options.maxLength !== undefined && { maxLength: options.maxLength }),
+        ...(options.locale && { locale: options.locale })
+      })
 
     case 'general':
       // `formatGeneral` requires `blocks`; `format()` has already rejected

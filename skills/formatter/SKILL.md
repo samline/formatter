@@ -3,12 +3,12 @@ name: formatter
 description: Integrate @samline/formatter into forms in JavaScript, TypeScript, frameworks, CMS templates or server code. Use for formatting numerals, dates, times, card numbers, custom masks and opt-in phones into display and backend-ready values, for showing stored values with its Intl helpers, and for pairing them with the package's regex validation catalog; not for input-mask libraries that own the DOM.
 metadata:
   package: '@samline/formatter'
-  package-version: '3.0.0'
+  package-version: '3.1.0'
 ---
 
 # Formatter
 
-Build against the installed `@samline/formatter` version. This skill describes **3.0.0**. Check the dependency version before applying it: before 3.0.0 phones worked without `registerPhone()`, `formatPhone` lived in the root and the CDN file was `global.global.js`; in 2.0.x that script exposed only `window.Formatter.default`. Preserve the host project's markup, components, validation and design; Formatter returns strings and never touches the DOM.
+Build against the installed `@samline/formatter` version. This skill describes **3.1.0** (`'text'` and `'slug'` are new in 3.1.0). Check the dependency version before applying it: before 3.0.0 phones worked without `registerPhone()`, `formatPhone` lived in the root and the CDN file was `global.global.js`; in 2.0.x that script exposed only `window.Formatter.default`. Preserve the host project's markup, components, validation and design; Formatter returns strings and never touches the DOM.
 
 ## The one contract
 
@@ -25,12 +25,12 @@ const { formatted, raw, type } = format(value, formatType, options)
 - An unknown `formatType` throws `TypeError`. Use `isFormatType(value)` or `FORMAT_TYPES` for types that come from configuration or URLs.
 - `'phone'` throws `TypeError` until `registerPhone()` from `@samline/formatter/phone` has run once (even for an empty value). Call it at application startup; it enables every entrypoint. Projects that format no phones skip it and do not bundle libphonenumber-js.
 
-Format types: `'phone'`, `'numeral'`, `'date'`, `'time'`, `'creditCard'`, `'creditCardType'`, `'general'`.
+Format types: `'phone'`, `'numeral'`, `'date'`, `'time'`, `'creditCard'`, `'creditCardType'`, `'general'`, `'text'` (casing via `case: 'upper' | 'lower' | 'title' | 'sentence' | 'capitalize'`, `smallWords`, `locale`) and `'slug'` (`formatted` keeps a trailing separator while typing, `raw` is the final slug; `delimiter`, `replacements`, `maxLength`). `general` also accepts `case`.
 
 ## Choose a loading mode
 
 - **Package / ESM:** `npm install @samline/formatter` (or pnpm, yarn, bun), then `import { format, regex } from '@samline/formatter'`. For phones also `import { registerPhone } from '@samline/formatter/phone'` and call `registerPhone()` once. CommonJS `require` works too. `@samline/formatter/vanilla` exposes the same API. No stylesheet exists or is needed.
-- **HTML / CDN:** `<script src="https://unpkg.com/@samline/formatter@3.0.0/dist/browser/formatter.phone.global.js"></script>` when the page formats phones (about 165 KB minified), or `formatter.global.js` from the same folder when it does not (about 25 KB). Then `const { format, regex, intl } = window.Formatter`. Load it once, before code that uses it. Pin the version; a repository version does not prove that npm or the CDN already serve it.
+- **HTML / CDN:** `<script src="https://unpkg.com/@samline/formatter@3.1.0/dist/browser/formatter.phone.global.js"></script>` when the page formats phones (about 165 KB minified), or `formatter.global.js` from the same folder when it does not (about 25 KB). Then `const { format, regex, intl } = window.Formatter`. Load it once, before code that uses it. Pin the version; a repository version does not prove that npm or the CDN already serve it.
 
 Use one setup per page. Do not load the CDN script in a bundled application.
 

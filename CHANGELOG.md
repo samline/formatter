@@ -5,6 +5,25 @@ All notable changes to `@samline/formatter` are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.1.0] - 2026-11-13
+
+Two new format types and a `case` option, built on
+[`@samline/string`](https://github.com/samline/utils/tree/main/packages/string), which is bundled
+into the build, so formatter still has `libphonenumber-js` as its only
+runtime dependency (and only through the opt-in phone subpath).
+
+### Added
+
+- **`'text'` format type.** Free text with a casing mode and no mask: `case: 'upper' | 'lower' | 'title' | 'sentence' | 'capitalize'`, `smallWords` for title case (`['de', 'la']`) and `locale` for locale-aware casing (Turkish İ / ı). `raw` equals `formatted`.
+- **`'slug'` format type.** A URL slug while the user types: accents removed, ß, æ, œ, ø, ł transliterated, separators collapsed. `formatted` keeps a trailing separator so the space key works; `raw` is the final, trimmed slug. Options: `delimiter` (default `'-'`), `replacements` (for example `{ '&': 'y' }`), `maxLength` and `locale`.
+- **`case` on `'general'`.** The same casing modes as `'text'`, applied after the mask. It takes precedence over `uppercase` / `lowercase`, which keep working unchanged.
+- `FORMAT_TYPES` lists nine types.
+
+### Changed
+
+- `uppercase` and `lowercase` accept `locale` for locale-aware casing. Without `locale` the output is unchanged.
+- The browser scripts inline only the package `version` instead of the whole `package.json`, about 1.2 KB gzip less each. `window.Formatter.version` is unchanged.
+
 ## [3.0.0] - 2026-11-12
 
 Phones become opt-in so the core no longer bundles libphonenumber-js, the
