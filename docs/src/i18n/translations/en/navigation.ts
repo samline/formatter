@@ -29,6 +29,7 @@ export default {
     'reference/browser': 'HTML / CDN',
     'reference/typescript': 'TypeScript reference',
     'reference/intl': 'Intl display helpers',
+    'reference/date': 'Date tools',
     changelog: 'Changelog',
   },
 }

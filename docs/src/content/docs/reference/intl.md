@@ -26,7 +26,7 @@ formatDate('2026-11-12', { locale: 'es-MX', preset: 'long' }) // '12 de noviembr
 formatRelativeTime(threeDaysAgo, { locale: 'es-MX' }) // 'hace 3 días'
 ```
 
-The browser builds expose the same functions as `window.Formatter.intl`.
+The browser builds expose the same functions as `window.Formatter.intl`. To print dates with tokens such as `DD/MM/YYYY`, parse typed dates, or add, compare and measure them, use the [date tools](../date/).
 
 ## Safe input
 

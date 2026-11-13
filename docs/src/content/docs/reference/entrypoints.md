@@ -8,7 +8,7 @@ titleAccent: 'module formats'
 description: 'The ESM, CommonJS, vanilla and browser IIFE entrypoints of @samline/formatter and when to choose each one.'
 ---
 
-Every module entrypoint shares one core — what changes is the bundle shape and what each one adds. Pick the entrypoint that matches your build target, then add `/phone` or `/intl` only when you need them.
+Every module entrypoint shares one core — what changes is the bundle shape and what each one adds. Pick the entrypoint that matches your build target, then add `/phone`, `/intl` or `/date` only when you need them.
 
 | Entrypoint                         | Build shape                        | Use when                                                                                                    |
 | ---------------------------------- | ---------------------------------- | ----------------------------------------------------------------------------------------------------------- |
@@ -16,8 +16,10 @@ Every module entrypoint shares one core — what changes is the bundle shape and
 | `@samline/formatter/vanilla`       | ESM + CJS dual package             | Same surface as the root, with an explicit `/vanilla` subpath.                                              |
 | `@samline/formatter/phone`         | ESM + CJS dual package             | Opt-in phone support: `registerPhone()`, `formatPhone()` and `isPhoneRegistered()`. Adds libphonenumber-js. |
 | `@samline/formatter/intl`          | ESM + CJS dual package             | Display helpers on native `Intl`: numbers, currency, percent, dates and relative time. No dependencies.     |
+| `@samline/formatter/date`          | ESM + CJS dual package             | Read, format, change, compare and measure dates, in any time zone, with durations. No dependencies.         |
 | `@samline/formatter/browser`       | IIFE (`formatter.global.js`)       | HTML, Shopify or WordPress without a bundler. Registers `window.Formatter` without phone support.           |
 | `@samline/formatter/browser/phone` | IIFE (`formatter.phone.global.js`) | Same global with phone support already registered.                                                          |
+| `@samline/formatter/browser/date`  | IIFE (`formatter.date.global.js`)  | Add-on loaded after either global: adds `window.Formatter.date`.                                            |
 
 ## Root entrypoint — `@samline/formatter`
 
@@ -70,10 +72,21 @@ formatDate('2026-11-12', { locale: 'es-MX', preset: 'long' }) // '12 de noviembr
 
 Display helpers for values you already store, built on `Intl` with no dependencies. See the [Intl display reference](../intl/).
 
+## Date entrypoint — `@samline/formatter/date`
+
+```ts
+import { addDate, diffDate, formatDatePattern, parseDate } from '@samline/formatter/date'
+
+const checkIn = parseDate('24/12/2026', { format: 'DD/MM/YYYY' })
+formatDatePattern(addDate(checkIn, 3, 'day'), 'dddd D [de] MMMM', { locale: 'es-MX' }) // 'domingo 27 de diciembre'
+```
+
+Parsing with tokens, formatting, calendar math, comparisons, weeks, time zones and durations on native `Date` and `Intl`, with no dependencies. Each function is a separate export, so a bundle carries only what it imports. See the [Date tools reference](../date/).
+
 ## Browser entrypoints — `@samline/formatter/browser`
 
 ```html
-<script src="https://unpkg.com/@samline/formatter@3.1.0/dist/browser/formatter.phone.global.js"></script>
+<script src="https://unpkg.com/@samline/formatter@3.2.0/dist/browser/formatter.phone.global.js"></script>
 <script>
   const result = window.Formatter.format('5512345678', 'phone')
   console.log(result.formatted) // '55 1234 5678'
@@ -81,7 +94,7 @@ Display helpers for values you already store, built on `Intl` with no dependenci
 </script>
 ```
 
-Each browser build is a single IIFE that registers a `Formatter` object on `window` (also reachable via `globalThis.Formatter`) with `format`, `intl`, `regex` and `version`. Load `formatter.global.js` when the page formats no phones and `formatter.phone.global.js` when it does. See the [Browser reference](../browser/) for the full surface and every CDN option.
+Each browser build is a single IIFE that registers a `Formatter` object on `window` (also reachable via `globalThis.Formatter`) with `format`, `intl`, `regex` and `version`. Load `formatter.global.js` when the page formats no phones and `formatter.phone.global.js` when it does. Add `formatter.date.global.js` after either one for `window.Formatter.date`. See the [Browser reference](../browser/) for the full surface and every CDN option.
 
 ## TypeScript imports
 
@@ -104,7 +117,7 @@ Plus the parametric regex types when you build advanced UIs:
 import { regex, type RegexKey, type Regex } from '@samline/formatter'
 ```
 
-The Intl option types (`IntlNumberOptions`, `IntlCurrencyOptions`, `IntlPercentOptions`, `IntlDateOptions`, `IntlRelativeTimeOptions`) come from `@samline/formatter/intl`. See the [TypeScript reference](../typescript/) for the full type table and the [regex reference](../regex/) for the parametric signatures.
+The Intl option types (`IntlNumberOptions`, `IntlCurrencyOptions`, `IntlPercentOptions`, `IntlDateOptions`, `IntlRelativeTimeOptions`) come from `@samline/formatter/intl`, and the date types (`DateOptions`, `ParseDateOptions`, `DurationInput`…) from `@samline/formatter/date`. See the [TypeScript reference](../typescript/) for the full type table and the [regex reference](../regex/) for the parametric signatures.
 
 ## Module resolution
 
@@ -117,8 +130,10 @@ The `package.json` exposes `import` / `require` conditions on every module entry
     "./vanilla": { "import": "./dist/vanilla/index.js", "require": "./dist/vanilla/index.cjs" },
     "./phone": { "import": "./dist/phone/index.js", "require": "./dist/phone/index.cjs" },
     "./intl": { "import": "./dist/intl/index.js", "require": "./dist/intl/index.cjs" },
+    "./date": { "import": "./dist/date/index.js", "require": "./dist/date/index.cjs" },
     "./browser": { "default": "./dist/browser/formatter.global.js" },
-    "./browser/phone": { "default": "./dist/browser/formatter.phone.global.js" }
+    "./browser/phone": { "default": "./dist/browser/formatter.phone.global.js" },
+    "./browser/date": { "default": "./dist/browser/formatter.date.global.js" }
   }
 }
 ```
@@ -127,15 +142,17 @@ If your bundler does not support `exports` (legacy Node 12, custom tooling), the
 
 ## Distribution matrix
 
-| Surface                                   | Engine (numeral, date, time, card, general) | `libphonenumber-js` | Size (minified)           |
-| ----------------------------------------- | ------------------------------------------- | ------------------- | ------------------------- |
-| `@samline/formatter` / `/vanilla`         | built in                                    | no                  | about 19 KB (7 KB gzip)   |
-| `@samline/formatter/phone`                | shared with the root                        | bundled             | adds about 143 KB         |
-| `@samline/formatter/intl`                 | not needed                                  | no                  | about 4 KB                |
-| `formatter.global.js` (IIFE, with `intl`) | built in                                    | no                  | about 25 KB (9 KB gzip)   |
-| `formatter.phone.global.js` (IIFE)        | built in                                    | bundled             | about 165 KB (41 KB gzip) |
+| Surface                                    | Engine (numeral, date, time, card, general) | `libphonenumber-js` | Size (minified)           |
+| ------------------------------------------ | ------------------------------------------- | ------------------- | ------------------------- |
+| `@samline/formatter` / `/vanilla`          | built in                                    | no                  | about 19 KB (7 KB gzip)   |
+| `@samline/formatter/phone`                 | shared with the root                        | bundled             | adds about 143 KB         |
+| `@samline/formatter/intl`                  | not needed                                  | no                  | about 4 KB                |
+| `@samline/formatter/date` (every function) | not needed                                  | no                  | about 26 KB (10 KB gzip)  |
+| `formatter.global.js` (IIFE, with `intl`)  | built in                                    | no                  | about 25 KB (9 KB gzip)   |
+| `formatter.phone.global.js` (IIFE)         | built in                                    | bundled             | about 165 KB (41 KB gzip) |
+| `formatter.date.global.js` (add-on IIFE)   | not needed                                  | no                  | about 24 KB (9 KB gzip)   |
 
-The core has no runtime dependency; the engine started as a port of `cleave-zen` 0.0.17 (MIT) and is now maintained here. `test:package` enforces the budgets: the root entry under 25 KB minified (10 KB gzip) and the core IIFE under 30 KB.
+The core has no runtime dependency; the engine started as a port of `cleave-zen` 0.0.17 (MIT) and is now maintained here. `test:package` enforces the budgets: the root entry under 25 KB minified (10 KB gzip) the core IIFE under 30 KB, and every date function together under 30 KB (10 KB gzip).
 
 ## Versioning
 
@@ -147,5 +164,6 @@ When you pin a CDN URL, pin the same version you use in `package.json`. Mismatch
 
 - [Browser reference](../browser/) — full browser surface and CDN matrix.
 - [Intl display reference](../intl/) — numbers, currency, dates and relative time.
+- [Date tools reference](../date/) — parsing, tokens, calendar math, time zones and durations.
 - [TypeScript reference](../typescript/) — every exported type.
 - [Getting started](../../getting-started/) — install, quick start, framework-agnostic promise.

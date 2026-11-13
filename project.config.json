@@ -2,7 +2,7 @@
   "package": {
     "name": "Formatter",
     "npmName": "@samline/formatter",
-    "version": "3.1.0",
+    "version": "3.2.0",
     "description": "A lightweight, framework-agnostic input formatter for numerals, dates, times, credit cards, custom masks and opt-in phones that returns display and backend-ready values from one call, plus Intl display helpers.",
     "author": "samline",
     "license": "MIT",
@@ -32,7 +32,7 @@
     "accentDark": "#a3e635"
   },
   "delivery": {
-    "cdnScript": "https://unpkg.com/@samline/formatter@3.1.0/dist/browser/formatter.phone.global.js",
+    "cdnScript": "https://unpkg.com/@samline/formatter@3.2.0/dist/browser/formatter.phone.global.js",
     "cdnStylesheet": null
   }
 }

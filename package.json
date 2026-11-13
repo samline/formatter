@@ -1,7 +1,7 @@
 {
   "name": "@samline/formatter",
-  "version": "3.1.0",
-  "description": "Lightweight, framework-agnostic input formatter (numeral, date, time, credit card, general, opt-in phone) that returns split formatted/raw outputs, plus Intl display helpers.",
+  "version": "3.2.0",
+  "description": "Lightweight, framework-agnostic input formatter (numeral, date, time, credit card, general, opt-in phone) that returns split formatted/raw outputs, plus Intl display helpers and dependency-free date tools.",
   "type": "module",
   "license": "MIT",
   "publishConfig": {
@@ -39,6 +39,11 @@
       "import": "./dist/intl/index.js",
       "require": "./dist/intl/index.cjs"
     },
+    "./date": {
+      "types": "./dist/date/index.d.ts",
+      "import": "./dist/date/index.js",
+      "require": "./dist/date/index.cjs"
+    },
     "./browser": {
       "types": "./dist/browser/formatter.d.ts",
       "default": "./dist/browser/formatter.global.js"
@@ -46,6 +51,10 @@
     "./browser/phone": {
       "types": "./dist/browser/formatter.phone.d.ts",
       "default": "./dist/browser/formatter.phone.global.js"
+    },
+    "./browser/date": {
+      "types": "./dist/browser/formatter.date.d.ts",
+      "default": "./dist/browser/formatter.date.global.js"
     }
   },
   "scripts": {
@@ -83,7 +92,12 @@
     "format",
     "mask",
     "intl",
-    "libphonenumber"
+    "libphonenumber",
+    "dates",
+    "date-format",
+    "date-parse",
+    "timezone",
+    "duration"
   ],
   "author": "samline",
   "repository": {

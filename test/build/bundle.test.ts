@@ -43,7 +43,10 @@ describe('built package', () => {
     const global = runClassicScript('browser/formatter.phone.global.js')
     expect(Object.keys(global).sort()).toEqual(['format', 'intl', 'regex', 'version'])
     const format = global.format as Format
-    expect(format('5512345678', 'phone')).toMatchObject({ formatted: '55 1234 5678', raw: '5512345678' })
+    expect(format('5512345678', 'phone')).toMatchObject({
+      formatted: '55 1234 5678',
+      raw: '5512345678',
+    })
   })
 
   it('keeps the core inside its size budget', () => {
@@ -51,14 +54,20 @@ describe('built package', () => {
     // `.` entry minified must stay under 25 KB, the core IIFE (core + intl)
     // under 30 KB; both without libphonenumber-js.
     const out = join(mkdtempSync(join(tmpdir(), 'formatter-size-')), 'core.js')
-    execFileSync('bun', ['build', dist('index.js'), '--minify', '--target=browser', `--outfile=${out}`], { stdio: 'ignore' })
+    execFileSync(
+      'bun',
+      ['build', dist('index.js'), '--minify', '--target=browser', `--outfile=${out}`],
+      { stdio: 'ignore' }
+    )
     const core = readFileSync(out)
     expect(core.byteLength).toBeLessThan(25 * 1024)
     expect(gzipSync(core).byteLength).toBeLessThan(10 * 1024)
 
     const iife = readFileSync(dist('browser/formatter.global.js'))
     expect(iife.byteLength).toBeLessThan(30 * 1024)
-    expect(readFileSync(dist('browser/formatter.phone.global.js')).byteLength).toBeLessThan(180 * 1024)
+    expect(readFileSync(dist('browser/formatter.phone.global.js')).byteLength).toBeLessThan(
+      180 * 1024
+    )
   })
 
   it('shares one phone registry across ESM entrypoints', async () => {
@@ -84,10 +93,83 @@ describe('built package', () => {
   it('exposes the intl subpath in ESM and CommonJS', async () => {
     const esm = await import(dist('intl/index.js'))
     const cjs = createRequire(import.meta.url)(dist('intl/index.cjs'))
-    const names = ['formatCurrency', 'formatDate', 'formatNumber', 'formatPercent', 'formatRelativeTime']
+    const names = [
+      'formatCurrency',
+      'formatDate',
+      'formatNumber',
+      'formatPercent',
+      'formatRelativeTime',
+    ]
     expect(Object.keys(esm).sort()).toEqual(names)
     expect(Object.keys(cjs).sort()).toEqual(names)
     expect(esm.formatNumber(1234.5, { locale: 'en-US', decimals: 2 })).toBe('1,234.50')
+  })
+
+  it('exposes the date subpath in ESM and CommonJS, sharing formatRelativeTime with intl', async () => {
+    const esm = await import(dist('date/index.js'))
+    const cjs = createRequire(import.meta.url)(dist('date/index.cjs'))
+    expect(Object.keys(esm).sort()).toEqual(Object.keys(cjs).sort())
+    for (const name of [
+      'parseDate',
+      'formatDatePattern',
+      'addDate',
+      'diffDate',
+      'createDate',
+      'formatDuration',
+      'formatRelativeTime',
+    ]) {
+      expect(esm).toHaveProperty(name)
+    }
+    const intl = await import(dist('intl/index.js'))
+    expect(esm.formatRelativeTime).toBe(intl.formatRelativeTime)
+    const date = esm.parseDate('12/11/2026', { format: 'DD/MM/YYYY', timeZone: 'UTC' })
+    expect(
+      esm.formatDatePattern(esm.addDate(date, 1, 'month', { timeZone: 'UTC' }), 'YYYY-MM-DD', {
+        timeZone: 'UTC',
+      })
+    ).toBe('2026-12-12')
+    expect(cjs.diffDate('2026-12-24', '2026-12-20', 'day')).toBe(4)
+  })
+
+  it('adds window.Formatter.date from the date add-on, reusing intl.formatRelativeTime', () => {
+    const context: Record<string, unknown> = {}
+    context.window = context
+    createContext(context)
+    runInContext(readFileSync(dist('browser/formatter.global.js'), 'utf8'), context)
+    runInContext(readFileSync(dist('browser/formatter.date.global.js'), 'utf8'), context)
+    const global = context.Formatter as Record<
+      'date' | 'intl',
+      Record<string, (...args: unknown[]) => unknown>
+    >
+    expect(Object.keys(global).sort()).toEqual(['date', 'format', 'intl', 'regex', 'version'])
+    expect(global.date.formatRelativeTime).toBe(global.intl.formatRelativeTime)
+    expect(global.date.formatDatePattern!('2026-11-12', 'D MMMM YYYY', { locale: 'en-US' })).toBe(
+      '12 November 2026'
+    )
+
+    const alone = runClassicScript('browser/formatter.date.global.js') as Record<
+      'date',
+      Record<string, unknown>
+    >
+    expect(Object.keys(alone)).toEqual(['date'])
+    expect(alone.date.formatRelativeTime).toBeUndefined()
+  })
+
+  it('keeps the date tools inside their size budget', () => {
+    // Budget documented in README and docs/reference/date.md: every date
+    // function together under 30 KB minified and 10 KB gzip.
+    const out = join(mkdtempSync(join(tmpdir(), 'formatter-date-')), 'date.js')
+    execFileSync(
+      'bun',
+      ['build', dist('date/index.js'), '--minify', '--target=browser', `--outfile=${out}`],
+      { stdio: 'ignore' }
+    )
+    const date = readFileSync(out)
+    expect(date.byteLength).toBeLessThan(30 * 1024)
+    expect(gzipSync(date).byteLength).toBeLessThan(10 * 1024)
+    const addOn = readFileSync(dist('browser/formatter.date.global.js'))
+    expect(addOn.byteLength).toBeLessThan(26 * 1024)
+    expect(gzipSync(addOn).byteLength).toBeLessThan(10 * 1024)
   })
 
   it('does not depend on cleave-zen at runtime', () => {
@@ -99,7 +181,14 @@ describe('built package', () => {
     const esm = await import(dist('index.js'))
     const cjs = createRequire(import.meta.url)(dist('index.cjs'))
     expect(Object.keys(esm).sort()).toEqual(Object.keys(cjs).sort())
-    for (const name of ['format', 'regex', 'isFormatType', 'FORMAT_TYPES', 'isPhoneRegistered', 'getRawValue']) {
+    for (const name of [
+      'format',
+      'regex',
+      'isFormatType',
+      'FORMAT_TYPES',
+      'isPhoneRegistered',
+      'getRawValue',
+    ]) {
       expect(esm).toHaveProperty(name)
     }
     for (const name of ['formatPhone', 'registerPhone']) {
@@ -115,7 +204,10 @@ describe('built package', () => {
 
   it('publishes only the runtime, its declarations and release notes', () => {
     const [packed] = JSON.parse(
-      execFileSync('npm', ['pack', '--dry-run', '--json', '--ignore-scripts'], { cwd: root, encoding: 'utf8' })
+      execFileSync('npm', ['pack', '--dry-run', '--json', '--ignore-scripts'], {
+        cwd: root,
+        encoding: 'utf8',
+      })
     ) as [{ files: { path: string }[] }]
     const files = packed.files.map(file => file.path)
     for (const required of [
@@ -131,10 +223,18 @@ describe('built package', () => {
       'dist/phone/index.cjs',
       'dist/intl/index.js',
       'dist/intl/index.cjs',
+      'dist/date/index.js',
+      'dist/date/index.cjs',
+      'dist/date/index.d.ts',
       'dist/browser/formatter.global.js',
-      'dist/browser/formatter.phone.global.js'
+      'dist/browser/formatter.date.global.js',
+      'dist/browser/formatter.phone.global.js',
     ])
       expect(files).toContain(required)
-    expect(files.filter(file => !/^(dist\/|package\.json$|README\.md$|LICENSE\.md$|CHANGELOG\.md$)/.test(file))).toEqual([])
+    expect(
+      files.filter(
+        file => !/^(dist\/|package\.json$|README\.md$|LICENSE\.md$|CHANGELOG\.md$)/.test(file)
+      )
+    ).toEqual([])
   })
 })

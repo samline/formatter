@@ -8,19 +8,20 @@ titleAccent: 'CDN'
 description: 'Use @samline/formatter without a bundler: the two minified CDN scripts, window.Formatter and wiring it to a form.'
 ---
 
-@samline/formatter ships two pre-built **IIFE bundles** that work in plain HTML pages, Shopify themes, WordPress templates, or any project without a bundler. Both define the same `window.Formatter`; they differ only in phone support.
+@samline/formatter ships two pre-built **IIFE bundles** that work in plain HTML pages, Shopify themes, WordPress templates, or any project without a bundler. Both define the same `window.Formatter`; they differ only in phone support. A third, optional script adds the [date tools](../date/) to either one.
 
-| File                                     | Phone support         | Size (minified)           |
-| ---------------------------------------- | --------------------- | ------------------------- |
-| `dist/browser/formatter.global.js`       | no (`'phone'` throws) | about 25 KB (9 KB gzip)   |
-| `dist/browser/formatter.phone.global.js` | registered on load    | about 165 KB (41 KB gzip) |
+| File                                     | Phone support            | Size (minified)           |
+| ---------------------------------------- | ------------------------ | ------------------------- |
+| `dist/browser/formatter.global.js`       | no (`'phone'` throws)    | about 25 KB (9 KB gzip)   |
+| `dist/browser/formatter.phone.global.js` | registered on load       | about 165 KB (41 KB gzip) |
+| `dist/browser/formatter.date.global.js`  | add-on: `Formatter.date` | about 24 KB (9 KB gzip)   |
 
 ## Browser bundle
 
 Load the phone build when the page formats phones:
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/@samline/formatter@3.1.0/dist/browser/formatter.phone.global.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@samline/formatter@3.2.0/dist/browser/formatter.phone.global.js"></script>
 <script>
   const result = window.Formatter.format('5512345678', 'phone')
   // => { formatted: '55 1234 5678', raw: '5512345678', type: 'phone' }
@@ -30,7 +31,7 @@ Load the phone build when the page formats phones:
 Every other format works with the smaller core build:
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/@samline/formatter@3.1.0/dist/browser/formatter.global.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@samline/formatter@3.2.0/dist/browser/formatter.global.js"></script>
 <script>
   window.Formatter.format('1234567.891', 'numeral').formatted // '1,234,567.89'
   window.Formatter.intl.formatCurrency(1234.5, { locale: 'es-MX', currency: 'MXN' }) // '$1,234.50'
@@ -58,7 +59,7 @@ interface FormatterGlobal {
 <input type="text" id="phone" placeholder="55 1234 5678" />
 <input type="hidden" id="phone-raw" name="phone" />
 
-<script src="https://unpkg.com/@samline/formatter@3.1.0/dist/browser/formatter.phone.global.js"></script>
+<script src="https://unpkg.com/@samline/formatter@3.2.0/dist/browser/formatter.phone.global.js"></script>
 <script>
   const phoneInput = document.getElementById('phone')
   const phoneRaw = document.getElementById('phone-raw')
@@ -79,8 +80,8 @@ interface FormatterGlobal {
 
 | CDN      | Core URL                                                                                 | Phone URL                                                                                      |
 | -------- | ---------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
-| jsDelivr | `https://cdn.jsdelivr.net/npm/@samline/formatter@3.1.0/dist/browser/formatter.global.js` | `https://cdn.jsdelivr.net/npm/@samline/formatter@3.1.0/dist/browser/formatter.phone.global.js` |
-| unpkg    | `https://unpkg.com/@samline/formatter@3.1.0/dist/browser/formatter.global.js`            | `https://unpkg.com/@samline/formatter@3.1.0/dist/browser/formatter.phone.global.js`            |
+| jsDelivr | `https://cdn.jsdelivr.net/npm/@samline/formatter@3.2.0/dist/browser/formatter.global.js` | `https://cdn.jsdelivr.net/npm/@samline/formatter@3.2.0/dist/browser/formatter.phone.global.js` |
+| unpkg    | `https://unpkg.com/@samline/formatter@3.2.0/dist/browser/formatter.global.js`            | `https://unpkg.com/@samline/formatter@3.2.0/dist/browser/formatter.phone.global.js`            |
 
 These URLs intentionally pin the current release instead of `latest`, so you can
 choose the exact package version to ship. Both scripts are minified and ship a

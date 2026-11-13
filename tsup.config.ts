@@ -9,7 +9,8 @@ export default defineConfig([
       index: 'src/index.ts',
       'vanilla/index': 'src/vanilla/index.ts',
       'phone/index': 'src/phone/index.ts',
-      'intl/index': 'src/intl/index.ts'
+      'intl/index': 'src/intl/index.ts',
+      'date/index': 'src/date/index.ts',
     },
     format: ['esm', 'cjs'],
     dts: true,
@@ -18,7 +19,7 @@ export default defineConfig([
     clean: true,
     sourcemap: true,
     splitting: true,
-    treeshake: true
+    treeshake: true,
   },
   {
     entry: { formatter: 'src/browser/global.ts' },
@@ -30,7 +31,7 @@ export default defineConfig([
     globalName: 'Formatter',
     platform: 'browser',
     minify: true,
-    sourcemap: true
+    sourcemap: true,
   },
   {
     // Same global API plus phone support (bundles libphonenumber-js metadata).
@@ -43,6 +44,19 @@ export default defineConfig([
     globalName: 'Formatter',
     platform: 'browser',
     minify: true,
-    sourcemap: true
-  }
+    sourcemap: true,
+  },
+  {
+    // Add-on for pages without a build step: load after formatter.global.js
+    // (or formatter.phone.global.js) and it adds `window.Formatter.date`.
+    entry: { 'formatter.date': 'src/browser/date.ts' },
+    format: ['iife'],
+    dts: true,
+    target: 'es2020',
+    outDir: 'dist/browser',
+    clean: false,
+    platform: 'browser',
+    minify: true,
+    sourcemap: true,
+  },
 ])

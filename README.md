@@ -1,6 +1,6 @@
 # @samline/formatter
 
-Input formatting for JavaScript, TypeScript and browser-based forms: numerals, dates, times, card numbers, custom masks and opt-in phones, returned as a display value and a backend-ready value from one pure call, plus `Intl` helpers to display stored numbers, currency and dates. No DOM access, no framework runtime and no runtime dependency in the core.
+Input formatting for JavaScript, TypeScript and browser-based forms: numerals, dates, times, card numbers, custom masks and opt-in phones, returned as a display value and a backend-ready value from one pure call, plus `Intl` helpers to display stored numbers, currency and dates, and dependency-free date tools to parse, format, change, compare and measure dates in any time zone. No DOM access, no framework runtime and no runtime dependency in the core.
 
 [Demo](https://samline.github.io/formatter/) · [Examples](https://samline.github.io/formatter/examples/) · [Documentation](https://samline.github.io/formatter/docs/) · [Changelog](CHANGELOG.md)
 
@@ -90,6 +90,13 @@ import { formatCurrency, formatDate, formatRelativeTime } from '@samline/formatt
 formatCurrency(1234.5, { locale: 'es-MX', currency: 'MXN' }) // '$1,234.50'
 formatDate('2026-11-12', { locale: 'es-MX', preset: 'long' }) // '12 de noviembre de 2026'
 formatRelativeTime(threeDaysAgo, { locale: 'es-MX' }) // 'hace 3 días'
+
+import { addDate, diffDate, formatDatePattern, parseDate } from '@samline/formatter/date'
+
+const checkIn = parseDate('24/12/2026', { format: 'DD/MM/YYYY' })
+const checkOut = addDate(checkIn, 3, 'day')
+diffDate(checkOut, checkIn, 'day') // 3
+formatDatePattern(checkOut, 'dddd D [de] MMMM', { locale: 'es-MX' }) // 'domingo 27 de diciembre'
 ```
 
 ## HTML / CDN
@@ -97,7 +104,7 @@ formatRelativeTime(threeDaysAgo, { locale: 'es-MX' }) // 'hace 3 días'
 Load the versioned standalone script, then use `window.Formatter`:
 
 ```html
-<script src="https://unpkg.com/@samline/formatter@3.1.0/dist/browser/formatter.phone.global.js"></script>
+<script src="https://unpkg.com/@samline/formatter@3.2.0/dist/browser/formatter.phone.global.js"></script>
 <script>
   const { format, regex } = window.Formatter
   console.log(format('5512345678', 'phone').formatted) // '55 1234 5678'
@@ -108,8 +115,10 @@ Both scripts are minified IIFEs that define `window.Formatter` with `format`, `i
 
 | Script                                                                               | Phones      | Size (minified)           |
 | ------------------------------------------------------------------------------------ | ----------- | ------------------------- |
-| `https://unpkg.com/@samline/formatter@3.1.0/dist/browser/formatter.global.js`        | no          | about 25 KB (9 KB gzip)   |
-| `https://unpkg.com/@samline/formatter@3.1.0/dist/browser/formatter.phone.global.js`  | registered  | about 165 KB (41 KB gzip) |
+| `https://unpkg.com/@samline/formatter@3.2.0/dist/browser/formatter.global.js`        | no          | about 25 KB (9 KB gzip)   |
+| `https://unpkg.com/@samline/formatter@3.2.0/dist/browser/formatter.phone.global.js`  | registered  | about 165 KB (41 KB gzip) |
+
+For the date tools, add `formatter.date.global.js` from the same folder after either script (about 24 KB minified, 9 KB gzip); it adds `window.Formatter.date`.
 
 Pin the version in production, or self-host the same file. 3.0.0 renamed the former `global.global.js`.
 
@@ -118,6 +127,7 @@ Pin the version in production, or self-host the same file. 3.0.0 renamed the for
 - Opt-in phones for any country through libphonenumber-js, with international `+` numbers kept in `raw`.
 - Numerals with currency prefixes or suffixes, regional decimal marks, decimal and integer limits, optional decimal padding and positive-only values.
 - `Intl` display helpers for numbers, currency, percentages, dates and relative time, with safe handling of empty and invalid values.
+- Date tools on native `Date` and `Intl`: parsing and printing with tokens (`DD/MM/YYYY`, `dddd D [de] MMMM`) in every locale, calendar math that keeps month ends and daylight saving right, comparisons, locale and ISO weeks, any IANA time zone and durations. Each function is a separate export.
 - Dates and times in any segment order, with a separate raw pattern (for example ISO for storage) and automatic recognition of stored values.
 - Card numbers grouped by brand, and brand detection.
 - Free text with title, sentence or capitalize casing (`'text'`) and live URL slugs (`'slug'`), built on [@samline/string](https://github.com/samline/utils/tree/main/packages/string).
@@ -141,7 +151,8 @@ Pin the version in production, or self-host the same file. 3.0.0 renamed the for
 | `getRawValue()`, `stripPrefixAndSuffix()`, `getDateValueFromRaw()`, `getTimeValueFromRaw()`, `looksLikeRawDateValue()`, `looksLikeRawTimeValue()`, `isPhoneRegistered()` | Helpers        |
 | `registerPhone()`, `formatPhone()` from `@samline/formatter/phone`                                                                                                 | Phones         |
 | `formatNumber()`, `formatCurrency()`, `formatPercent()`, `formatDate()`, `formatRelativeTime()` from `@samline/formatter/intl`                                     | Display        |
-| `window.Formatter.format`, `window.Formatter.intl`, `window.Formatter.regex`, `window.Formatter.version`                                                           | Browser global |
+| `parseDate()`, `formatDatePattern()`, `addDate()`, `diffDate()`, `startOfDate()`, `isSameDate()`, `createDate()`, `formatDuration()` and more from `@samline/formatter/date` | Dates          |
+| `window.Formatter.format`, `window.Formatter.intl`, `window.Formatter.regex`, `window.Formatter.version`, `window.Formatter.date` (add-on)                         | Browser global |
 
 ### Entrypoints
 
@@ -151,8 +162,10 @@ Pin the version in production, or self-host the same file. 3.0.0 renamed the for
 | `@samline/formatter/vanilla`       | The same API under an explicit subpath.                                   |
 | `@samline/formatter/phone`         | `registerPhone()` and `formatPhone()`; adds libphonenumber-js.            |
 | `@samline/formatter/intl`          | `Intl` display helpers; no dependencies.                                  |
+| `@samline/formatter/date`          | Date tools; no dependencies; every function under 10 KB gzip together.    |
 | `@samline/formatter/browser`       | The standalone IIFE without phones (`formatter.global.js`).               |
 | `@samline/formatter/browser/phone` | The standalone IIFE with phones (`formatter.phone.global.js`).            |
+| `@samline/formatter/browser/date`  | The date add-on for either IIFE (`formatter.date.global.js`).             |
 
 ### Validation
 
@@ -168,7 +181,7 @@ Patterns give quick feedback; validate again on the server. Card formatting is n
 
 ### TypeScript
 
-The package includes declarations. Import `FormatType`, `FormatOptions` and `FormatterResult` for formatting, `DatePatternType`, `TimePatternType` and `NumeralThousandsGroupStyle` for patterns, `RegexEntry`, `RegexKey` and `Regex` for validation, and the `Intl*Options` types from `@samline/formatter/intl`. See the [TypeScript reference](https://samline.github.io/formatter/docs/reference/typescript/).
+The package includes declarations. Import `FormatType`, `FormatOptions` and `FormatterResult` for formatting, `DatePatternType`, `TimePatternType` and `NumeralThousandsGroupStyle` for patterns, `RegexEntry`, `RegexKey` and `Regex` for validation, the `Intl*Options` types from `@samline/formatter/intl`, and `DateOptions`, `ParseDateOptions`, `DurationInput` and the other date types from `@samline/formatter/date`. See the [TypeScript reference](https://samline.github.io/formatter/docs/reference/typescript/).
 
 ## Documentation
 
@@ -184,6 +197,7 @@ Read the [documentation](https://samline.github.io/formatter/docs/) for the full
 | [Recipes](https://samline.github.io/formatter/docs/guides/recipes/)                   | End-to-end patterns for real forms.                    |
 | [API reference](https://samline.github.io/formatter/docs/reference/api/)              | `format()` and the helpers, with errors and returns.   |
 | [Intl display helpers](https://samline.github.io/formatter/docs/reference/intl/)      | Numbers, currency, dates and relative time on `Intl`.  |
+| [Date tools](https://samline.github.io/formatter/docs/reference/date/)                | Parsing, tokens, calendar math, time zones, durations. |
 | [Entrypoints](https://samline.github.io/formatter/docs/reference/entrypoints/)        | Every subpath, the browser builds and their sizes.     |
 
 ## Changelog

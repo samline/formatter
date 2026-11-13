@@ -1,6 +1,6 @@
 # Formatter website
 
-Landing, Examples and Docs for `@samline/formatter` 3.1.0. The package runtime, exports, Node 20+ requirement, README, license and release history remain the package contract. Website tooling requires Node **22.12+**.
+Landing, Examples and Docs for `@samline/formatter` 3.2.0. The package runtime, exports, Node 20+ requirement, README, license and release history remain the package contract. Website tooling requires Node **22.12+**.
 
 ## Run locally
 
@@ -75,6 +75,15 @@ bundled `@samline/string`. `reference/configuration.md` gained `## text` and
 `## slug`, `case` joined the `general` table, and the API / TypeScript type
 lists show nine types. CDN pins, `content-audit.json` and the skill moved to
 3.1.0.
+
+## 3.2.0 release — 2026-11-13
+
+Added `@samline/formatter/date`, dependency-free date tools on native `Date`
+and `Intl` (parse, pattern formatting, calendar text, arithmetic, comparisons,
+week rules, IANA time zones, durations), plus the `formatter.date.global.js`
+add-on that sets `window.Formatter.date`. Docs gained `reference/date.md`;
+entrypoints, browser, API, TypeScript and Intl pages link it. CDN pins,
+`content-audit.json` and the skill moved to 3.2.0.
 
 ## Theme provenance
 

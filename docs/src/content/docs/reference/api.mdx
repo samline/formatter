@@ -38,7 +38,7 @@ Use this as a quick lookup when you need to know what a function will touch.
 | `looksLikeRawTimeValue`         | no           | no      | no            | no         | Heuristic test for the v2.0.0 `auto` mode.                                   |
 | `stripPrefixAndSuffix`          | no           | no      | no            | no         | Strips the configured `prefix` and `suffix` from a string.                   |
 
-The `format` function and every helper it delegates to are referentially transparent — the same `(value, formatType, options)` triple always returns the same `FormatterResult`. This is what enables SSR re-rendering and testing without mocks. The only module state is the phone switch: once `registerPhone()` runs, `'phone'` formats instead of throwing. The [Intl display helpers](../intl/) are listed on their own page; `formatRelativeTime` reads the clock when `now` is omitted.
+The `format` function and every helper it delegates to are referentially transparent — the same `(value, formatType, options)` triple always returns the same `FormatterResult`. This is what enables SSR re-rendering and testing without mocks. The only module state is the phone switch: once `registerPhone()` runs, `'phone'` formats instead of throwing. The [Intl display helpers](../intl/) and the [date tools](../date/) are listed on their own pages; `formatRelativeTime`, `formatCalendar`, `isToday` and the parsers that fill a missing date read the clock when `now` is omitted.
 
 ## `format(value, formatType, options?)`
 
@@ -194,7 +194,7 @@ formatPhone('5512345678', 'MX', '-') // '55-1234-5678'
 
 ## Browser global: `window.Formatter`
 
-The browser entrypoints register a focused `Formatter` object on `window`. It exposes `format`, `intl`, `regex` and `version`; lower-level root helpers are not added to the global. `formatter.phone.global.js` registers phones on load; `formatter.global.js` does not.
+The browser entrypoints register a focused `Formatter` object on `window`. It exposes `format`, `intl`, `regex` and `version`; lower-level root helpers are not added to the global. `formatter.phone.global.js` registers phones on load; `formatter.global.js` does not. The optional `formatter.date.global.js` add-on, loaded after either one, adds `date` with the [date tools](../date/).
 
 ```ts
 interface FormatterGlobal {
@@ -202,15 +202,16 @@ interface FormatterGlobal {
   intl: typeof import('@samline/formatter/intl')
   regex: typeof regex
   version: string
+  date?: typeof import('@samline/formatter/date') // with formatter.date.global.js
 }
 ```
 
 ```html
-<script src="https://unpkg.com/@samline/formatter@3.1.0/dist/browser/formatter.phone.global.js"></script>
+<script src="https://unpkg.com/@samline/formatter@3.2.0/dist/browser/formatter.phone.global.js"></script>
 <script>
   const result = window.Formatter.format('5512345678', 'phone')
   console.log(result.formatted) // '55 1234 5678'
-  console.log(window.Formatter.version) // '3.1.0'
+  console.log(window.Formatter.version) // '3.2.0'
 </script>
 ```
 

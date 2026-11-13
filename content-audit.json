@@ -1,6 +1,6 @@
 {
   "status": "verified",
-  "packageVersion": "3.1.0",
+  "packageVersion": "3.2.0",
   "sources": [
     {
       "source": "README.md",
@@ -439,6 +439,76 @@
       "source": "src/browser/phone.ts",
       "destination": "docs/src/content/docs/reference/entrypoints.md",
       "reviewed": true
+    },
+    {
+      "name": "parseDate, isValidDate",
+      "kind": "function",
+      "source": "src/date/parse.ts",
+      "destination": "docs/src/content/docs/reference/date.md",
+      "reviewed": true
+    },
+    {
+      "name": "formatDatePattern, formatCalendar",
+      "kind": "function",
+      "source": "src/date/format.ts",
+      "destination": "docs/src/content/docs/reference/date.md",
+      "reviewed": true
+    },
+    {
+      "name": "addDate, subtractDate, startOfDate, endOfDate, setDateUnit",
+      "kind": "function",
+      "source": "src/date/manipulate.ts",
+      "destination": "docs/src/content/docs/reference/date.md",
+      "reviewed": true
+    },
+    {
+      "name": "diffDate, isBeforeDate, isAfterDate, isSameDate, isSameOrBeforeDate, isSameOrAfterDate, isBetweenDate, minDate, maxDate, clampDate",
+      "kind": "function",
+      "source": "src/date/query.ts",
+      "destination": "docs/src/content/docs/reference/date.md",
+      "reviewed": true
+    },
+    {
+      "name": "isLeapYear, daysInMonth, dayOfYear, quarter, weekOfYear, weekYear, isoWeek, isoWeekYear, isoWeeksInYear, getWeekInfo, isWeekend, isToday, isTomorrow, isYesterday",
+      "kind": "function",
+      "source": "src/date/query.ts",
+      "destination": "docs/src/content/docs/reference/date.md",
+      "reviewed": true
+    },
+    {
+      "name": "getTimeZone, getTimeZoneOffset, getDateParts, createDate, fromUnix, toUnix",
+      "kind": "function",
+      "source": "src/date/zone.ts",
+      "destination": "docs/src/content/docs/reference/date.md",
+      "reviewed": true
+    },
+    {
+      "name": "createDuration, durationAs, durationToISO, formatDuration, formatDurationPattern, humanizeDuration",
+      "kind": "function",
+      "source": "src/date/duration.ts",
+      "destination": "docs/src/content/docs/reference/date.md",
+      "reviewed": true
+    },
+    {
+      "name": "DateInput, DateOptions, DateParts, DateUnit, DateSetUnit, DurationObject, ParseDateOptions, Weekday",
+      "kind": "type",
+      "source": "src/date/index.ts",
+      "destination": "docs/src/content/docs/reference/date.md",
+      "reviewed": true
+    },
+    {
+      "name": "@samline/formatter/date",
+      "kind": "entrypoint",
+      "source": "src/date/index.ts",
+      "destination": "docs/src/content/docs/reference/entrypoints.md",
+      "reviewed": true
+    },
+    {
+      "name": "@samline/formatter/browser/date (window.Formatter.date)",
+      "kind": "entrypoint",
+      "source": "src/browser/date.ts",
+      "destination": "docs/src/content/docs/reference/entrypoints.md",
+      "reviewed": true
     }
   ],
   "notes": "Audit of public behavior for Formatter 3.0.0 (opt-in phones, built-in engine, numeralDecimalPadding, Intl subpath). Internal pipeline helpers (formatValue, getValueForFormatting, resolveRuntimeOptions) remain reachable for compatibility but are marked @internal and intentionally undocumented. This is content coverage, not proof of universal accessibility or production performance. CHANGELOG.md is the single history source.",
@@ -448,7 +518,7 @@
   },
   "themeReview": {
     "status": "verified",
-    "source": "Maintainer requested lime green (\"verde lim\u00f3n\") in the 2026-11-05 audit and website request. Light #4d7c0f keeps text contrast on white; dark #a3e635.",
+    "source": "Maintainer requested lime green (\"verde limón\") in the 2026-11-05 audit and website request. Light #4d7c0f keeps text contrast on white; dark #a3e635.",
     "accentLight": "#4d7c0f",
     "accentDark": "#a3e635"
   },

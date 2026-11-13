@@ -49,6 +49,13 @@ import {
   type IntlPercentOptions,
   type IntlRelativeTimeOptions,
 } from '@samline/formatter/intl'
+
+import {
+  parseDate,
+  type DateOptions,
+  type DurationInput,
+  type ParseDateOptions,
+} from '@samline/formatter/date'
 ```
 
 ---
@@ -319,6 +326,26 @@ Exported from `@samline/formatter/intl`. Each extends `IntlCommonOptions` (`loca
 | `IntlRelativeTimeOptions` | `formatRelativeTime` | `now`, `style`, `numeric`, `unit`, `pattern`                                   |
 
 Input types: `IntlNumberInput` (`number | bigint | string | null | undefined`) and `IntlDateInput` (`Date | number | string | null | undefined`). See the [Intl display reference](../intl/).
+
+## Date types
+
+Exported from `@samline/formatter/date`.
+
+| Type                                                                    | Meaning                                                                                                             |
+| ----------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| `DateInput`                                                             | `Date \| number \| string`                                                                                          |
+| `DateOptions`                                                           | `timeZone`, `locale`, `weekStart`, `minimalDays`, taken by most functions                                           |
+| `DateUnit`                                                              | `'year' \| 'quarter' \| 'month' \| 'week' \| 'isoWeek' \| 'day' \| 'hour' \| 'minute' \| 'second' \| 'millisecond'` |
+| `DateSetUnit`                                                           | The units `setDateUnit` changes, including `'weekday'`, `'isoWeekday'` and `'dayOfYear'`                            |
+| `DateParts` / `DatePartsInput`                                          | Wall-clock parts read by `getDateParts` / written by `createDate`; `month` is 1–12                                  |
+| `Weekday` / `WeekInfo`                                                  | `0` (Sunday) – `6`; `{ firstDay, minimalDays, weekend }`                                                            |
+| `ParseDateOptions`                                                      | `format`, `strict` and the date options                                                                             |
+| `FormatDatePatternOptions` / `CalendarOptions`                          | The date options plus `fallback`; `CalendarOptions` adds `now` and `sameElse`                                       |
+| `DiffOptions` / `BetweenOptions` / `RelativeDayOptions` / `ZoneOptions` | `float`; `unit` and `inclusivity`; `now`; `timeZone`                                                                |
+| `Duration` / `DurationInput` / `DurationObject` / `DurationUnit`        | A complete duration; milliseconds, ISO 8601 or an object; its fields; its units                                     |
+| `FormatDurationOptions` / `HumanizeDurationOptions`                     | `locale`, `style`, `fallback`; plus `withSuffix`                                                                    |
+
+See the [Date tools reference](../date/).
 
 ## Related
 

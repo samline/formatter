@@ -5,6 +5,26 @@ All notable changes to `@samline/formatter` are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.2.0] - 2026-11-13
+
+Date tools in a new `@samline/formatter/date` subpath, on the native `Date`
+and `Intl` APIs with no dependencies. They replace the retired
+`@samline/date` (a Day.js wrapper) and cover the rest of what Day.js and
+its plugins offer. Nothing changes for existing imports: input masks for
+dates and times stay in the core.
+
+### Added
+
+- **`@samline/formatter/date`.** Every function is a separate export and returns a new `Date`; months are 1–12; any IANA time zone through `timeZone`; names in every locale through `Intl`.
+  - Reading: `parseDate` with tokens (`'DD/MM/YYYY'`, `'D [de] MMMM [de] YYYY'`, `'h:mm A'`, offsets, Unix time), strict by default and with a loose mode, localized month, weekday and AM/PM names, and `isValidDate`. Impossible dates and skipped daylight-saving times are rejected.
+  - Showing: `formatDatePattern` with the Day.js token set plus ordinals, weeks, offsets, time-zone names and the localized `L`/`LL`/`LLL`/`LLLL` formats; `formatCalendar` (`'Tomorrow at 9:00 AM'`); `formatRelativeTime` from `./intl`, re-exported.
+  - Changing: `addDate` and `subtractDate` (units or a duration object; month ends clamp and wall times survive daylight saving), `startOfDate`, `endOfDate`, `setDateUnit` and `clampDate`.
+  - Comparing and measuring: `diffDate` (calendar months and days), `isBeforeDate`, `isAfterDate`, `isSameDate`, `isSameOrBeforeDate`, `isSameOrAfterDate`, `isBetweenDate`, `minDate`, `maxDate`, `isToday`, `isTomorrow`, `isYesterday`, `isWeekend`, `isLeapYear`, `daysInMonth`, `dayOfYear`, `quarter`, `weekOfYear`, `weekYear`, `isoWeek`, `isoWeekYear`, `isoWeeksInYear` and `getWeekInfo` (locale week rules from `Intl.Locale`, with CLDR data where the browser has none).
+  - Time zones: `createDate` and `getDateParts` for wall clocks in any zone, `getTimeZoneOffset`, `getTimeZone`, `fromUnix` and `toUnix`. Skipped and repeated times resolve like `Date` and `Temporal`.
+  - Durations: `createDuration` (milliseconds, ISO 8601 or an object), `durationAs`, `durationToISO`, `formatDuration` (words in any locale, or `H:mm:ss`), `formatDurationPattern` and `humanizeDuration`.
+- **`formatter.date.global.js`.** A browser add-on loaded after either global script that adds `window.Formatter.date`, reusing `Formatter.intl.formatRelativeTime`. Exported as `@samline/formatter/browser/date`.
+- Tests for the date tools across six local time zones, daylight-saving days in New York, half-hour offsets, leap years, ISO and locale weeks, and the CLDR fallback; built-package tests for the ESM, CommonJS and add-on entries and their size budget (every date function together under 30 KB minified and 10 KB gzip).
+
 ## [3.1.0] - 2026-11-13
 
 Two new format types and a `case` option, built on

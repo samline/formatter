@@ -3,12 +3,12 @@ name: formatter
 description: Integrate @samline/formatter into forms in JavaScript, TypeScript, frameworks, CMS templates or server code. Use for formatting numerals, dates, times, card numbers, custom masks and opt-in phones into display and backend-ready values, for showing stored values with its Intl helpers, and for pairing them with the package's regex validation catalog; not for input-mask libraries that own the DOM.
 metadata:
   package: '@samline/formatter'
-  package-version: '3.1.0'
+  package-version: '3.2.0'
 ---
 
 # Formatter
 
-Build against the installed `@samline/formatter` version. This skill describes **3.1.0** (`'text'` and `'slug'` are new in 3.1.0). Check the dependency version before applying it: before 3.0.0 phones worked without `registerPhone()`, `formatPhone` lived in the root and the CDN file was `global.global.js`; in 2.0.x that script exposed only `window.Formatter.default`. Preserve the host project's markup, components, validation and design; Formatter returns strings and never touches the DOM.
+Build against the installed `@samline/formatter` version. This skill describes **3.2.0** (`@samline/formatter/date` is new in 3.2.0; `'text'` and `'slug'` in 3.1.0). Check the dependency version before applying it: before 3.0.0 phones worked without `registerPhone()`, `formatPhone` lived in the root and the CDN file was `global.global.js`; in 2.0.x that script exposed only `window.Formatter.default`. Preserve the host project's markup, components, validation and design; Formatter returns strings and never touches the DOM.
 
 ## The one contract
 
@@ -30,9 +30,18 @@ Format types: `'phone'`, `'numeral'`, `'date'`, `'time'`, `'creditCard'`, `'cred
 ## Choose a loading mode
 
 - **Package / ESM:** `npm install @samline/formatter` (or pnpm, yarn, bun), then `import { format, regex } from '@samline/formatter'`. For phones also `import { registerPhone } from '@samline/formatter/phone'` and call `registerPhone()` once. CommonJS `require` works too. `@samline/formatter/vanilla` exposes the same API. No stylesheet exists or is needed.
-- **HTML / CDN:** `<script src="https://unpkg.com/@samline/formatter@3.1.0/dist/browser/formatter.phone.global.js"></script>` when the page formats phones (about 165 KB minified), or `formatter.global.js` from the same folder when it does not (about 25 KB). Then `const { format, regex, intl } = window.Formatter`. Load it once, before code that uses it. Pin the version; a repository version does not prove that npm or the CDN already serve it.
+- **HTML / CDN:** `<script src="https://unpkg.com/@samline/formatter@3.2.0/dist/browser/formatter.phone.global.js"></script>` when the page formats phones (about 165 KB minified), or `formatter.global.js` from the same folder when it does not (about 25 KB). Then `const { format, regex, intl } = window.Formatter`. Load it once, before code that uses it. Pin the version; a repository version does not prove that npm or the CDN already serve it.
 
 Use one setup per page. Do not load the CDN script in a bundled application.
+
+## Date tools (`@samline/formatter/date`)
+
+- Use `@samline/formatter/date` for parsing, formatting, arithmetic, comparisons, time zones and durations. It has no dependencies and is built on native `Date` and `Intl`; import only what you use and it tree-shakes.
+- Every function takes `Date | number | string`, returns a new value and never mutates. Months are 1–12. Invalid input gives `''` (or `fallback`) from formatters, `undefined` from `parseDate`, an invalid `Date`, `NaN` or `false`.
+- `options.timeZone` accepts any IANA zone; `locale` drives names and week rules (`weekStart` and `minimalDays` override them).
+- Main calls: `parseDate(text, { format: 'DD/MM/YYYY' })`, `formatDatePattern(date, 'dddd D [de] MMMM', { locale: 'es' })`, `formatCalendar`, `addDate(date, 1, 'month')` or `addDate(date, { days: 2 })`, `subtractDate`, `startOfDate`/`endOfDate`, `setDateUnit`, `diffDate(a, b, 'day')`, `isBeforeDate`/`isAfterDate`/`isSameDate`/`isBetweenDate`, `clampDate`, `isoWeek`, `weekOfYear`, `getTimeZoneOffset`, `createDate(parts, { timeZone })`, `createDuration`, `formatDuration`, `humanizeDuration`. `formatRelativeTime` is re-exported from `@samline/formatter/intl`.
+- Masked date inputs still use `format(value, 'date', { datePattern })` from the core; map its pattern to parse tokens (`d`→`DD`, `m`→`MM`, `Y`→`YYYY`, `y`→`YY`) when you parse the result.
+- CDN: load `https://unpkg.com/@samline/formatter@3.2.0/dist/browser/formatter.date.global.js` after `formatter.global.js`; it adds `window.Formatter.date` and reuses `Formatter.intl.formatRelativeTime`.
 
 ## Wire a field
 
