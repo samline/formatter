@@ -77,8 +77,14 @@ describe('regex', () => {
       expect(regex.creditCard.pattern.test('378282246310005')).toBe(true)
     })
 
-    it('rejects 14-digit', () => {
-      expect(regex.creditCard.pattern.test('41111111111111')).toBe(false)
+    it('matches 14-digit Diners-like and 19-digit cards', () => {
+      expect(regex.creditCard.pattern.test('30569309025904')).toBe(true)
+      expect(regex.creditCard.pattern.test('6011000000000000004')).toBe(true)
+    })
+
+    it('rejects 11 and 20 digits', () => {
+      expect(regex.creditCard.pattern.test('41111111111')).toBe(false)
+      expect(regex.creditCard.pattern.test('41111111111111111111')).toBe(false)
     })
   })
 

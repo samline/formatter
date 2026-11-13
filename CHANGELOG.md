@@ -11,7 +11,9 @@ Date tools in a new `@samline/formatter/date` subpath, on the native `Date`
 and `Intl` APIs with no dependencies. They replace the retired
 `@samline/date` (a Day.js wrapper) and cover the rest of what Day.js and
 its plugins offer. Nothing changes for existing imports: input masks for
-dates and times stay in the core.
+dates and times stay in the core. The `regex` catalog was audited: 21
+patterns accepted invalid values or rejected valid ones, and new
+patterns cover common Mexican and web fields.
 
 ### Added
 
@@ -23,7 +25,24 @@ dates and times stay in the core.
   - Time zones: `createDate` and `getDateParts` for wall clocks in any zone, `getTimeZoneOffset`, `getTimeZone`, `fromUnix` and `toUnix`. Skipped and repeated times resolve like `Date` and `Temporal`.
   - Durations: `createDuration` (milliseconds, ISO 8601 or an object), `durationAs`, `durationToISO`, `formatDuration` (words in any locale, or `H:mm:ss`), `formatDurationPattern` and `humanizeDuration`.
 - **`formatter.date.global.js`.** A browser add-on loaded after either global script that adds `window.Formatter.date`, reusing `Formatter.intl.formatRelativeTime`. Exported as `@samline/formatter/browser/date`.
+- **New `regex` entries.** `personName` (`O'Connor`, `Pérez-Gómez`, `Ma. Fernanda`), `domain`, `clabe`, `nss`, `time12`, `isoDateTime`, `latitude`, `longitude` and `base64url`.
+- **Patterns that follow the masks.** `regex.date(options)`, `regex.time(options)` and `regex.numeral(options)` take the same options as `format()` (pattern order, delimiter, 12/24-hour clock, decimal mark, grouping style, decimal scale, sign and prefix) and accept exactly what that mask writes. `regex.uuid({ version })` pins one UUID version.
 - Tests for the date tools across six local time zones, daylight-saving days in New York, half-hour offsets, leap years, ISO and locale weeks, and the CLDR fallback; built-package tests for the ESM, CommonJS and add-on entries and their size budget (every date function together under 30 KB minified and 10 KB gzip).
+
+### Fixed
+
+- `regex.phone` and `regex.creditCard` accepted any non-digit between digits, so `abc5512345678` passed. Only spaces, hyphens, dots, parentheses and `+` (phones) or single spaces and hyphens (cards) are allowed now.
+- `regex.creditCard` rejected valid 12–14 and 17–19 digit cards (Diners, Maestro, long Visa, UnionPay). It now accepts every ISO/IEC 7812 length, 12–19; `creditCard({ min, max })` still narrows it.
+- `regex.email` accepted `a..b@c.com`, `.a@c.com`, `a@b..com`, `<a>@b.com` and `a,b@c.com`. It now checks a dot-atom local part, real domain labels and the 64/254 length limits, and accepts internationalized domains.
+- `regex.rfc` accepted month 13 and RFCs without homoclave; `regex.curp` accepted any date, sex letter and state. Both now check the date, and CURP checks sex (H, M, X), the state code (NE for abroad), the inner consonants and the check digit position. `regex.cp` rejects `00xxx`.
+- `regex.onlyLetters` and `onlyAlphanumeric` rejected `Güemes`, `François` and other accented letters, and accepted blank or multi-line values. They accept letters in every script now and need at least one letter (or digit).
+- `regex.url` accepted `https://.`; it now needs a domain, `localhost` or an IP host. `url({ protocol: 'all' })` left out `ftp`, unlike the static entry.
+- `regex.ipv4` accepted leading zeros (`01.02.03.004`). `regex.ipv6` accepted only the full eight-group form and rejected `::1` and `2001:db8::1`; it now accepts compressed and IPv4-embedded forms, verified against `node:net`.
+- `regex.date` accepted `2026-02-31` and `2026-02-29`; it now checks real calendar days, leap years included. `regex.time24` accepts optional seconds, as the `'time'` mask writes them.
+- `regex.uuid` accepted only v4 (UUID v7 failed); it accepts versions 1–8 now. `regex.hexColor` accepts `#RGBA` and `#RRGGBBAA`.
+- `regex.hashtag` rejected `#méxico` and accepted `#123`; `regex.mention` rejected `@2pac` and `@juan.perez`.
+- `regex.macAddress` accepted mixed separators and now accepts the Cisco form `001b.4411.3ab7`. `regex.semver` rejected `+build` metadata and accepted `1.2.3-01`. `regex.base64` accepted the empty string.
+- `regex.password` ignored non-ASCII capitals such as `Ñ`, and `special: true` did not count `~`, `` ` ``, `\` or symbols like `€`. Any character other than a letter, number or space counts as special now.
 
 ## [3.1.0] - 2026-11-13
 

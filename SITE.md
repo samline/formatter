@@ -85,6 +85,12 @@ add-on that sets `window.Formatter.date`. Docs gained `reference/date.md`;
 entrypoints, browser, API, TypeScript and Intl pages link it. CDN pins,
 `content-audit.json` and the skill moved to 3.2.0.
 
+The `regex` catalog was audited in the same release: 21 patterns fixed, nine
+new entries and mask-aware `date()`, `time()` and `numeral()` builders.
+`reference/regex.md` was rewritten; the Playground rule picker gained CURP and
+person name. The root-entry size budget moved from 25 to 27 KB minified (IIFE
+30 → 32 KB); gzip stays under 10 KB, and the quoted sizes were re-measured.
+
 ## Theme provenance
 
 Adapted from <https://github.com/samline/package-landing-docs.git>, commit `54822b6dc3ad6d81e611490bcf5302b5938aeef9`, embedded following the Drawer layout. Ticker remains the visual reference pinned in `design-reference.json` / `REFERENCE.md`; protected component styles are unchanged. The maintainer-selected lime-green accent is `#4d7c0f` (light, chosen for text contrast on white) and `#a3e635` (dark), recorded in `content-audit.json.themeReview`. The shared logo was allowed to wrap so the longer scoped name fits 320 px at enlarged text.

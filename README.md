@@ -115,8 +115,8 @@ Both scripts are minified IIFEs that define `window.Formatter` with `format`, `i
 
 | Script                                                                               | Phones      | Size (minified)           |
 | ------------------------------------------------------------------------------------ | ----------- | ------------------------- |
-| `https://unpkg.com/@samline/formatter@3.2.0/dist/browser/formatter.global.js`        | no          | about 25 KB (9 KB gzip)   |
-| `https://unpkg.com/@samline/formatter@3.2.0/dist/browser/formatter.phone.global.js`  | registered  | about 165 KB (41 KB gzip) |
+| `https://unpkg.com/@samline/formatter@3.2.0/dist/browser/formatter.global.js`        | no          | about 29 KB (11 KB gzip)  |
+| `https://unpkg.com/@samline/formatter@3.2.0/dist/browser/formatter.phone.global.js`  | registered  | about 170 KB (44 KB gzip) |
 
 For the date tools, add `formatter.date.global.js` from the same folder after either script (about 24 KB minified, 9 KB gzip); it adds `window.Formatter.date`.
 
@@ -147,7 +147,7 @@ Pin the version in production, or self-host the same file. 3.0.0 renamed the for
 | `format(value, formatType, options?)`                                                                                                                              | Format         |
 | `'phone'`, `'numeral'`, `'date'`, `'time'`, `'creditCard'`, `'creditCardType'`, `'general'`, `'text'`, `'slug'`                                                                        | Format types   |
 | `FORMAT_TYPES`, `isFormatType()`                                                                                                                                   | Type checks    |
-| `regex` (static entries and the `digits`, `phone`, `creditCard`, `url`, `password` and `custom` builders)                                                          | Validation     |
+| `regex` (static entries and the `digits`, `phone`, `creditCard`, `url`, `uuid`, `date`, `time`, `numeral`, `password` and `custom` builders)                        | Validation     |
 | `getRawValue()`, `stripPrefixAndSuffix()`, `getDateValueFromRaw()`, `getTimeValueFromRaw()`, `looksLikeRawDateValue()`, `looksLikeRawTimeValue()`, `isPhoneRegistered()` | Helpers        |
 | `registerPhone()`, `formatPhone()` from `@samline/formatter/phone`                                                                                                 | Phones         |
 | `formatNumber()`, `formatCurrency()`, `formatPercent()`, `formatDate()`, `formatRelativeTime()` from `@samline/formatter/intl`                                     | Display        |
@@ -158,7 +158,7 @@ Pin the version in production, or self-host the same file. 3.0.0 renamed the for
 
 | Entrypoint                         | When to use                                                               |
 | ---------------------------------- | ------------------------------------------------------------------------- |
-| `@samline/formatter`               | ESM and CommonJS with type declarations; about 19 KB minified (7 KB gzip). |
+| `@samline/formatter`               | ESM and CommonJS with type declarations; about 26 KB minified (9 KB gzip). |
 | `@samline/formatter/vanilla`       | The same API under an explicit subpath.                                   |
 | `@samline/formatter/phone`         | `registerPhone()` and `formatPhone()`; adds libphonenumber-js.            |
 | `@samline/formatter/intl`          | `Intl` display helpers; no dependencies.                                  |

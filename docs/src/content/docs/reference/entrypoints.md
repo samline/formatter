@@ -144,15 +144,15 @@ If your bundler does not support `exports` (legacy Node 12, custom tooling), the
 
 | Surface                                    | Engine (numeral, date, time, card, general) | `libphonenumber-js` | Size (minified)           |
 | ------------------------------------------ | ------------------------------------------- | ------------------- | ------------------------- |
-| `@samline/formatter` / `/vanilla`          | built in                                    | no                  | about 19 KB (7 KB gzip)   |
+| `@samline/formatter` / `/vanilla`          | built in                                    | no                  | about 26 KB (9 KB gzip)   |
 | `@samline/formatter/phone`                 | shared with the root                        | bundled             | adds about 143 KB         |
 | `@samline/formatter/intl`                  | not needed                                  | no                  | about 4 KB                |
 | `@samline/formatter/date` (every function) | not needed                                  | no                  | about 26 KB (10 KB gzip)  |
-| `formatter.global.js` (IIFE, with `intl`)  | built in                                    | no                  | about 25 KB (9 KB gzip)   |
-| `formatter.phone.global.js` (IIFE)         | built in                                    | bundled             | about 165 KB (41 KB gzip) |
+| `formatter.global.js` (IIFE, with `intl`)  | built in                                    | no                  | about 29 KB (11 KB gzip)  |
+| `formatter.phone.global.js` (IIFE)         | built in                                    | bundled             | about 170 KB (44 KB gzip) |
 | `formatter.date.global.js` (add-on IIFE)   | not needed                                  | no                  | about 24 KB (9 KB gzip)   |
 
-The core has no runtime dependency; the engine started as a port of `cleave-zen` 0.0.17 (MIT) and is now maintained here. `test:package` enforces the budgets: the root entry under 25 KB minified (10 KB gzip) the core IIFE under 30 KB, and every date function together under 30 KB (10 KB gzip).
+The core has no runtime dependency; the engine started as a port of `cleave-zen` 0.0.17 (MIT) and is now maintained here. `test:package` enforces the budgets: the root entry under 27 KB minified (10 KB gzip), the core IIFE under 32 KB, and every date function together under 30 KB (10 KB gzip).
 
 ## Versioning
 

@@ -51,8 +51,8 @@ describe('built package', () => {
 
   it('keeps the core inside its size budget', () => {
     // Budgets documented in README and docs/reference/entrypoints.md: the
-    // `.` entry minified must stay under 25 KB, the core IIFE (core + intl)
-    // under 30 KB; both without libphonenumber-js.
+    // `.` entry minified must stay under 27 KB, the core IIFE (core + intl)
+    // under 32 KB; both without libphonenumber-js.
     const out = join(mkdtempSync(join(tmpdir(), 'formatter-size-')), 'core.js')
     execFileSync(
       'bun',
@@ -60,11 +60,11 @@ describe('built package', () => {
       { stdio: 'ignore' }
     )
     const core = readFileSync(out)
-    expect(core.byteLength).toBeLessThan(25 * 1024)
+    expect(core.byteLength).toBeLessThan(27 * 1024)
     expect(gzipSync(core).byteLength).toBeLessThan(10 * 1024)
 
     const iife = readFileSync(dist('browser/formatter.global.js'))
-    expect(iife.byteLength).toBeLessThan(30 * 1024)
+    expect(iife.byteLength).toBeLessThan(32 * 1024)
     expect(readFileSync(dist('browser/formatter.phone.global.js')).byteLength).toBeLessThan(
       180 * 1024
     )

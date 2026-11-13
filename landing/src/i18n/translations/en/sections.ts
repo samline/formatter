@@ -298,7 +298,7 @@ field.addEventListener('input', () => {
       size: {
         question: text('How large is it?'),
         answer: text(
-          'The core is about 19 KB minified (7 KB gzip) with a bundler and has no runtime dependency. Phone support is opt-in: @samline/formatter/phone adds libphonenumber-js (about 143 KB minified). The browser scripts are about 25 KB without phones and 165 KB with them.'
+          'The core is about 26 KB minified (9 KB gzip) with a bundler and has no runtime dependency. Phone support is opt-in: @samline/formatter/phone adds libphonenumber-js (about 143 KB minified). The browser scripts are about 29 KB without phones and 170 KB with them.'
         ),
       },
       errors: {

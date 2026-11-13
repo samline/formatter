@@ -12,8 +12,8 @@ description: 'Use @samline/formatter without a bundler: the two minified CDN scr
 
 | File                                     | Phone support            | Size (minified)           |
 | ---------------------------------------- | ------------------------ | ------------------------- |
-| `dist/browser/formatter.global.js`       | no (`'phone'` throws)    | about 25 KB (9 KB gzip)   |
-| `dist/browser/formatter.phone.global.js` | registered on load       | about 165 KB (41 KB gzip) |
+| `dist/browser/formatter.global.js`       | no (`'phone'` throws)    | about 29 KB (11 KB gzip)  |
+| `dist/browser/formatter.phone.global.js` | registered on load       | about 170 KB (44 KB gzip) |
 | `dist/browser/formatter.date.global.js`  | add-on: `Formatter.date` | about 24 KB (9 KB gzip)   |
 
 ## Browser bundle
