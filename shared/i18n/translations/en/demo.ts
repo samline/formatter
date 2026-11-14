@@ -664,8 +664,5 @@ export default {
   modeLabel: 'Loading mode',
   cdn: 'HTML / CDN',
   esm: 'Package / ESM',
-  note: 'Save these files in one folder and open index.html. The CDN script defines window.Formatter; no build step is needed.',
-  esmNote:
-    'Install @samline/formatter and serve these files with your bundler or dev server (for example Vite). The package import replaces the CDN script.',
   copyComplete: 'Copy the complete example',
 } as const
