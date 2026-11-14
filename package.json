@@ -107,7 +107,7 @@
   "bugs": {
     "url": "https://github.com/samline/formatter/issues"
   },
-  "homepage": "https://samline.github.io/formatter",
+  "homepage": "https://samline.github.io/formatter/",
   "dependencies": {
     "libphonenumber-js": "^1.13.7"
   },
