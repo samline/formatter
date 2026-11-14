@@ -130,7 +130,7 @@ Pin the version in production, or self-host the same file. 3.0.0 renamed the for
 - Date tools on native `Date` and `Intl`: parsing and printing with tokens (`DD/MM/YYYY`, `dddd D [de] MMMM`) in every locale, calendar math that keeps month ends and daylight saving right, comparisons, locale and ISO weeks, any IANA time zone and durations. Each function is a separate export.
 - Dates and times in any segment order, with a separate raw pattern (for example ISO for storage) and automatic recognition of stored values.
 - Card numbers grouped by brand, and brand detection.
-- Free text with title, sentence or capitalize casing (`'text'`) and live URL slugs (`'slug'`), built on [@samline/string](https://github.com/samline/utils/tree/main/packages/string).
+- Free text with title, sentence or capitalize casing (`'text'`) and live URL slugs (`'slug'`), built on [@samline/string](https://github.com/samline/string).
 - General block masks with delimiters, case transforms, numeric-only input and locked or typed prefixes and suffixes.
 - A validation catalog that pairs each pattern with its error message: Mexican IDs (RFC, CURP, INE, CLABE, NSS), US IDs (SSN, ITIN, EIN, routing numbers), IBAN, BIC, EU VAT, postal codes for 24 countries, email, URLs, IPs and more, plus rules built from the same options as `format()` for dates, times and numbers.
 - Check-digit validators (`isValidCard`, `isValidCurp`, `isValidRfc`, `isValidClabe`, `isValidIban`…) that catch the typos a pattern cannot.
