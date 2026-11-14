@@ -142,19 +142,21 @@ formatRelativeTime(threeDaysAgo, { locale: 'en-US', unit: 'hour' }) // '72 hours
 
 ## Migrating from `@samline/date`
 
-`@samline/date` wraps Day.js and is asynchronous because it loads locales on demand. `Intl` already ships every locale, so the replacements are synchronous:
+`@samline/date` (a Day.js wrapper) was retired and removed from npm. Its features live in this package, synchronously and with no dependency: display helpers here in `./intl`, and parsing, tokens and date math in [`@samline/formatter/date`](../date/).
 
-| `@samline/date`                                                                      | `@samline/formatter/intl`                                                                 |
-| ------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------- |
-| `await getDate({ date: '23/03/2026', input: 'DD/MM/YYYY', output: 'MMMM D, YYYY' })` | `formatDate('23/03/2026', { pattern: ['d', 'm', 'Y'], locale: 'en-US', preset: 'long' })` |
-| `createDateFormatter({ locale: 'es-mx' })`                                           | pass `locale: 'es-MX'` per call; instances are cached for you                             |
-| Day.js output tokens (`MMMM D, YYYY`)                                                | a `preset` or `Intl.DateTimeFormatOptions` components (`month: 'long'`…)                  |
-| `isValidDate(...)`                                                                   | `formatDate(value, { fallback: '' }) !== ''`, or `regex.date` for typed input             |
+| `@samline/date`                                                                      | `@samline/formatter`                                                                                                          |
+| ------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------- |
+| `await getDate({ date: '23/03/2026', input: 'DD/MM/YYYY', output: 'MMMM D, YYYY' })` | `formatDatePattern(parseDate('23/03/2026', { format: 'DD/MM/YYYY' }), 'MMMM D, YYYY', { locale: 'en' })` → `'March 23, 2026'` |
+| the same, with locale presets                                                        | `formatDate('23/03/2026', { pattern: ['d', 'm', 'Y'], locale: 'en-US', preset: 'long' })` from `./intl`                       |
+| `createDateFormatter({ locale: 'es-mx' })`                                           | pass `locale: 'es-MX'` per call; `Intl` instances are cached for you                                                          |
+| `isValidDate(...)`                                                                   | `isValidDate('31/04/2026', { format: 'DD/MM/YYYY' })` from `./date` → `false`; `regex.date(options)` for a masked input       |
+| `createDateChain(...)` (add, subtract, start of…)                                    | `addDate`, `subtractDate`, `startOfDate`, `endOfDate` and `setDateUnit` from `./date`, one function per step                  |
 
-Output follows the locale's conventions instead of a token string, so exact punctuation can differ from a Day.js pattern. Date arithmetic and chaining (`createDateChain`) have no equivalent here; keep `@samline/date` or `Date` for those.
+`./intl` follows the locale's conventions (presets and `Intl.DateTimeFormatOptions`); use `formatDatePattern` from `./date` when you need an exact token pattern.
 
 ## Related
 
 - [Options](../configuration/) — `numeralDecimalPadding` pads a numeral field on blur.
+- [Date tools](../date/) — parsing, tokens, date math, time zones and durations.
 - [Entrypoints](../entrypoints/) — every subpath and its size.
 - [TypeScript reference](../typescript/) — the Intl option types.

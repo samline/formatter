@@ -118,7 +118,7 @@ For mid-string editing, capture `selectionStart` before formatting and restore a
 - **Using `type="number"` for formatted numerals.** Use `type="text"` with `inputmode="decimal"`.
 - **Submitting both inputs under the same name.** Name only the canonical hidden input unless the backend requires both.
 - **Styling the hidden mirror.** Error, focus, and filled states belong on the visible input.
-- **Treating formatting as validation.** Pair the result with [`regex`](../../reference/regex/) or your validation library.
+- **Treating formatting as validation.** Pair the result with [`regex`](../../reference/regex/), the [check-digit validators](../../reference/regex/#check-digit-validators) or your validation library.
 - **Rebinding listeners when options change.** Keep one listener and read current options from state, a ref, or a getter.
 
 ## Related

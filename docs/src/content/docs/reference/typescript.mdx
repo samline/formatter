@@ -20,6 +20,15 @@ import {
   isFormatType,
   FORMAT_TYPES,
   regex,
+  isLuhn,
+  isValidCard,
+  isValidClabe,
+  isValidCurp,
+  isValidDniEs,
+  isValidIban,
+  isValidNss,
+  isValidRfc,
+  isValidRoutingNumber,
   isPhoneRegistered,
   getRawValue,
   getDateValueFromRaw,
@@ -33,6 +42,10 @@ import {
   type DatePatternType,
   type NumeralThousandsGroupStyle,
   type TimePatternType,
+  type PostalCountry,
+  type Regex,
+  type RegexEntry,
+  type RegexKey,
 } from '@samline/formatter'
 
 import { formatPhone, registerPhone } from '@samline/formatter/phone'
@@ -231,6 +244,27 @@ function regex.password(params?: {
   special?: boolean
 }): RegexEntry
 
+function regex.uuid(params?: { version?: number }): RegexEntry // 1–8
+function regex.postalCode(params?: { country?: PostalCountry }): RegexEntry // default 'US'
+
+// Same option names as format(value, 'date' | 'time' | 'numeral', options)
+function regex.date(params?: { datePattern?: DatePatternType; delimiter?: string }): RegexEntry
+function regex.time(params?: {
+  timePattern?: TimePatternType
+  timeFormat?: '12' | '24'
+  delimiter?: string
+}): RegexEntry
+function regex.numeral(params?: {
+  delimiter?: string
+  numeralDecimalMark?: string
+  numeralThousandsGroupStyle?: NumeralThousandsGroupStyle
+  numeralDecimalScale?: number
+  numeralPositiveOnly?: boolean
+  prefix?: string
+  tailPrefix?: boolean
+  signBeforePrefix?: boolean
+}): RegexEntry
+
 function regex.custom(pattern: RegExp, errorMessage?: string): RegexEntry
 function regex.custom(params: { pattern: RegExp; errorMessage: string }): RegexEntry
 ```
@@ -254,7 +288,7 @@ const urlCallable = regex.url
 //    ^? ((params?: { protocol?: 'http' | 'https' | 'ftp' | 'all' }) => RegexEntry) & RegexEntry
 ```
 
-The callable entries carry the static `.pattern` and `.errorMessage` so callers can use either form without an `if`-branch.
+The callable entries (`phone`, `creditCard`, `url`, `uuid`, `date`, `numeral`, `postalCode`) carry the static `.pattern` and `.errorMessage` so callers can use either form without an `if`-branch. `digits`, `time`, `password` and `custom` only have an `errorMessage` until called.
 
 ---
 
@@ -314,6 +348,8 @@ type TimePatternType = ('h' | 'm' | 's')[]
 type NumeralThousandsGroupStyle = 'thousand' | 'lakh' | 'wan' | 'none'
 
 // Regex-side defaults
+type PostalCountry = 'US' | 'MX' | 'CA' | 'GB' | 'IE' | 'DE' | 'FR' | 'ES' | 'IT' | 'PT' | 'NL' | 'BE'
+  | 'AT' | 'CH' | 'PL' | 'SE' | 'BR' | 'AR' | 'CO' | 'CL' | 'PE' | 'JP' | 'IN' | 'AU'
 type RegexKey = /* union of static-entry keys */
 type Regex = typeof regex
 interface RegexEntry { pattern: RegExp; errorMessage: string }

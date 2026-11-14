@@ -430,14 +430,24 @@ There is no client-side limit. Import it anywhere JavaScript runs.
 When you use `@samline/forms` for validation and submit handling, drive `format()` from the controller's `watch` / `subscribe` so the visible always reflects the canonical value the backend will receive.
 
 ```ts title="src/forms-integration.ts"
-import { form, regex } from '@samline/forms'
-import { format } from '@samline/formatter'
+import { form } from '@samline/forms'
+import { format, isValidCurp, regex } from '@samline/formatter'
 import { registerPhone } from '@samline/formatter/phone'
 
 registerPhone()
 
 const checkout = form('checkout-form', {
-  validators: { phone: { required: true, pattern: regex.phone.pattern } },
+  validators: {
+    phone: {
+      required: true,
+      pattern: { value: regex.phone.pattern, message: regex.phone.errorMessage },
+    },
+    curp: {
+      required: true,
+      pattern: { value: regex.curp.pattern, message: regex.curp.errorMessage },
+      validate: ({ value }) => isValidCurp(value) || 'The CURP check digit does not match.',
+    },
+  },
 })
 
 const phone = document.querySelector<HTMLInputElement>('input[name="phone"]')!

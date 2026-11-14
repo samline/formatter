@@ -5,10 +5,10 @@ sidebar:
   order: 3
 title: 'Validation patterns'
 titleAccent: 'patterns'
-description: 'The regex catalog of @samline/formatter: static and parametric validation patterns, each paired with a ready-to-use error message.'
+description: 'The regex catalog of @samline/formatter: validation patterns for Mexican, US, European and web fields, each paired with an error message, plus check-digit validators.'
 ---
 
-The `regex` export is a readonly TypeScript object of validation patterns. Static entries pair a `RegExp` with an `errorMessage`; parametric-only helpers return that pair when called.
+The `regex` export is a readonly TypeScript object of validation patterns. Static entries pair a `RegExp` with an `errorMessage`; parametric-only helpers return that pair when called. Patterns check the shape of a value; the [check-digit validators](#check-digit-validators) (`isValidCurp`, `isValidIban`, `isValidCard`…) also verify its check digit. Both tree-shake: an application that imports only `format` bundles neither.
 
 ```ts
 import { regex } from '@samline/formatter'
@@ -18,31 +18,27 @@ if (!regex.email.pattern.test(input.value)) {
 }
 ```
 
-## Backward compatibility
+## Compatibility
 
-Every existing pattern keeps its static `.pattern` / `.errorMessage` API. Nothing that worked before stops working — only new keys and new call signatures have been added.
-
-```ts
-// ✅ Still works (unchanged)
-regex.phone.pattern.test('5512345678')
-regex.email.errorMessage
-```
-
-The entries whose usage **expanded** are `phone`, `creditCard`, `url`, `uuid`, `date` and `numeral`, which are also callable as functions (the static `.pattern` is still attached, so both forms coexist):
+The shape of the API has not changed: every entry still exposes `.pattern` and `.errorMessage`, every key from earlier releases still exists, and new keys and builders were only added. `phone`, `creditCard`, `url`, `uuid`, `date`, `numeral` and `postalCode` are also callable, with the static `.pattern` still attached:
 
 ```ts
-// ✅ Still works
-regex.phone.pattern
-
-// ✅ Also works (new)
-regex.phone({ length: 7 })
+regex.phone.pattern.test('5512345678') // static form
+regex.phone({ length: 7 }).pattern.test('555-1234') // callable form
 ```
+
+What a pattern **accepts** changed in 3.2.0, because the catalog was audited:
+
+- **Stricter:** `phone` and `creditCard` reject letters between digits; `email` rejects doubled, leading or trailing dots and characters outside the local-part set; `rfc` and `curp` check the date (and CURP the sex, state and consonants); `cp` rejects `00xxx`; `ipv4` rejects leading zeros; `date` rejects days that do not exist; `semver` rejects leading zeros in numeric pre-release parts; `mention` is limited to 30 characters; `onlyLetters` and `onlyAlphanumeric` reject blank and multi-line values.
+- **Wider:** `creditCard` accepts 12–19 digits; `onlyLetters` accepts letters in every script (`Güemes`, `François`); `ipv6` accepts `::1` and other compressed forms; `uuid` accepts versions 1–8; `hexColor` accepts alpha (`#RGBA`, `#RRGGBBAA`); `time24` accepts seconds; `hashtag` accepts accents; `mention` accepts leading digits and inner dots; `semver` accepts `+build`.
+
+If your form depended on the old behavior, keep it with `regex.custom()`. The [changelog](../../changelog/) lists every fix.
 
 ## Usage modes
 
 ### 1. Static (object form)
 
-Static entries expose `.pattern` and `.errorMessage`. The callable `phone`, `creditCard`, `url`, `uuid`, `date` and `numeral` entries retain those properties for backward compatibility:
+Static entries expose `.pattern` and `.errorMessage`. The callable `phone`, `creditCard`, `url`, `uuid`, `date`, `numeral` and `postalCode` entries keep those properties too:
 
 ```ts
 regex.phone.pattern.test('5512345678') // true

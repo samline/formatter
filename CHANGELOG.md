@@ -49,6 +49,19 @@ validators catch the typos a pattern cannot.
 - `regex.macAddress` accepted mixed separators and now accepts the Cisco form `001b.4411.3ab7`. `regex.semver` rejected `+build` metadata and accepted `1.2.3-01`. `regex.base64` accepted the empty string.
 - `regex.password` ignored non-ASCII capitals such as `Ñ`, and `special: true` did not count `~`, `` ` ``, `\` or symbols like `€`. Any character other than a letter, number or space counts as special now.
 
+### Documentation
+
+- `reference/regex.md` was rewritten: tables for Mexican, US, European and postal rules, the check-digit validators with a `@samline/forms` example, and a Compatibility section that lists which patterns became stricter or wider (it used to say nothing that worked before would stop working).
+- `reference/intl.md`: the migration table from `@samline/date` pointed users back to that package for date math; it now maps every function to `@samline/formatter/date`, since `@samline/date` was removed from npm.
+- Recipes: the `@samline/forms` recipe imported `regex` from `@samline/forms`, which does not export it; it now imports from `@samline/formatter` and verifies a CURP check digit. New recipes cover check digits, rules built from the mask options and countries without a built-in rule.
+- API, TypeScript and entrypoint references list the validators, the new builders and `PostalCountry`; quoted bundle sizes were re-measured (several were already out of date).
+
+### Tests
+
+- `node:net` decides the expected IPv4 and IPv6 results, and `format()` output is fed back into `regex.date`, `regex.time` and `regex.numeral`, so the patterns cannot drift from the masks.
+- Every single-digit typo must fail the Luhn, CLABE, IBAN and routing checks; the CURP test documents the two cases RENAPO's algorithm cannot see.
+- `test:package` now bundles `format` alone (under 17 KB) and `isValidIban` alone (under 3 KB), so a change that breaks tree-shaking fails the build.
+
 ## [3.1.0] - 2026-11-13
 
 Two new format types and a `case` option, built on
@@ -399,3 +412,13 @@ These come from auditing the ported engine and change a few outputs:
 - Three entrypoints: `@samline/formatter`, `@samline/formatter/vanilla`, `@samline/formatter/browser` (IIFE).
 - Pre-built validation regex catalog with paired error messages.
 - Advanced helpers: `formatPhone`, `getRawValue`, `getDateValueFromRaw`, `getTimeValueFromRaw`, `stripPrefixAndSuffix`.
+
+[3.2.0]: https://github.com/samline/formatter/compare/v3.1.0...v3.2.0
+[3.1.0]: https://github.com/samline/formatter/compare/v3.0.0...v3.1.0
+[3.0.0]: https://github.com/samline/formatter/compare/v2.1.0...v3.0.0
+[2.1.0]: https://github.com/samline/formatter/compare/v2.0.3...v2.1.0
+[2.0.3]: https://github.com/samline/formatter/compare/v2.0.2...v2.0.3
+[2.0.2]: https://github.com/samline/formatter/compare/v2.0.1...v2.0.2
+[2.0.1]: https://github.com/samline/formatter/releases/tag/v2.0.1
+[1.2.0]: https://github.com/samline/formatter/compare/v1.1.2...v1.2.0
+[1.1.2]: https://github.com/samline/formatter/releases/tag/v1.1.2
