@@ -99,7 +99,7 @@
     "timezone",
     "duration"
   ],
-  "author": "samline",
+  "author": "Samuel Olvera (samline)",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/samline/formatter.git"

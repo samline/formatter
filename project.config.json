@@ -4,7 +4,7 @@
     "npmName": "@samline/formatter",
     "version": "3.2.0",
     "description": "A lightweight, framework-agnostic input formatter for numerals, dates, times, credit cards, custom masks and opt-in phones that returns display and backend-ready values from one call, plus Intl display helpers.",
-    "author": "samline",
+    "author": "Samuel Olvera (samline)",
     "license": "MIT",
     "keywords": [
       "formatter",
