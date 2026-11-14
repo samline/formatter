@@ -1,21 +1,12 @@
 {
   "extends": "astro/tsconfigs/strict",
-  "include": [
-    ".astro/types.d.ts",
-    "**/*",
-    "../shared/**/*"
-  ],
-  "exclude": [
-    "dist"
-  ],
+  "include": [".astro/types.d.ts", "**/*", "../shared/**/*"],
+  "exclude": ["dist"],
   "compilerOptions": {
     "paths": {
-      "@samline/formatter": [
-        "../src/index.ts"
-      ],
-      "@samline/formatter/phone": [
-        "../src/phone/index.ts"
-      ]
+      "@samline/formatter": ["../src/index.ts"],
+      "@samline/formatter/phone": ["../src/phone/index.ts"],
+      "@samline/formatter/date": ["../src/date/index.ts"]
     }
   }
 }

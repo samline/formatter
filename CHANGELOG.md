@@ -55,6 +55,7 @@ validators catch the typos a pattern cannot.
 - `reference/intl.md`: the migration table from `@samline/date` pointed users back to that package for date math; it now maps every function to `@samline/formatter/date`, since `@samline/date` was removed from npm.
 - Recipes: the `@samline/forms` recipe imported `regex` from `@samline/forms`, which does not export it; it now imports from `@samline/formatter` and verifies a CURP check digit. New recipes cover check digits, rules built from the mask options and countries without a built-in rule.
 - API, TypeScript and entrypoint references list the validators, the new builders and `PostalCountry`; quoted bundle sizes were re-measured (several were already out of date).
+- Examples: three new live fields (eighteen in all). **Date tools in any language** reads the masked date with `parseDate` and shows it with `formatDatePattern` in five locales (the CDN file loads `formatter.date.global.js`); **Postal code by country** builds `regex.postalCode({ country })` from a select; **IBAN with check digits** pairs `regex.iban` with `isValidIban`. CURP now runs `isValidCurp` after `regex.curp` (its sample values had wrong check digits), the amount and euro fields validate with `regex.numeral(options)`, and the validator gained `regex.phone` with a letters-between-digits sample. A new recipe reads a masked date with the date tools to check an age.
 
 ### Tests
 

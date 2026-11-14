@@ -134,7 +134,7 @@ test('file tabs copy exact highlighted source and feedback resets independently'
     }
   }
 })
-test('copied CDN and ESM files run for all fifteen scenarios', async ({ page, context }) => {
+test('copied CDN and ESM files run for all eighteen scenarios', async ({ page, context }) => {
   // The CDN URL is served from this checkout's build; this proves the copied
   // code, not unpkg availability or npm publication.
   const coreIife = readFileSync(
@@ -143,6 +143,10 @@ test('copied CDN and ESM files run for all fifteen scenarios', async ({ page, co
   )
   const phoneIife = readFileSync(
     new URL('../dist/browser/formatter.phone.global.js', import.meta.url),
+    'utf8'
+  )
+  const dateIife = readFileSync(
+    new URL('../dist/browser/formatter.date.global.js', import.meta.url),
     'utf8'
   )
   // [typed, formatted, raw]; the validator has no raw, only a status.
@@ -154,29 +158,46 @@ test('copied CDN and ESM files run for all fifteen scenarios', async ({ page, co
     date: ['24/12/2026', '24/12/2026', '2026-12-24'],
     expiry: ['0731', '07/31', '07/31'],
     time: ['1805', '18:05', '18:05'],
+    weekday: ['24122026', '24/12/2026', '24/12/2026'],
     card: ['5555555555554444', '5555 5555 5555 4444', '5555555555554444'],
     reference: ['11112222', 'ORD-1111-2222', '11112222'],
     weight: ['250', '250 kg', '250'],
     promo: ['save40', 'SAVE40', '40'],
     postal: ['100011234', '10001-1234', '100011234'],
+    postcode: ['k1a 0b1', 'K1A 0B1', 'K1A 0B1'],
     curp: ['lopj921215mdfrrs05', 'LOPJ921215MDFRRS05', 'LOPJ921215MDFRRS05'],
     color: ['00aa55', '#00AA55', '#00AA55'],
+    iban: ['gb82west12345698765433', 'GB82 WEST 1234 5698 7654 33', 'GB82WEST12345698765433'],
     validator: ['not-an-email', 'not-an-email', ''],
   }
   await page.goto('examples/')
   const example = await context.newPage()
   const errors: string[] = []
   example.on('pageerror', error => errors.push(error.message))
-  // Only the phone scenario may copy the phone build; the rest get the core.
+  // Only the phone scenario may copy the phone build; the rest get the core,
+  // and the date-tools scenario adds the date add-on after it.
   await example.route('https://unpkg.com/**', route => {
     const url = route.request().url()
-    const body = url.endsWith('/formatter.phone.global.js') ? phoneIife : coreIife
+    const body = url.endsWith('/formatter.phone.global.js')
+      ? phoneIife
+      : url.endsWith('/formatter.date.global.js')
+        ? dateIife
+        : coreIife
     return route.fulfill({ body, contentType: 'text/javascript' })
   })
   // ESM files import the package by name; map it to the same build for the test.
   await example.route('https://example.test/formatter.js', route =>
     route.fulfill({
-      body: 'export const { format, regex, version } = window.Formatter',
+      body: [
+        'export const { format, regex, version } = window.Formatter',
+        'export const { isValidCard, isValidClabe, isValidCurp, isValidIban } = window.Formatter.checks',
+      ].join('\n'),
+      contentType: 'text/javascript',
+    })
+  )
+  await example.route('https://example.test/formatter-date.js', route =>
+    route.fulfill({
+      body: 'export const { formatDatePattern, parseDate } = window.Formatter.date',
       contentType: 'text/javascript',
     })
   )
@@ -200,12 +221,18 @@ test('copied CDN and ESM files run for all fifteen scenarios', async ({ page, co
         expect(complete).toContain("from '@samline/formatter'")
         const usesPhone = complete.includes("from '@samline/formatter/phone'")
         expect(usesPhone, preset).toBe(preset === 'phone')
-        const iife = usesPhone ? phoneIife : coreIife
+        const usesDate = complete.includes("from '@samline/formatter/date'")
+        expect(usesDate, preset).toBe(preset === 'weekday')
+        const iife = (usesPhone ? phoneIife : coreIife) + (usesDate ? `\n${dateIife}` : '')
         complete = complete
           .replace("from '@samline/formatter'", "from 'https://example.test/formatter.js'")
           .replace(
             "from '@samline/formatter/phone'",
             "from 'https://example.test/formatter-phone.js'"
+          )
+          .replace(
+            "from '@samline/formatter/date'",
+            "from 'https://example.test/formatter-date.js'"
           )
           .replace(
             '<head>',
@@ -214,6 +241,7 @@ test('copied CDN and ESM files run for all fifteen scenarios', async ({ page, co
       } else {
         expect(complete).toContain('https://unpkg.com/@samline/formatter@')
         expect(complete.includes('formatter.phone.global.js'), preset).toBe(preset === 'phone')
+        expect(complete.includes('formatter.date.global.js'), preset).toBe(preset === 'weekday')
       }
       // Navigate (instead of setContent) so each document gets fresh globals.
       const document = complete
@@ -238,6 +266,20 @@ test('copied CDN and ESM files run for all fifteen scenarios', async ({ page, co
       }
       await expect(example.locator('input[type=hidden]')).toHaveValue(raw)
       await expect(example.locator('output[data-raw]')).toHaveText(raw)
+      if (preset === 'weekday') {
+        await expect(example.locator('output[data-date]').first()).toHaveText('jueves')
+        await example.locator('select').selectOption('en-US')
+        await expect(example.locator('output[data-date]').first()).toHaveText('Thursday')
+      }
+      if (preset === 'postcode') {
+        await example.locator('select').selectOption('CA')
+        await expect(example.locator('[data-status]')).toHaveText('Valid postal code')
+      }
+      // The pattern passes; only the check digits catch the typo.
+      if (preset === 'iban')
+        await expect(example.locator('[data-status]')).toHaveText(
+          'One character is wrong: the IBAN check digits do not match.'
+        )
     }
   }
   expect(errors).toEqual([])

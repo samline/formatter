@@ -28,7 +28,7 @@ bun run site:check:release
 
 Home, Examples and Docs share one implementation from the package-landing-docs template (embedded like Drawer); directories are build boundaries. Inventory `shared/components` before writing markup and reuse complete controls. Astro 7, Tailwind 4, `class:list`, rem lengths, scoped styles and processed scripts apply everywhere. UI copy and demo data live in typed catalogs; prose lives in the docs collection.
 
-- `shared/i18n/translations/en/demo.ts` is the single scenario catalog (15 scenarios, `homePresets` for Home). `Playground.astro` renders it; `demo-source.ts`/`demo-files.ts` generate the copied HTML / CDN and Package / ESM files from the same records. Never write a second copy of a scenario's options.
+- `shared/i18n/translations/en/demo.ts` is the single scenario catalog (18 scenarios, `homePresets` for Home). `Playground.astro` renders it; `demo-source.ts`/`demo-files.ts` generate the copied HTML / CDN and Package / ESM files from the same records. Never write a second copy of a scenario's options.
 - Every value quoted in copy, FAQ, README or the skill must be traced through the built package before publishing.
 - Form controls use shared components: `Select.astro` (custom chevron, pointer cursor, hover/focus states). Do not ship a native `<select>` with default styling.
 - Titles use explicit translated accents (`titleAccent` must be a trailing part of the title and never the whole title); never derive them from the last word.

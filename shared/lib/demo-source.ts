@@ -11,16 +11,20 @@ export type DemoMode = 'cdn' | 'esm'
 
 const PHONE_BUILD = 'formatter.phone.global.js'
 const CORE_BUILD = 'formatter.global.js'
+const DATE_BUILD = 'formatter.date.global.js'
 
 /**
  * The configured CDN script is the phone build (Home's examples format
- * phones). Scenarios without phones copy the smaller core build instead.
+ * phones). Scenarios without phones copy the smaller core build instead, and
+ * scenarios with a date readout add the date add-on after it.
  */
-export const cdnScriptFor = (preset: DemoPreset | 'quickStart') => {
+export const cdnScriptsFor = (preset: DemoPreset | 'quickStart'): string[] => {
   const script = project.delivery.cdnScript
-  if (!script) return script
+  if (!script) return []
   const usesPhone = preset === 'quickStart' || scenarios[preset].formatType === 'phone'
-  return usesPhone ? script : script.replace(PHONE_BUILD, CORE_BUILD)
+  const main = usesPhone ? script : script.replace(PHONE_BUILD, CORE_BUILD)
+  const usesDate = preset !== 'quickStart' && Boolean((scenarios[preset] as Scenario).dateReadout)
+  return usesDate ? [main, script.replace(PHONE_BUILD, DATE_BUILD)] : [main]
 }
 
 /** ESM files that format phones register the opt-in phone module first. */
@@ -38,9 +42,23 @@ const escape = (value: string) =>
 
 const scenario = (preset: DemoPreset): Scenario => scenarios[preset]
 
-/** `regex.date` or `regex.digits(8)`, exactly as consumers write it. */
-export const checkExpression = (check: ScenarioCheck) =>
-  `regex.${check.key}${check.args ? `(${check.args.map(value => JSON.stringify(value)).join(', ')})` : ''}`
+/** A single-quoted JavaScript string literal. */
+const quote = (value: string) => `'${value.replaceAll('\\', '\\\\').replaceAll("'", "\\'")}'`
+
+/**
+ * `regex.date`, `regex.digits(8)`, `regex.numeral(options)` or
+ * `regex.postalCode({ country: choice.value })`, exactly as consumers write it.
+ */
+export const checkExpression = (check: ScenarioCheck, choice = 'choice') =>
+  `regex.${check.key}${
+    check.withOptions
+      ? '(options)'
+      : check.choiceOption
+        ? `({ ${check.choiceOption}: ${choice}.value })`
+        : check.args
+          ? `(${check.args.map(value => JSON.stringify(value)).join(', ')})`
+          : ''
+  }`
 
 const literal = (value: unknown) =>
   JSON.stringify(value, null, 2)
@@ -80,7 +98,12 @@ ${item.choice.choices.map(([value, label]) => `    <option value="${value}"${val
       ? `
   <p>${item.brand.label}: <output data-brand></output></p>`
       : ''
-  }`
+  }${(item.dateReadout?.outputs ?? [])
+    .map(
+      output => `
+  <p>${escape(output.label)}: <output data-date></output></p>`
+    )
+    .join('')}`
   return `<div class="formatter-field">${choice}
   <label for="${field.id}">${escape(field.label)}</label>
   <input
@@ -168,33 +191,61 @@ const validationScript = (preset: DemoPreset, mode: DemoMode) => {
   ].join('\n')
 }
 
+/** Camel-case variable name for a select, e.g. `country` or `locale`. */
+const choiceVariable = (item: Scenario) =>
+  item.choice?.role === 'country' || item.check?.choiceOption === 'country'
+    ? 'country'
+    : item.choice?.role === 'locale'
+      ? 'locale'
+      : 'choice'
+
 export const javascriptFor = (preset: DemoPreset, mode: DemoMode = 'cdn') => {
   const item = scenario(preset)
   if (!item.formatType) return validationScript(preset, mode)
   const { field } = item
   const hasCountry = item.choice?.role === 'country'
+  const select = item.choice ? choiceVariable(item) : null
   const check = item.check
-  const imports = check ? 'format, regex' : 'format'
+  const digit = check?.digit?.name
+  const readout = item.dateReadout
+  const rootImports = [
+    'format',
+    ...(digit && mode === 'esm' ? [digit] : []),
+    ...(check ? ['regex'] : []),
+  ]
+  const dateImports = 'formatDatePattern, parseDate'
   const staticOptions = Object.fromEntries(
     Object.entries(item.options).filter(([key]) => key !== 'country')
   )
   const options = hasCountry ? `{ ...options, country: country.value }` : 'options'
+  // A rule that depends on the select is built on every update.
+  const dynamicRule = Boolean(check?.choiceOption)
+  const tested = check?.on ?? 'raw'
   const lines = [
     ...(mode === 'esm'
       ? [
-          `import { ${imports} } from '${project.npmName}'`,
+          `import { ${rootImports.join(', ')} } from '${project.npmName}'`,
+          ...(readout ? [`import { ${dateImports} } from '${project.npmName}/date'`] : []),
           ...(item.formatType === 'phone' ? phoneSetup : []),
         ]
-      : [`const { ${imports} } = window.Formatter`]),
+      : [
+          `const { ${rootImports.join(', ')} } = window.Formatter`,
+          ...(digit ? [`const { ${digit} } = window.Formatter.checks`] : []),
+          ...(readout ? [`const { ${dateImports} } = window.Formatter.date`] : []),
+        ]),
     '',
     `const field = document.querySelector('#${field.id}')`,
     `const hidden = document.querySelector('input[name="${field.name}"]')`,
     `const rawOutput = document.querySelector('[data-raw]')`,
-    ...(hasCountry ? [`const country = document.querySelector('#${item.choice!.id}')`] : []),
+    ...(select ? [`const ${select} = document.querySelector('#${item.choice!.id}')`] : []),
     ...(item.brand ? [`const brand = document.querySelector('[data-brand]')`] : []),
+    ...(readout ? [`const dateOutputs = document.querySelectorAll('[data-date]')`] : []),
     ...(check ? [`const status = document.querySelector('[data-status]')`] : []),
     `const options = ${literal(staticOptions)}`,
-    ...(check ? [`const rule = ${checkExpression(check)}`] : []),
+    ...(check && !dynamicRule ? [`const rule = ${checkExpression(check)}`] : []),
+    ...(readout
+      ? [`const datePatterns = ${literal(readout.outputs.map(output => output.pattern))}`]
+      : []),
     '',
     'const update = () => {',
     `  const { formatted, raw } = format(field.value, '${item.formatType}', ${options})`,
@@ -204,17 +255,37 @@ export const javascriptFor = (preset: DemoPreset, mode: DemoMode = 'cdn') => {
     ...(item.brand
       ? [`  brand.value = format(raw, 'creditCardType').formatted || '${item.brand.empty}'`]
       : []),
-    ...(check
+    ...(readout
       ? [
-          `  const valid = rule.pattern.test(${check.on})`,
-          '  status.dataset.valid = String(valid)',
-          `  status.textContent = valid ? '${check.valid}' : rule.errorMessage`,
+          `  const date = parseDate(formatted, { format: ${quote(readout.parse)} })`,
+          '  dateOutputs.forEach((output, index) => {',
+          '    output.value = date',
+          `      ? formatDatePattern(date, datePatterns[index]${select === 'locale' ? ', { locale: locale.value }' : ''})`,
+          `      : ${quote(readout.empty)}`,
+          '  })',
         ]
       : []),
+    ...(check && dynamicRule
+      ? [`  const rule = ${checkExpression(check, select ?? 'choice')}`]
+      : []),
+    ...(check && digit
+      ? [
+          `  const shape = rule.pattern.test(${tested})`,
+          `  const valid = shape && ${digit}(${tested})`,
+          '  status.dataset.valid = String(valid)',
+          `  status.textContent = !shape ? rule.errorMessage : valid ? ${quote(check.valid)} : ${quote(check.digit!.error)}`,
+        ]
+      : check
+        ? [
+            `  const valid = rule.pattern.test(${tested})`,
+            '  status.dataset.valid = String(valid)',
+            `  status.textContent = valid ? ${quote(check.valid)} : rule.errorMessage`,
+          ]
+        : []),
     '}',
     '',
     `field.addEventListener('input', update)`,
-    ...(hasCountry ? [`country.addEventListener('change', update)`] : []),
+    ...(select ? [`${select}.addEventListener('change', update)`] : []),
     'update()',
   ]
   return lines.join('\n')

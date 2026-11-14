@@ -1,6 +1,5 @@
 ---
 import type { HTMLAttributes } from 'astro/types'
-import { format, regex, type FormatOptions } from '@samline/formatter'
 import { registerPhone } from '@samline/formatter/phone'
 import DemoStudio from './DemoStudio.astro'
 import DemoPanel from './DemoPanel.astro'
@@ -11,6 +10,7 @@ import Disclosure from './Disclosure.astro'
 import DemoCode from './DemoCode.astro'
 import t, { scenarios, type DemoPreset, type Scenario } from '../i18n/translations/en/demo'
 import { callSignature } from '../lib/demo-source'
+import { evaluate, ruleLabel as labelFor } from '../lib/demo-runtime'
 // The phone scenario renders on the server too; phone support is opt-in.
 registerPhone()
 interface Props extends HTMLAttributes<'div'> {
@@ -26,42 +26,18 @@ const {
   class: className,
   ...attributes
 } = Astro.props
-type Rule = { pattern: RegExp; errorMessage: string }
 const item: Scenario = scenarios[preset]
 const field = item.field
 const fieldId = `${id}-${field.id}`
 const choice = item.choice
 const validation = item.formatType === null
-const options = (
-  choice?.role === 'country' ? { ...item.options, country: choice.initial } : item.options
-) as FormatOptions
-const resolveRule = (key: string, args?: readonly unknown[]): Rule => {
-  const entry = regex[key as keyof typeof regex] as unknown
-  return typeof entry === 'function'
-    ? (entry as (...values: unknown[]) => Rule)(...(args ?? []))
-    : (entry as Rule)
-}
 // Render the initial result at build time so the preview is complete without
 // JavaScript and does not shift when the script takes over.
-const initial = item.formatType
-  ? format(field.value, item.formatType, options)
-  : { formatted: field.value, raw: field.value }
-const brand = item.brand
-  ? format(initial.raw, 'creditCardType').formatted || item.brand.empty
-  : null
-const check = item.check ?? null
-const rule = validation
-  ? resolveRule(choice!.initial)
-  : check
-    ? resolveRule(check.key, check.args)
-    : null
-const valid = rule ? rule.pattern.test(validation ? field.value : initial[check!.on]) : null
-const validLabel = validation ? t.validLabel : (check?.valid ?? '')
-const ruleLabel = validation
-  ? t.ruleLabel
-  : check
-    ? `regex.${check.key}${check.args ? `(${check.args.join(', ')})` : ''}`
-    : ''
+const initial = evaluate(item, field.value, choice?.initial)
+const brand = initial.brand
+const status = initial.status
+const validLabel = validation ? t.validLabel : (item.check?.valid ?? '')
+const ruleLabel = labelFor(item)
 const Frame = framed ? DemoStudio : 'div'
 ---
 
@@ -95,7 +71,7 @@ const Frame = framed ? DemoStudio : 'div'
                 value={initial.formatted}
                 spellcheck="false"
                 aria-describedby={
-                  validation ? `${id}-status` : `${id}-raw${rule ? ` ${id}-status` : ''}`
+                  validation ? `${id}-status` : `${id}-raw${status ? ` ${id}-status` : ''}`
                 }
                 data-field
               />
@@ -107,7 +83,7 @@ const Frame = framed ? DemoStudio : 'div'
               <div>
                 <dt>{t.patternLabel}</dt>
                 <dd>
-                  <output data-pattern>{rule!.pattern.source}</output>
+                  <output data-pattern>{initial.pattern}</output>
                 </dd>
               </div>
             ) : (
@@ -134,7 +110,15 @@ const Frame = framed ? DemoStudio : 'div'
                 </dd>
               </div>
             )}
-            {rule && (
+            {item.dateReadout?.outputs.map((output, index) => (
+              <div>
+                <dt>{output.label}</dt>
+                <dd>
+                  <output data-date={index}>{initial.dates![index]}</output>
+                </dd>
+              </div>
+            ))}
+            {status && (
               <div>
                 <dt>{ruleLabel}</dt>
                 <dd>
@@ -142,11 +126,11 @@ const Frame = framed ? DemoStudio : 'div'
                     id={`${id}-status`}
                     class:list={['status']}
                     data-status
-                    data-valid={String(valid)}
+                    data-valid={String(status.valid)}
                     data-valid-label={validLabel}
                     aria-live="polite"
                   >
-                    {valid ? validLabel : rule.errorMessage}
+                    {status.text}
                   </span>
                 </dd>
               </div>
@@ -188,21 +172,13 @@ const Frame = framed ? DemoStudio : 'div'
 </div>
 
 <script>
-  import { format, regex, type FormatOptions } from '@samline/formatter'
   import { registerPhone } from '@samline/formatter/phone'
   import { mountElements } from '../lib/mount-elements'
+  import { evaluate } from '../lib/demo-runtime'
   import { scenarios, type DemoPreset, type Scenario } from '../i18n/translations/en/demo'
   import t from '../i18n/translations/en/demo'
 
   registerPhone()
-
-  type Rule = { pattern: RegExp; errorMessage: string }
-  const resolveRule = (key: string, args?: readonly unknown[]): Rule => {
-    const entry = regex[key as keyof typeof regex] as unknown
-    return typeof entry === 'function'
-      ? (entry as (...values: unknown[]) => Rule)(...(args ?? []))
-      : (entry as Rule)
-  }
 
   mountElements('package-site-demo', element => {
     const item: Scenario | undefined = scenarios[element.dataset.preset as DemoPreset]
@@ -215,35 +191,20 @@ const Frame = framed ? DemoStudio : 'div'
     const rawOutput = element.querySelector('output[data-raw]')
     const patternOutput = element.querySelector('output[data-pattern]')
     const brand = element.querySelector('output[data-brand]')
+    const dates = element.querySelectorAll('output[data-date]')
     const status = element.querySelector<HTMLElement>('[data-status]')
-    const baseOptions = item.options as FormatOptions
 
     const update = () => {
-      if (!item.formatType) {
-        const rule = resolveRule(select?.value ?? '')
-        const valid = rule.pattern.test(field.value)
-        if (patternOutput) patternOutput.textContent = rule.pattern.source
-        if (status) {
-          status.dataset.valid = String(valid)
-          status.textContent = valid ? t.validLabel : rule.errorMessage
-        }
-        return
-      }
-      const options =
-        item.choice?.role === 'country' && select
-          ? { ...baseOptions, country: select.value }
-          : baseOptions
-      const { formatted, raw } = format(field.value, item.formatType, options)
-      field.value = formatted
-      if (formattedOutput) formattedOutput.textContent = formatted || t.emptyRaw
-      if (rawOutput) rawOutput.textContent = raw || t.emptyRaw
-      if (brand && item.brand)
-        brand.textContent = format(raw, 'creditCardType').formatted || item.brand.empty
-      if (status && item.check) {
-        const rule = resolveRule(item.check.key, item.check.args)
-        const valid = rule.pattern.test(item.check.on === 'raw' ? raw : formatted)
-        status.dataset.valid = String(valid)
-        status.textContent = valid ? item.check.valid : rule.errorMessage
+      const state = evaluate(item, field.value, select?.value)
+      if (item.formatType) field.value = state.formatted
+      if (formattedOutput) formattedOutput.textContent = state.formatted || t.emptyRaw
+      if (rawOutput) rawOutput.textContent = state.raw || t.emptyRaw
+      if (patternOutput && state.pattern !== null) patternOutput.textContent = state.pattern
+      if (brand && state.brand !== null) brand.textContent = state.brand
+      dates.forEach((output, index) => (output.textContent = state.dates?.[index] ?? ''))
+      if (status && state.status) {
+        status.dataset.valid = String(state.status.valid)
+        status.textContent = state.status.text
       }
     }
 

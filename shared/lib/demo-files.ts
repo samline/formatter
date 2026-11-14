@@ -2,7 +2,7 @@ import { format, resolveConfig } from 'prettier'
 import demo, { scenarios, type DemoPreset } from '../i18n/translations/en/demo'
 import controls from '../i18n/translations/en/controls'
 import {
-  cdnScriptFor,
+  cdnScriptsFor,
   htmlFor,
   javascriptFor,
   stylesFor,
@@ -29,7 +29,13 @@ ${separate ? '<link rel="stylesheet" href="./style.css">' : `<style>\n${stylesFo
 ${htmlFor(preset)}
 </main>
 
-${mode === 'cdn' && cdnScriptFor(preset) ? `<script src="${cdnScriptFor(preset)}"></script>` : ''}
+${
+  mode === 'cdn'
+    ? cdnScriptsFor(preset)
+        .map(src => `<script src="${src}"></script>`)
+        .join('\n')
+    : ''
+}
 ${
   separate
     ? mode === 'esm'

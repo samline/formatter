@@ -5,23 +5,36 @@
  * their options, samples and validation rules.
  */
 export type FormatType =
-  'general' | 'phone' | 'numeral' | 'date' | 'time' | 'creditCard' | 'creditCardType'
+  'general' | 'phone' | 'numeral' | 'date' | 'time' | 'creditCard' | 'creditCardType' | 'text'
+
+/** Check-digit validators exported from the root and as `window.Formatter.checks`. */
+export type CheckDigit = 'isValidCurp' | 'isValidIban' | 'isValidCard' | 'isValidClabe'
 
 export interface ScenarioCheck {
   /** `regex` entry name. */
   readonly key: string
   /** Arguments for a parametric entry, e.g. `regex.digits(8)`. */
   readonly args?: readonly (number | string)[]
+  /** Build the rule from the scenario's own format options: `regex.numeral(options)`. */
+  readonly withOptions?: true
+  /** Build the rule from the select: `regex.postalCode({ country })`. */
+  readonly choiceOption?: string
+  /** A check-digit validator run after the pattern passes, with its message. */
+  readonly digit?: { readonly name: CheckDigit; readonly error: string }
   /** Which output the rule validates. */
   readonly on: 'raw' | 'formatted'
   readonly valid: string
 }
 
-/** A select that changes one option (`country`) or the validation rule. */
+/**
+ * A select that changes one format option (`country`), the validation rule,
+ * the rule's own option (`check`, see `ScenarioCheck.choiceOption`) or the
+ * locale of the date readout.
+ */
 export interface ScenarioChoice {
   readonly id: string
   readonly label: string
-  readonly role: 'country' | 'rule'
+  readonly role: 'country' | 'rule' | 'check' | 'locale'
   readonly initial: string
   readonly choices: readonly (readonly [value: string, label: string])[]
 }
@@ -47,6 +60,15 @@ export interface Scenario {
   readonly choice?: ScenarioChoice
   readonly brand?: { readonly label: string; readonly empty: string }
   readonly check?: ScenarioCheck
+  /**
+   * Reads the formatted value with `parseDate` from `@samline/formatter/date`
+   * and shows it again with `formatDatePattern` in the selected locale.
+   */
+  readonly dateReadout?: {
+    readonly parse: string
+    readonly empty: string
+    readonly outputs: readonly { readonly label: string; readonly pattern: string }[]
+  }
   readonly samples: readonly {
     readonly label: string
     readonly value: string
@@ -111,7 +133,7 @@ export const scenarios = {
     title: 'An amount with currency and decimals',
     description:
       'Thousands separators and a currency prefix appear while typing. The raw value is a plain decimal string ready to parse on the server.',
-    hint: 'numeralDecimalScale limits the decimals. The prefix is display-only: raw never includes it.',
+    hint: 'numeralDecimalScale limits the decimals. The prefix is display-only: raw never includes it. regex.numeral(options) takes the same options, so the rule accepts exactly what the mask writes.',
     formatType: 'numeral',
     options: { prefix: '$', numeralDecimalScale: 2 },
     field: {
@@ -123,9 +145,11 @@ export const scenarios = {
       value: '1234567.891',
       placeholder: '$0.00',
     },
+    check: { key: 'numeral', withOptions: true, on: 'formatted', valid: 'Matches the mask' },
     samples: [
       { label: 'Small amount', value: '49.5' },
       { label: 'Pasted total', value: '$12,000.00' },
+      { label: 'Decimal mark last', value: '1234.' },
     ],
   },
   euro: {
@@ -134,7 +158,7 @@ export const scenarios = {
     title: 'A European price with the symbol after it',
     description:
       'A comma for decimals, dots for thousands and the currency after the number. The raw value still uses a dot, so the server parses it the same way.',
-    hint: 'numeralDecimalMark and delimiter switch the separators; tailPrefix moves the prefix to the end. Deleting the symbol restores it.',
+    hint: 'numeralDecimalMark and delimiter switch the separators; tailPrefix moves the prefix to the end. regex.numeral(options) checks the comma, the dots and the trailing symbol.',
     formatType: 'numeral',
     options: {
       numeralDecimalMark: ',',
@@ -152,6 +176,7 @@ export const scenarios = {
       value: '1234567,891',
       placeholder: '0,00 €',
     },
+    check: { key: 'numeral', withOptions: true, on: 'formatted', valid: 'Matches the mask' },
     samples: [
       { label: 'Under 50 euros', value: '49,9' },
       { label: 'Symbol deleted', value: '1.234,56 ' },
@@ -255,6 +280,53 @@ export const scenarios = {
     samples: [
       { label: 'Afternoon', value: '1745' },
       { label: 'Out of range', value: '2975' },
+    ],
+  },
+  weekday: {
+    category: 'dates',
+    tab: 'Date tools',
+    title: 'A typed date read back in any language',
+    description:
+      'The mask writes day/month/year; parseDate reads it with the same tokens and formatDatePattern shows the weekday, the long date and the ISO week in the selected locale.',
+    hint: 'The date tools live in @samline/formatter/date (CDN: formatter.date.global.js after the core script). parseDate is strict, so it returns undefined until the date is complete and real.',
+    formatType: 'date',
+    options: { datePattern: ['d', 'm', 'Y'], delimiter: '/' },
+    field: {
+      id: 'event-date',
+      name: 'event_date',
+      label: 'Event date',
+      inputmode: 'numeric',
+      autocomplete: 'off',
+      value: '24122026',
+      placeholder: 'dd/mm/yyyy',
+    },
+    choice: {
+      id: 'date-locale',
+      label: 'Language',
+      role: 'locale',
+      initial: 'es-MX',
+      choices: [
+        ['es-MX', 'Spanish (Mexico)'],
+        ['en-US', 'English (US)'],
+        ['pt-BR', 'Portuguese (Brazil)'],
+        ['fr-FR', 'French'],
+        ['de-DE', 'German'],
+      ],
+    },
+    check: { key: 'date', withOptions: true, on: 'formatted', valid: 'Complete date' },
+    dateReadout: {
+      parse: 'DD/MM/YYYY',
+      empty: 'Keep typing',
+      outputs: [
+        { label: 'Weekday', pattern: 'dddd' },
+        { label: 'Long date', pattern: 'LL' },
+        { label: 'ISO week', pattern: 'WW' },
+      ],
+    },
+    samples: [
+      { label: 'Leap day', value: '29022028', choice: 'en-US' },
+      { label: 'In German', value: '01052026', choice: 'de-DE' },
+      { label: 'Half typed', value: '0503' },
     ],
   },
   card: {
@@ -377,13 +449,57 @@ export const scenarios = {
       { label: 'Too short', value: '902' },
     ],
   },
+  postcode: {
+    category: 'masks',
+    tab: 'Postal code',
+    title: 'A postal code checked for the selected country',
+    description:
+      'Postal codes have no single shape: SW1A 1AA, K1A 0B1, 100-0001. The text type uppercases what people type and regex.postalCode({ country }) checks it for one of 24 countries.',
+    hint: 'The static regex.postalCode stays the US ZIP. Countries without a built-in rule use regex.custom() with your own pattern.',
+    formatType: 'text',
+    options: { case: 'upper' },
+    field: {
+      id: 'postcode',
+      name: 'postcode',
+      label: 'Postal code',
+      inputmode: 'text',
+      autocomplete: 'postal-code',
+      value: 'sw1a 1aa',
+      placeholder: 'Postal code',
+    },
+    choice: {
+      id: 'postcode-country',
+      label: 'Country',
+      role: 'check',
+      initial: 'GB',
+      choices: [
+        ['GB', 'United Kingdom'],
+        ['CA', 'Canada'],
+        ['US', 'United States'],
+        ['MX', 'Mexico'],
+        ['DE', 'Germany'],
+        ['JP', 'Japan'],
+      ],
+    },
+    check: {
+      key: 'postalCode',
+      choiceOption: 'country',
+      on: 'raw',
+      valid: 'Valid postal code',
+    },
+    samples: [
+      { label: 'Canada', value: 'k1a 0b1', choice: 'CA' },
+      { label: 'Japan', value: '100-0001', choice: 'JP' },
+      { label: 'US ZIP in the UK', value: '10001', choice: 'GB' },
+    ],
+  },
   curp: {
     category: 'masks',
     tab: 'CURP',
     title: 'A Mexican CURP in capital letters',
     description:
-      'An 18-character identifier typed in any case. The display and raw value are uppercase, and the paired rule checks the full structure.',
-    hint: 'uppercase transforms the display; without a prefix or suffix, raw is derived from the formatted value, so it is uppercase too.',
+      'An 18-character identifier typed in any case. The display and raw value are uppercase; regex.curp checks the structure and isValidCurp the final check digit.',
+    hint: 'uppercase transforms the display; without a prefix or suffix, raw is derived from the formatted value. A pattern cannot see a typo in a digit; the check digit can.',
     formatType: 'general',
     options: { blocks: [18], uppercase: true },
     field: {
@@ -392,12 +508,18 @@ export const scenarios = {
       label: 'CURP',
       inputmode: 'text',
       autocomplete: 'off',
-      value: 'goma800101hdfrrn09',
+      value: 'goma800101hdfrrn05',
       placeholder: 'AAAA000000AAAAAA00',
     },
-    check: { key: 'curp', on: 'raw', valid: 'Valid CURP structure' },
+    check: {
+      key: 'curp',
+      on: 'raw',
+      valid: 'Valid CURP and check digit',
+      digit: { name: 'isValidCurp', error: 'The CURP check digit does not match.' },
+    },
     samples: [
-      { label: 'Another CURP', value: 'LOPJ921215MDFRRS05' },
+      { label: 'Another CURP', value: 'LOPJ921215MDFRRS09' },
+      { label: 'Wrong check digit', value: 'GOMA800101HDFRRN09' },
       { label: 'Incomplete', value: 'GOMA8001' },
     ],
   },
@@ -423,6 +545,38 @@ export const scenarios = {
     samples: [
       { label: 'Short form', value: '0f0' },
       { label: 'Not a color', value: 'zz99' },
+    ],
+  },
+  iban: {
+    category: 'validation',
+    tab: 'IBAN',
+    title: 'An IBAN grouped in fours and checked with mod 97',
+    description:
+      'The mask uppercases and groups the IBAN as it is printed. regex.iban checks the shape; isValidIban checks the length for the country and the two check digits, so a mistyped character fails.',
+    hint: 'raw drops the spaces. The check-digit validators ignore spaces and hyphens, return a boolean and do not import regex.',
+    formatType: 'general',
+    options: { blocks: [4, 4, 4, 4, 4, 4, 4, 4, 2], delimiter: ' ', uppercase: true },
+    field: {
+      id: 'iban',
+      name: 'iban',
+      label: 'IBAN',
+      inputmode: 'text',
+      autocomplete: 'off',
+      value: 'gb82west12345698765432',
+      placeholder: 'GB00 0000 0000 0000 0000 00',
+    },
+    check: {
+      key: 'iban',
+      on: 'raw',
+      valid: 'Valid IBAN and check digits',
+      digit: {
+        name: 'isValidIban',
+        error: 'One character is wrong: the IBAN check digits do not match.',
+      },
+    },
+    samples: [
+      { label: 'German IBAN', value: 'DE89370400440532013000' },
+      { label: 'One digit wrong', value: 'GB82WEST12345698765433' },
     ],
   },
   validator: {
@@ -455,6 +609,7 @@ export const scenarios = {
         ['rfc', 'Mexican RFC'],
         ['curp', 'Mexican CURP'],
         ['personName', 'Person name'],
+        ['phone', 'Phone number (10 digits)'],
         ['ine', 'Mexican INE voter key'],
         ['ssn', 'US Social Security number'],
         ['iban', 'IBAN'],
@@ -472,6 +627,8 @@ export const scenarios = {
       { label: 'Slug with spaces', value: 'my new post', choice: 'slug' },
       { label: 'Accented name', value: 'José Pérez-Güemes', choice: 'personName' },
       { label: 'IBAN with spaces', value: 'GB82 WEST 1234 5698 7654 32', choice: 'iban' },
+      { label: 'Phone with symbols', value: '(55) 1234-5678', choice: 'phone' },
+      { label: 'Letters between digits', value: 'abc5512345678', choice: 'phone' },
     ],
   },
 } as const satisfies Record<string, Scenario>

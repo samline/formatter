@@ -171,6 +171,49 @@ export function attachDateInput(
 
 The `'auto'` default for `interpretInputAs` detects the eight-digit server-prefilled case (`19901212` → `12/12/1990`) without you having to thread any preset values through your own code.
 
+## Recipe: Read a masked date with the date tools
+
+The `date` mask only shapes what people type. To check an age, show the date in words or compare it with another date, read the formatted value with `parseDate` from `@samline/formatter/date`, using the tokens that match the mask (`d` → `DD`, `m` → `MM`, `Y` → `YYYY`):
+
+```ts title="src/birth-date.ts"
+import { format, type FormatOptions } from '@samline/formatter'
+import { diffDate, formatDatePattern, parseDate } from '@samline/formatter/date'
+
+const options: FormatOptions = { datePattern: ['d', 'm', 'Y'], delimiter: '/' }
+
+export function readBirthDate(value: string, now = new Date()) {
+  const { formatted } = format(value, 'date', options)
+  const date = parseDate(formatted, { format: 'DD/MM/YYYY' })
+  if (!date) return { formatted, error: 'Type the full date.' }
+  const age = diffDate(now, date, 'year')
+  return {
+    formatted,
+    label: formatDatePattern(date, 'LL', { locale: 'es-MX' }),
+    error: age < 18 ? 'You must be 18 or older.' : null,
+  }
+}
+
+readBirthDate('31121990', new Date(2026, 10, 13))
+// { formatted: '31/12/1990', label: '31 de diciembre de 1990', error: null } (age 35)
+```
+
+`parseDate` is strict: it returns `undefined` for an incomplete value and for days that do not exist. The mask already corrects most of them while typing (`31022026` becomes `28/02/2026`), so `undefined` usually means the date is not finished. `diffDate` counts calendar years, so the age changes on the birthday itself.
+
+In the browser, load the add-on after the core script and read the same functions from `window.Formatter.date`:
+
+```html
+<script src="https://unpkg.com/@samline/formatter@3.2.0/dist/browser/formatter.global.js"></script>
+<script src="https://unpkg.com/@samline/formatter@3.2.0/dist/browser/formatter.date.global.js"></script>
+<script>
+  const { format } = window.Formatter
+  const { formatDatePattern, parseDate } = window.Formatter.date
+  const { formatted } = format('24122026', 'date', { datePattern: ['d', 'm', 'Y'], delimiter: '/' })
+  formatDatePattern(parseDate(formatted, { format: 'DD/MM/YYYY' }), 'dddd', { locale: 'es-MX' }) // 'jueves'
+</script>
+```
+
+The [date tools example](../examples/#date-tools-in-any-language) runs this in a live field with a language select.
+
 ## Recipe: Serial number with auto-prepended prefix
 
 A common pattern is an identifier with a fixed prefix the user shouldn't have to retype (e.g. `EASY123456789`). Drive the visible input with `prefix` + `blocks`, and ship the canonical value (with prefix) to the backend via `rawPrefix: true`.

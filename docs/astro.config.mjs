@@ -28,6 +28,10 @@ export default defineConfig({
           find: /^@samline\/formatter\/phone$/,
           replacement: fileURLToPath(new URL('../src/phone/index.ts', import.meta.url)),
         },
+        {
+          find: /^@samline\/formatter\/date$/,
+          replacement: fileURLToPath(new URL('../src/date/index.ts', import.meta.url)),
+        },
       ],
     },
     plugins: [tailwind()],

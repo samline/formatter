@@ -55,7 +55,7 @@ export default {
       {
         page: 'examples',
         label: 'Examples',
-        description: 'Try fifteen live fields and copy their files.',
+        description: 'Try eighteen live fields and copy their files.',
       },
       {
         docsRoute: 'overview',
@@ -72,10 +72,10 @@ export default {
     title: `${project.name} examples.`,
     seoTitle: 'Examples',
     seoDescription:
-      'Fifteen live input formatting examples: phones by country, currencies, ISO dates, card numbers, custom masks and validation rules, with copyable HTML / CDN and Package / ESM files.',
+      'Eighteen live input formatting examples: phones by country, currencies, ISO dates, date tools, card numbers, custom masks, check digits and validation rules, with copyable HTML / CDN and Package / ESM files.',
     accent: 'examples.',
     description:
-      'Fifteen real form fields with live formatted and raw values, validation and copyable HTML / CDN and Package / ESM files.',
+      'Eighteen real form fields with live formatted and raw values, validation and copyable HTML / CDN and Package / ESM files.',
     possibilities:
       'These examples show a few possibilities. Combine format types, options and regex rules with your own forms, frameworks and validation to build the fields your project needs.',
     guide: 'Read the example guide',

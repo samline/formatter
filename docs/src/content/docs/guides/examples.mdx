@@ -5,7 +5,7 @@ sidebar:
   order: 1
 title: 'Working examples'
 titleAccent: 'examples'
-description: 'Fifteen live form fields covering every format type, decorations and the regex catalog, with copyable source files.'
+description: 'Eighteen live form fields covering every format type, decorations, the regex catalog, check digits and the date tools, with copyable source files.'
 ---
 
 import Playground from '../../../../../shared/components/Playground.astro'
@@ -26,13 +26,13 @@ Open the code under each example to copy its files. They run in two loading mode
 
 ### Amount with currency
 
-The `numeral` type adds grouping, a prefix and a decimal limit. `raw` is a plain decimal string without the prefix.
+The `numeral` type adds grouping, a prefix and a decimal limit. `raw` is a plain decimal string without the prefix. `regex.numeral(options)` takes the same options as `format()`, so the rule accepts exactly what the mask writes: `$1,234.` (decimal mark last) fails until a decimal is typed.
 
 <Playground preset="amount" showCode />
 
 ### European price
 
-`numeralDecimalMark: ','` and `delimiter: '.'` switch the separators, and `tailPrefix: true` moves the currency to the end. The raw value still uses a dot.
+`numeralDecimalMark: ','` and `delimiter: '.'` switch the separators, and `tailPrefix: true` moves the currency to the end. The raw value still uses a dot. The same options passed to `regex.numeral(options)` check the comma, the dots and the trailing ` €` of the visible value.
 
 <Playground preset="euro" showCode />
 
@@ -61,6 +61,12 @@ The `numeral` type adds grouping, a prefix and a decimal limit. `raw` is a plain
 `timePattern: ['h', 'm']` shows hours and minutes. The raw value is validated with `regex.time24`.
 
 <Playground preset="time" showCode />
+
+### Date tools in any language
+
+The mask writes `DD/MM/YYYY`; `parseDate` from `@samline/formatter/date` reads it back with the same tokens and `formatDatePattern` shows the weekday (`dddd`), the long date (`LL`) and the ISO week (`WW`) in the selected locale. `parseDate` is strict, so it returns `undefined` until the date is complete and real, and `regex.date(options)` reports the same state for the visible value. The copied ESM file imports `@samline/formatter/date`; the CDN file loads `formatter.date.global.js` after the core script and reads `window.Formatter.date`. See [Date tools](../../reference/date/) for every function.
+
+<Playground preset="weekday" showCode />
 
 ## Payment cards
 
@@ -96,9 +102,15 @@ The `general` type needs `blocks`. A locked `prefix` is displayed on every call,
 
 <Playground preset="postal" showCode />
 
+### Postal code by country
+
+Postal codes have no single shape, so this field uses the `text` type with `case: 'upper'` instead of a mask, and the country select builds the rule with `regex.postalCode({ country })`. 24 countries are built in; the static `regex.postalCode` stays the US ZIP, and other countries use `regex.custom()`.
+
+<Playground preset="postcode" showCode />
+
 ### Uppercase identifier
 
-`uppercase: true` transforms the display, and `raw` follows it because there is no decoration. `regex.curp` checks the structure; add `isValidCurp` to verify the check digit before submitting.
+`uppercase: true` transforms the display, and `raw` follows it because there is no decoration. `regex.curp` checks the structure (date, sex, state and inner consonants) and `isValidCurp` the final check digit, so **Wrong check digit** passes the pattern and still fails. The CDN file reads `isValidCurp` from `window.Formatter.checks`.
 
 <Playground preset="curp" showCode />
 
@@ -110,8 +122,14 @@ The `general` type needs `blocks`. A locked `prefix` is displayed on every call,
 
 ## Validation
 
+### IBAN with check digits
+
+The mask groups the IBAN in fours as it is printed, and `raw` drops the spaces. `regex.iban` checks the shape; `isValidIban` checks the length for the country and the mod 97 check digits, so **One digit wrong** fails although its shape is valid. The check-digit validators ignore spaces and hyphens and do not import `regex`.
+
+<Playground preset="iban" showCode />
+
 ### Validation rules
 
-Pick a rule from the `regex` catalog. Static entries are records; parametric entries such as `password()` are called first. Every rule pairs its pattern with its message.
+Pick a rule from the `regex` catalog. Static entries are records; parametric entries such as `password()` are called first. Every rule pairs its pattern with its message. `regex.phone` allows spaces, hyphens, dots, parentheses and `+` between the digits, but no letters: **Letters between digits** (`abc5512345678`) fails since 3.2.0.
 
 <Playground preset="validator" showCode />

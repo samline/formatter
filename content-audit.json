@@ -632,6 +632,12 @@
         "reviewed": true
       },
       {
+        "name": "Date tools in any language (parseDate, formatDatePattern)",
+        "evidence": "shared/i18n/translations/en/demo.ts#weekday; live preview and copied CDN/ESM files executed in site-e2e/site.spec.ts",
+        "destination": "landing/src/sections/ExamplesGallery.astro",
+        "reviewed": true
+      },
+      {
         "name": "Card number and brand",
         "evidence": "shared/i18n/translations/en/demo.ts#card; live preview and copied CDN/ESM files executed in site-e2e/site.spec.ts",
         "destination": "landing/src/sections/ExamplesGallery.astro",
@@ -662,6 +668,12 @@
         "reviewed": true
       },
       {
+        "name": "Postal code by country (regex.postalCode({ country }))",
+        "evidence": "shared/i18n/translations/en/demo.ts#postcode; live preview and copied CDN/ESM files executed in site-e2e/site.spec.ts",
+        "destination": "landing/src/sections/ExamplesGallery.astro",
+        "reviewed": true
+      },
+      {
         "name": "Uppercase identifier (CURP)",
         "evidence": "shared/i18n/translations/en/demo.ts#curp; live preview and copied CDN/ESM files executed in site-e2e/site.spec.ts",
         "destination": "landing/src/sections/ExamplesGallery.astro",
@@ -670,6 +682,12 @@
       {
         "name": "Prefix kept in raw (hex color)",
         "evidence": "shared/i18n/translations/en/demo.ts#color; live preview and copied CDN/ESM files executed in site-e2e/site.spec.ts",
+        "destination": "landing/src/sections/ExamplesGallery.astro",
+        "reviewed": true
+      },
+      {
+        "name": "IBAN with check digits (isValidIban)",
+        "evidence": "shared/i18n/translations/en/demo.ts#iban; live preview and copied CDN/ESM files executed in site-e2e/site.spec.ts",
         "destination": "landing/src/sections/ExamplesGallery.astro",
         "reviewed": true
       },
