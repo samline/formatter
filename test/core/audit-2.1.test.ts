@@ -30,7 +30,9 @@ describe('2.1.0 audit regressions', () => {
     it('restores a locked prefix when one of its characters is deleted', () => {
       const result = format('EAS1234', 'general', { blocks: [8], prefix: 'EASY' })
       expect(result).toMatchObject({ formatted: 'EASY1234', raw: '1234' })
-      expect(format('ASY1234', 'general', { blocks: [8], prefix: 'EASY' }).formatted).toBe('EASY1234')
+      expect(format('ASY1234', 'general', { blocks: [8], prefix: 'EASY' }).formatted).toBe(
+        'EASY1234'
+      )
     })
 
     it('does not treat single-character decorations as damaged', () => {
@@ -39,7 +41,8 @@ describe('2.1.0 audit regressions', () => {
 
     it('leaves passthrough partial typing unchanged', () => {
       expect(
-        format('12345US', 'general', { blocks: [12], suffix: 'USD', suffixMode: 'passthrough' }).formatted
+        format('12345US', 'general', { blocks: [12], suffix: 'USD', suffixMode: 'passthrough' })
+          .formatted
       ).toBe('12345US')
     })
   })
@@ -49,7 +52,7 @@ describe('2.1.0 audit regressions', () => {
       prefix: 'ID-',
       blocks: [4, 4],
       delimiters: ['.'],
-      rawPrefix: true
+      rawPrefix: true,
     })
     expect(result).toMatchObject({ formatted: 'ID-1234.5678', raw: 'ID-12345678' })
   })
@@ -119,8 +122,8 @@ describe('2.1.0 audit: case transforms and decorations', () => {
   })
 
   it('recognizes a locked prefix pasted in another case', () => {
-    expect(format('ord-12', 'general', { prefix: 'ORD-', blocks: [4], uppercase: true }).formatted).toBe(
-      'ORD-12'
-    )
+    expect(
+      format('ord-12', 'general', { prefix: 'ORD-', blocks: [4], uppercase: true }).formatted
+    ).toBe('ORD-12')
   })
 })

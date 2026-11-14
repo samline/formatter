@@ -1,5 +1,5 @@
 import { execFileSync } from 'node:child_process'
-import { readFileSync, existsSync, mkdtempSync } from 'node:fs'
+import { readFileSync, writeFileSync, existsSync, mkdtempSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { createRequire } from 'node:module'
@@ -30,7 +30,7 @@ describe('built package', () => {
 
   it('registers a usable window.Formatter without phone support', () => {
     const global = runClassicScript('browser/formatter.global.js')
-    expect(Object.keys(global).sort()).toEqual(['format', 'intl', 'regex', 'version'])
+    expect(Object.keys(global).sort()).toEqual(['checks', 'format', 'intl', 'regex', 'version'])
     expect(global.version).toBe(packageJson.version)
     const format = global.format as Format
     expect(format('1234567', 'numeral').formatted).toBe('1,234,567')
@@ -41,7 +41,7 @@ describe('built package', () => {
 
   it('registers phone support from the phone IIFE', () => {
     const global = runClassicScript('browser/formatter.phone.global.js')
-    expect(Object.keys(global).sort()).toEqual(['format', 'intl', 'regex', 'version'])
+    expect(Object.keys(global).sort()).toEqual(['checks', 'format', 'intl', 'regex', 'version'])
     const format = global.format as Format
     expect(format('5512345678', 'phone')).toMatchObject({
       formatted: '55 1234 5678',
@@ -50,23 +50,43 @@ describe('built package', () => {
   })
 
   it('keeps the core inside its size budget', () => {
-    // Budgets documented in README and docs/reference/entrypoints.md: the
-    // `.` entry minified must stay under 27 KB, the core IIFE (core + intl)
-    // under 32 KB; both without libphonenumber-js.
-    const out = join(mkdtempSync(join(tmpdir(), 'formatter-size-')), 'core.js')
-    execFileSync(
-      'bun',
-      ['build', dist('index.js'), '--minify', '--target=browser', `--outfile=${out}`],
-      { stdio: 'ignore' }
+    // Budgets documented in README and docs/reference/entrypoints.md, all
+    // without libphonenumber-js: an app importing only `format` stays under
+    // 17 KB minified (7 KB gzip), which proves `regex` and the check-digit
+    // validators tree-shake away; every root export together stays under
+    // 32 KB (12 KB gzip); the core IIFE (everything plus intl) under 36 KB.
+    const dir = mkdtempSync(join(tmpdir(), 'formatter-size-'))
+    const bundle = (source: string): Buffer => {
+      const entry = join(dir, `${Math.random().toString(36).slice(2)}.mjs`)
+      const out = `${entry}.out.js`
+      writeFileSync(entry, source)
+      execFileSync('bun', ['build', entry, '--minify', '--target=browser', `--outfile=${out}`], {
+        stdio: 'ignore',
+      })
+      return readFileSync(out)
+    }
+
+    const formatOnly = bundle(
+      `import { format } from ${JSON.stringify(dist('index.js'))}\nconsole.log(format)`
     )
-    const core = readFileSync(out)
-    expect(core.byteLength).toBeLessThan(27 * 1024)
-    expect(gzipSync(core).byteLength).toBeLessThan(10 * 1024)
+    expect(formatOnly.byteLength).toBeLessThan(17 * 1024)
+    expect(gzipSync(formatOnly).byteLength).toBeLessThan(7 * 1024)
+
+    const checkOnly = bundle(
+      `import { isValidIban } from ${JSON.stringify(dist('index.js'))}\nconsole.log(isValidIban)`
+    )
+    expect(checkOnly.byteLength).toBeLessThan(3 * 1024)
+
+    const everything = bundle(
+      `import * as all from ${JSON.stringify(dist('index.js'))}\nconsole.log(all)`
+    )
+    expect(everything.byteLength).toBeLessThan(32 * 1024)
+    expect(gzipSync(everything).byteLength).toBeLessThan(12 * 1024)
 
     const iife = readFileSync(dist('browser/formatter.global.js'))
-    expect(iife.byteLength).toBeLessThan(32 * 1024)
+    expect(iife.byteLength).toBeLessThan(36 * 1024)
     expect(readFileSync(dist('browser/formatter.phone.global.js')).byteLength).toBeLessThan(
-      180 * 1024
+      185 * 1024
     )
   })
 
@@ -141,7 +161,14 @@ describe('built package', () => {
       'date' | 'intl',
       Record<string, (...args: unknown[]) => unknown>
     >
-    expect(Object.keys(global).sort()).toEqual(['date', 'format', 'intl', 'regex', 'version'])
+    expect(Object.keys(global).sort()).toEqual([
+      'checks',
+      'date',
+      'format',
+      'intl',
+      'regex',
+      'version',
+    ])
     expect(global.date.formatRelativeTime).toBe(global.intl.formatRelativeTime)
     expect(global.date.formatDatePattern!('2026-11-12', 'D MMMM YYYY', { locale: 'en-US' })).toBe(
       '12 November 2026'

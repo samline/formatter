@@ -336,7 +336,7 @@
       "reviewed": true
     },
     {
-      "name": "window.Formatter (format, intl, regex, version)",
+      "name": "window.Formatter (format, intl, regex, checks, version)",
       "kind": "browser global",
       "source": "src/browser/global.ts",
       "destination": "docs/src/content/docs/reference/browser.md",
@@ -508,6 +508,20 @@
       "kind": "entrypoint",
       "source": "src/browser/date.ts",
       "destination": "docs/src/content/docs/reference/entrypoints.md",
+      "reviewed": true
+    },
+    {
+      "name": "isLuhn, isValidCard, isValidClabe, isValidNss, isValidCurp, isValidRfc, isValidIban, isValidRoutingNumber, isValidDniEs",
+      "kind": "function",
+      "source": "src/core/checks.ts",
+      "destination": "docs/src/content/docs/reference/regex.md",
+      "reviewed": true
+    },
+    {
+      "name": "PostalCountry",
+      "kind": "type",
+      "source": "src/core/regex.ts",
+      "destination": "docs/src/content/docs/reference/regex.md",
       "reviewed": true
     }
   ],

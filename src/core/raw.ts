@@ -11,10 +11,14 @@ import {
   type FormatNumeralOptions,
   type FormatTimeOptions,
   type TimePatternType,
-  type TimeUnit
+  type TimeUnit,
 } from './engine/index.js'
 
-export type { DatePatternType, NumeralThousandsGroupStyle, TimePatternType } from './engine/index.js'
+export type {
+  DatePatternType,
+  NumeralThousandsGroupStyle,
+  TimePatternType,
+} from './engine/index.js'
 
 export type FormatType =
   | 'general'
@@ -146,13 +150,13 @@ type ExtraFormatOptions = {
 }
 
 export type FormatOptions = Partial<
-FormatGeneralOptions &
-FormatNumeralOptions &
-FormatDateOptions &
-FormatTimeOptions &
-FormatCreditCardOptions
+  FormatGeneralOptions &
+    FormatNumeralOptions &
+    FormatDateOptions &
+    FormatTimeOptions &
+    FormatCreditCardOptions
 > &
-ExtraFormatOptions
+  ExtraFormatOptions
 
 type DateSegmentKey = 'day' | 'month' | 'year'
 type TimeSegmentKey = 'hours' | 'minutes' | 'seconds'
@@ -175,8 +179,7 @@ const getDateSegmentKey = (unit: DateUnit): DateSegmentKey => {
   }
 }
 
-const getDateUnitLength = (unit: DateUnit): 2 | 4 =>
-  unit === 'Y' ? 4 : 2
+const getDateUnitLength = (unit: DateUnit): 2 | 4 => (unit === 'Y' ? 4 : 2)
 
 const normalizeDateSegment = (segment: string, unit: DateUnit): string => {
   if (!segment) return ''
@@ -219,9 +222,7 @@ const formatDateSegments = (
   delimiter = ''
 ): string =>
   pattern
-    .map((unit) =>
-      normalizeDateSegment(segments[getDateSegmentKey(unit)] ?? '', unit)
-    )
+    .map(unit => normalizeDateSegment(segments[getDateSegmentKey(unit)] ?? '', unit))
     .filter(Boolean)
     .join(delimiter)
 
@@ -264,7 +265,7 @@ const formatTimeSegments = (
   delimiter = ''
 ): string =>
   pattern
-    .map((unit) => (segments[getTimeSegmentKey(unit)] ?? '').slice(0, 2))
+    .map(unit => (segments[getTimeSegmentKey(unit)] ?? '').slice(0, 2))
     .filter(Boolean)
     .join(delimiter)
 
@@ -279,8 +280,7 @@ const formatTimeSegments = (
 const getRawPatternLength = (pattern: readonly string[]): number =>
   pattern.reduce((acc, unit) => acc + getDateUnitLength(unit as DateUnit), 0)
 
-const getTimePatternLength = (pattern: readonly string[]): number =>
-  pattern.length * 2
+const getTimePatternLength = (pattern: readonly string[]): number => pattern.length * 2
 
 const looksLikeRawDate = (value: string, options: FormatOptions): boolean => {
   if (!value) return false
@@ -288,8 +288,7 @@ const looksLikeRawDate = (value: string, options: FormatOptions): boolean => {
   // Every string includes the empty string. Guard this check so
   // `delimiter: ''` can still participate in the auto heuristic.
   if (delimiter.length > 0 && value.includes(delimiter)) return false
-  const rawPattern =
-    options.dateRawPattern ?? DEFAULT_DATE_RAW_PATTERN
+  const rawPattern = options.dateRawPattern ?? DEFAULT_DATE_RAW_PATTERN
   const expectedLength = getRawPatternLength(rawPattern)
   const digits = value.replace(/\D/g, '')
   return digits.length === expectedLength
@@ -299,8 +298,7 @@ const looksLikeRawTime = (value: string, options: FormatOptions): boolean => {
   if (!value) return false
   const delimiter = options.delimiter ?? ':'
   if (delimiter.length > 0 && value.includes(delimiter)) return false
-  const rawPattern =
-    options.timeRawPattern ?? options.timePattern ?? DEFAULT_TIME_RAW_PATTERN
+  const rawPattern = options.timeRawPattern ?? options.timePattern ?? DEFAULT_TIME_RAW_PATTERN
   const expectedLength = getTimePatternLength(rawPattern)
   const digits = value.replace(/\D/g, '')
   return digits.length === expectedLength
@@ -320,33 +318,22 @@ const looksLikeRawTime = (value: string, options: FormatOptions): boolean => {
  * `interpretInputAs` in `FormatOptions` for the live-keystroke preprocessing
  * step.
  */
-export const looksLikeRawDateValue = (
-  value: string,
-  options: FormatOptions = {}
-): boolean => looksLikeRawDate(value, options)
+export const looksLikeRawDateValue = (value: string, options: FormatOptions = {}): boolean =>
+  looksLikeRawDate(value, options)
 
-export const looksLikeRawTimeValue = (
-  value: string,
-  options: FormatOptions = {}
-): boolean => looksLikeRawTime(value, options)
+export const looksLikeRawTimeValue = (value: string, options: FormatOptions = {}): boolean =>
+  looksLikeRawTime(value, options)
 
-export const getDateValueFromRaw = (
-  value: string,
-  options: FormatOptions = {}
-): string => {
+export const getDateValueFromRaw = (value: string, options: FormatOptions = {}): string => {
   // When the caller only customises `datePattern` (display), mirror that
   // pattern as the raw source pattern. This keeps the round-trip self-
   // consistent for the common case where the user types in display order
   // and the backend wants the same order. See getDateRawValue for the
   // inverse direction.
-  const sourcePattern =
-    options.dateRawPattern ?? options.datePattern ?? DEFAULT_DATE_RAW_PATTERN
+  const sourcePattern = options.dateRawPattern ?? options.datePattern ?? DEFAULT_DATE_RAW_PATTERN
   const targetPattern = options.datePattern ?? DEFAULT_DATE_PATTERN
 
-  return formatDateSegments(
-    getDateSegments(value, sourcePattern),
-    targetPattern
-  )
+  return formatDateSegments(getDateSegments(value, sourcePattern), targetPattern)
 }
 
 /**
@@ -364,71 +351,45 @@ export const getDateValueFromRaw = (
  * `interpretInputAs` in `FormatOptions` for the live-keystroke preprocessing
  * step.
  */
-export const getTimeValueFromRaw = (
-  value: string,
-  options: FormatOptions = {}
-): string => {
-  const sourcePattern =
-    options.timeRawPattern ?? options.timePattern ?? DEFAULT_TIME_RAW_PATTERN
+export const getTimeValueFromRaw = (value: string, options: FormatOptions = {}): string => {
+  const sourcePattern = options.timeRawPattern ?? options.timePattern ?? DEFAULT_TIME_RAW_PATTERN
   const targetPattern = options.timePattern ?? DEFAULT_TIME_PATTERN
 
-  return formatTimeSegments(
-    getTimeSegments(value, sourcePattern),
-    targetPattern
-  )
+  return formatTimeSegments(getTimeSegments(value, sourcePattern), targetPattern)
 }
 
-const getDateRawValue = (
-  value: string,
-  options: FormatOptions = {}
-): string => {
+const getDateRawValue = (value: string, options: FormatOptions = {}): string => {
   // Mirror the raw pattern to `datePattern` when the caller didn't set it,
   // and mirror `delimiter` to `dateRawPatternDelimiter`. Keeps the
   // display ↔ raw round-trip self-consistent for callers that only
   // configure `datePattern` + `delimiter`.
   const sourcePattern = options.datePattern ?? DEFAULT_DATE_PATTERN
-  const targetPattern =
-    options.dateRawPattern ?? options.datePattern ?? DEFAULT_DATE_RAW_PATTERN
+  const targetPattern = options.dateRawPattern ?? options.datePattern ?? DEFAULT_DATE_RAW_PATTERN
   const delimiter =
     options.dateRawPatternDelimiter ?? options.delimiter ?? DEFAULT_DATE_RAW_PATTERN_DELIMITER
 
-  return formatDateSegments(
-    getDateSegments(value, sourcePattern),
-    targetPattern,
-    delimiter
-  )
+  return formatDateSegments(getDateSegments(value, sourcePattern), targetPattern, delimiter)
 }
 
-const getTimeRawValue = (
-  value: string,
-  options: FormatOptions = {}
-): string => {
+const getTimeRawValue = (value: string, options: FormatOptions = {}): string => {
   // Mirror the raw pattern to `timePattern` when the caller didn't set it,
   // and mirror `delimiter` to `timeRawPatternDelimiter`. Keeps the
   // display ↔ raw round-trip self-consistent for callers that only
   // configure `timePattern` + `delimiter`. (Matches the 1.1.1 fix that
   // was applied to `getDateRawValue` but never ported to the time branch.)
   const sourcePattern = options.timePattern ?? DEFAULT_TIME_PATTERN
-  const targetPattern =
-    options.timeRawPattern ?? options.timePattern ?? DEFAULT_TIME_RAW_PATTERN
+  const targetPattern = options.timeRawPattern ?? options.timePattern ?? DEFAULT_TIME_RAW_PATTERN
   const delimiter =
     options.timeRawPatternDelimiter ?? options.delimiter ?? DEFAULT_TIME_RAW_PATTERN_DELIMITER
 
-  return formatTimeSegments(
-    getTimeSegments(value, sourcePattern),
-    targetPattern,
-    delimiter
-  )
+  return formatTimeSegments(getTimeSegments(value, sourcePattern), targetPattern, delimiter)
 }
 
 /**
  * Strip a configured `prefix` from either the start or the end of `value`.
  * `tailPrefix: true` treats the prefix as a suffix.
  */
-export const stripPrefixAndSuffix = (
-  value: string,
-  options: FormatOptions = {}
-): string => {
+export const stripPrefixAndSuffix = (value: string, options: FormatOptions = {}): string => {
   if (!value) return value
 
   const { prefix, suffix } = options
@@ -505,7 +466,7 @@ export const getRawValue = (
         separator: options.delimiter ?? '-',
         ...(options.replacements && { replacements: options.replacements }),
         ...(options.maxLength !== undefined && { maxLength: options.maxLength }),
-        ...(options.locale && { locale: options.locale })
+        ...(options.locale && { locale: options.locale }),
       })
 
     case 'general': {

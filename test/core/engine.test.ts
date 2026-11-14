@@ -8,7 +8,7 @@ import {
   getCreditCardType,
   unformatCreditCard,
   unformatGeneral,
-  unformatNumeral
+  unformatNumeral,
 } from '../../src/core/engine/index'
 
 // Expected values were recorded from cleave-zen 0.0.17 before it was removed
@@ -30,7 +30,9 @@ describe('engine: numeral', () => {
 
   it('applies marks, scales, sign and prefix options', () => {
     expect(formatNumeral('1234,5', { numeralDecimalMark: ',', delimiter: '.' })).toBe('1.234,5')
-    expect(formatNumeral('123456.789', { numeralIntegerScale: 3, numeralDecimalScale: 1 })).toBe('123.7')
+    expect(formatNumeral('123456.789', { numeralIntegerScale: 3, numeralDecimalScale: 1 })).toBe(
+      '123.7'
+    )
     expect(formatNumeral('12.5', { numeralDecimalScale: 0 })).toBe('12')
     expect(formatNumeral('-5', { numeralPositiveOnly: true })).toBe('5')
     expect(formatNumeral('00012', { stripLeadingZeroes: false })).toBe('00,012')
@@ -65,7 +67,9 @@ describe('engine: numeral decimal padding', () => {
     expect(formatNumeral('1234.5', { ...pad, prefix: '$' })).toBe('$1,234.50')
     expect(formatNumeral('-12', { ...pad, prefix: '$', signBeforePrefix: true })).toBe('-$12.00')
     expect(formatNumeral('12', { ...pad, prefix: ' MXN', tailPrefix: true })).toBe('12.00 MXN')
-    expect(formatNumeral('1234,5', { ...pad, numeralDecimalMark: ',', delimiter: '.' })).toBe('1.234,50')
+    expect(formatNumeral('1234,5', { ...pad, numeralDecimalMark: ',', delimiter: '.' })).toBe(
+      '1.234,50'
+    )
   })
 
   it('leaves values without digits and zero-scale numbers alone', () => {
@@ -82,7 +86,9 @@ describe('engine: date', () => {
     expect(formatDate('4')).toBe('04/')
     expect(formatDate('00')).toBe('01/')
     expect(formatDate('3113')).toBe('31/12/')
-    expect(formatDate('20260512', { datePattern: ['Y', 'm', 'd'], delimiter: '-' })).toBe('2026-05-12')
+    expect(formatDate('20260512', { datePattern: ['Y', 'm', 'd'], delimiter: '-' })).toBe(
+      '2026-05-12'
+    )
     expect(formatDate('0526', { datePattern: ['m', 'y'] })).toBe('05/26')
   })
 
@@ -130,7 +136,9 @@ describe('engine: credit card', () => {
   })
 
   it('supports strict mode and custom delimiters', () => {
-    expect(formatCreditCard('4111111111111111999', { strictMode: true })).toBe('4111 1111 1111 1111 999')
+    expect(formatCreditCard('4111111111111111999', { strictMode: true })).toBe(
+      '4111 1111 1111 1111 999'
+    )
     expect(formatCreditCard('4111111111111111', { delimiter: '-' })).toBe('4111-1111-1111-1111')
     expect(unformatCreditCard('4111 1111')).toBe('41111111')
   })
@@ -139,7 +147,9 @@ describe('engine: credit card', () => {
 describe('engine: general', () => {
   it('applies blocks, delimiters, prefix and case options', () => {
     expect(formatGeneral('123456789', { blocks: [3, 3, 3], delimiter: '-' })).toBe('123-456-789')
-    expect(formatGeneral('12345678', { blocks: [2, 3, 3], delimiters: ['.', '-'] })).toBe('12.345-678')
+    expect(formatGeneral('12345678', { blocks: [2, 3, 3], delimiters: ['.', '-'] })).toBe(
+      '12.345-678'
+    )
     expect(formatGeneral('ab12cd', { blocks: [2, 2], numericOnly: true })).toBe('12')
     expect(formatGeneral('abcd', { blocks: [2, 2], delimiter: ' ', uppercase: true })).toBe('AB CD')
     expect(formatGeneral('EASY123', { blocks: [4, 3], prefix: 'EASY' })).toBe('EASY123')

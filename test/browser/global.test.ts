@@ -32,6 +32,6 @@ describe('browser phone entry', () => {
     const Phone = await import('../../src/browser/phone')
     const result = Phone.format('5512345678', 'phone')
     expect(result).toEqual({ formatted: '55 1234 5678', raw: '5512345678', type: 'phone' })
-    expect(Object.keys(Phone).sort()).toEqual(['format', 'intl', 'regex', 'version'])
+    expect(Object.keys(Phone).sort()).toEqual(['checks', 'format', 'intl', 'regex', 'version'])
   })
 })

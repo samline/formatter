@@ -11,7 +11,11 @@ const DEFAULT_NUMERAL_DECIMAL_MARK = '.'
 const DEFAULT_NUMERAL_DECIMAL_SCALE = 2
 const DEFAULT_NUMERAL_INTEGER_SCALE = 0 // no limit
 
-const groupInteger = (integer: string, style: FormatNumeralOptions['numeralThousandsGroupStyle'], delimiter: string): string => {
+const groupInteger = (
+  integer: string,
+  style: FormatNumeralOptions['numeralThousandsGroupStyle'],
+  delimiter: string
+): string => {
   switch (style) {
     case 'lakh':
       return integer.replace(/(\d)(?=(\d\d)+\d$)/g, '$1' + delimiter)
@@ -40,7 +44,7 @@ export const formatNumeral = (value: string, options: FormatNumeralOptions = {})
     numeralPositiveOnly = false,
     tailPrefix = false,
     signBeforePrefix = false,
-    prefix = ''
+    prefix = '',
   } = options
 
   let result = value
@@ -72,13 +76,18 @@ export const formatNumeral = (value: string, options: FormatNumeralOptions = {})
   if (partSign === '-') partInteger = partInteger.slice(1)
   if (numeralIntegerScale > 0) partInteger = partInteger.slice(0, numeralIntegerScale)
 
-  if (numeralDecimalPadding && numeralDecimalScale > 0 && /\d/.test(partInteger + (decimals ?? ''))) {
+  if (
+    numeralDecimalPadding &&
+    numeralDecimalScale > 0 &&
+    /\d/.test(partInteger + (decimals ?? ''))
+  ) {
     if (partInteger === '') partInteger = '0'
     decimals = (decimals ?? '').padEnd(numeralDecimalScale, '0')
   }
 
   partInteger = groupInteger(partInteger, numeralThousandsGroupStyle, delimiter)
-  const partDecimal = numeralDecimalScale > 0 && decimals !== undefined ? numeralDecimalMark + decimals : ''
+  const partDecimal =
+    numeralDecimalScale > 0 && decimals !== undefined ? numeralDecimalMark + decimals : ''
 
   return tailPrefix
     ? partSign + partInteger + partDecimal + prefix

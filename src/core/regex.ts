@@ -30,6 +30,7 @@
  * ```
  */
 
+import { CURP, DNI_ES, RFC, ROUTING_NUMBER } from './id-patterns.js'
 import type {
   DatePatternType,
   NumeralThousandsGroupStyle,
@@ -96,6 +97,13 @@ interface TimeParams {
 }
 
 /** Same option names as `format(value, 'numeral', options)`. */
+/** ISO 3166-1 alpha-2 codes with a built-in postal code pattern. */
+export type PostalCountry = keyof typeof POSTAL_CODES
+
+interface PostalCodeParams {
+  country?: PostalCountry
+}
+
 interface NumeralParams {
   delimiter?: string
   numeralDecimalMark?: string
@@ -138,7 +146,7 @@ const ipv6Source = (): string => {
   }
   return `(?:${forms.join('|')})`
 }
-const IPV6 = ipv6Source()
+const IPV6 = /* @__PURE__ */ ipv6Source()
 
 const LABEL = '[\\p{L}\\p{N}](?:[\\p{L}\\p{N}-]{0,61}[\\p{L}\\p{N}])?'
 const TLD = '(?:\\p{L}{2,63}|xn--[a-zA-Z0-9-]{1,59})'
@@ -148,6 +156,66 @@ const LEAP_YYYY = '(?:\\d\\d(?:0[48]|[2468][048]|[13579][26])|(?:[02468][048]|[1
 const LEAP_YY = '(?:0[048]|[2468][048]|[13579][26])'
 
 const LETTER = '[\\p{L}\\p{M}]'
+
+/** Postal code shapes (letters are case-insensitive). Other countries: `regex.custom()`. */
+const POSTAL_CODES = {
+  US: '\\d{5}(?:-\\d{4})?',
+  MX: '(?!00)\\d{5}',
+  CA: '[ABCEGHJ-NPRSTVXY]\\d[ABCEGHJ-NPRSTV-Z] ?\\d[ABCEGHJ-NPRSTV-Z]\\d',
+  GB: '(?:GIR ?0AA|[A-PR-UWYZ](?:\\d[A-HJKPSTUW\\d]?|[A-HK-Y]\\d[ABEHMNPRV-Y\\d]?) ?\\d[ABD-HJLNP-UW-Z]{2})',
+  IE: '(?:[AC-FHKNPRTV-Y]\\d{2}|D6W) ?[\\dAC-FHKNPRTV-Y]{4}',
+  DE: '\\d{5}',
+  FR: '\\d{5}',
+  ES: '(?:0[1-9]|[1-4]\\d|5[0-2])\\d{3}',
+  IT: '\\d{5}',
+  PT: '\\d{4}-\\d{3}',
+  NL: '[1-9]\\d{3} ?(?!SA|SD|SS)[A-Z]{2}',
+  BE: '[1-9]\\d{3}',
+  AT: '[1-9]\\d{3}',
+  CH: '[1-9]\\d{3}',
+  PL: '\\d{2}-\\d{3}',
+  SE: '[1-9]\\d{2} ?\\d{2}',
+  BR: '\\d{5}-?\\d{3}',
+  AR: '(?:[A-HJ-NP-Z]\\d{4}[A-Z]{3}|\\d{4})',
+  CO: '\\d{6}',
+  CL: '\\d{7}',
+  PE: '\\d{5}',
+  JP: '\\d{3}-?\\d{4}',
+  IN: '[1-9]\\d{5}',
+  AU: '\\d{4}',
+} as const
+
+/** EU VAT number shapes by country prefix (Greece uses EL; XI is Northern Ireland). */
+const EU_VAT = [
+  'ATU\\d{8}',
+  'BE[01]\\d{9}',
+  'BG\\d{9,10}',
+  'CY\\d{8}[A-Z]',
+  'CZ\\d{8,10}',
+  'DE\\d{9}',
+  'DK\\d{8}',
+  'EE\\d{9}',
+  'EL\\d{9}',
+  'ES[A-Z\\d]\\d{7}[A-Z\\d]',
+  'FI\\d{8}',
+  'FR[A-HJ-NP-Z\\d]{2}\\d{9}',
+  'HR\\d{11}',
+  'HU\\d{8}',
+  'IE(?:\\d{7}[A-W][A-I]?|\\d[A-Z+*]\\d{5}[A-W])',
+  'IT\\d{11}',
+  'LT(?:\\d{9}|\\d{12})',
+  'LU\\d{8}',
+  'LV\\d{11}',
+  'MT\\d{8}',
+  'NL\\d{9}B\\d{2}',
+  'PL\\d{10}',
+  'PT\\d{9}',
+  'RO[1-9]\\d{1,9}',
+  'SE\\d{10}01',
+  'SI\\d{8}',
+  'SK\\d{10}',
+  'XI(?:\\d{9}|\\d{12}|GD\\d{3}|HA\\d{3})',
+]
 
 // ─── Internal Factories ──────────────────────────────────────────────────────
 
@@ -376,205 +444,246 @@ function createNumeral(params: NumeralParams = {}): RegexEntry {
   }
 }
 
-const ISO_DATE = createDate({ datePattern: ['Y', 'm', 'd'], delimiter: '-' })
-
 // ─── Static Patterns ─────────────────────────────────────────────────────────
 
-const _regex = {
-  phone: {
-    // 10 digits; spaces, hyphens, dots, parentheses and + may separate them
-    pattern: createPhone(10).pattern,
-    errorMessage: 'Please enter a valid 10-digit phone number.',
-  },
-  email: {
-    // Dot-atom local part (no leading, trailing or doubled dots) and a domain
-    // with a top-level label. Length limits: 64 for the local part, 254 total.
-    pattern: new RegExp(
-      `^(?=.{1,254}$)(?=[^@]{1,64}@)[A-Za-z0-9!#$%&'*+/=?^_\`{|}~-]+(?:\\.[A-Za-z0-9!#$%&'*+/=?^_\`{|}~-]+)*@${DOMAIN}$`,
-      'u'
-    ),
-    errorMessage: 'Please enter a valid email address.',
-  },
-  rfc: {
-    // Mexican RFC: 3 letters (company) or 4 (person), a real YYMMDD date and
-    // a 3-character homoclave whose last character is a digit or A.
-    pattern: /^[A-ZÑ&]{3,4}\d{2}(?:0[1-9]|1[0-2])(?:0[1-9]|[12]\d|3[01])[A-Z\d]{2}[A\d]$/i,
-    errorMessage: 'Please enter a valid RFC.',
-  },
-  curp: {
-    // Mexican CURP: initials (second is a vowel or X), YYMMDD, sex (H, M or
-    // X), state code (NE for born abroad), 3 inner consonants, the century
-    // differentiator and the check digit.
-    pattern:
-      /^[A-Z][AEIOUX][A-Z]{2}\d{2}(?:0[1-9]|1[0-2])(?:0[1-9]|[12]\d|3[01])[HMX](?:AS|BC|BS|CC|CL|CM|CS|CH|DF|DG|GT|GR|HG|JC|MC|MN|MS|NT|NL|OC|PL|QT|QR|SP|SL|SR|TC|TS|TL|VZ|YN|ZS|NE)[B-DF-HJ-NP-TV-Z]{3}[A-Z\d]\d$/i,
-    errorMessage: 'Please enter a valid CURP.',
-  },
-  cp: {
-    // Mexican postal code: 5 digits, 01000–99999
-    pattern: /^(?!00)\d{5}$/,
-    errorMessage: 'Please enter a valid 5-digit postal code.',
-  },
-  clabe: {
-    // Mexican interbank account number (CLABE): 18 digits
-    pattern: /^\d{18}$/,
-    errorMessage: 'Please enter a valid 18-digit CLABE.',
-  },
-  nss: {
-    // Mexican social security number (NSS, IMSS): 11 digits
-    pattern: /^\d{11}$/,
-    errorMessage: 'Please enter a valid 11-digit NSS.',
-  },
-  numeral: {
-    // Whole value: optional sign, plain or comma-grouped digits, optional decimals
-    pattern: createNumeral().pattern,
-    errorMessage: 'Please enter a valid number.',
-  },
-  onlyNumbers: {
-    pattern: /^\d+$/,
-    errorMessage: 'Please enter only numbers.',
-  },
-  creditCard: {
-    // 12–19 digits (every ISO/IEC 7812 card length), optional spaces or hyphens
-    pattern: createCreditCard(12, 19).pattern,
-    errorMessage: 'Please enter a valid card number (12-19 digits).',
-  },
-  expirationDate: {
-    // MM/YY or MM/YYYY format
-    pattern: /^(0[1-9]|1[0-2]) ?\/ ?(\d{2}|\d{4})$/,
-    errorMessage: 'Please enter a valid expiration date (MM/YY or MM/YYYY).',
-  },
-  cardCvc: {
-    // 3 or 4 digit card security codes
-    pattern: /^\d{3,4}$/,
-    errorMessage: 'Please enter a valid CVC (3-4 digits).',
-  },
-  onlyLetters: {
-    // Letters in any script (accents, ü, ç…) and spaces; at least one letter
-    pattern: /^(?=.*\p{L})[\p{L}\p{M} ]+$/u,
-    errorMessage: 'Please enter only letters.',
-  },
-  onlyAlphanumeric: {
-    // Letters in any script, digits and spaces; at least one letter or digit
-    pattern: /^(?=.*[\p{L}\d])[\p{L}\p{M}\d ]+$/u,
-    errorMessage: 'Please enter only letters and numbers.',
-  },
-  personName: {
-    // Words of letters joined by a space, apostrophe, hyphen or period:
-    // "María José", "O'Connor", "Pérez-Gómez", "Ma. Fernanda"
-    pattern: new RegExp(`^${LETTER}+(?:(?: |['’.-] ?)${LETTER}+)*\\.?$`, 'u'),
-    errorMessage: 'Please enter a valid name.',
-  },
-  url: {
-    // http, https or ftp with a real host (domain, localhost or IP)
-    pattern: createUrl('all').pattern,
-    errorMessage: 'Please enter a valid URL.',
-  },
-  domain: {
-    // Host name without protocol: example.com, sub.dominio.mx
-    pattern: new RegExp(`^${DOMAIN}$`, 'iu'),
-    errorMessage: 'Please enter a valid domain (e.g., example.com).',
-  },
-  ipv4: {
-    // IPv4 addresses (0-255 per octet, no leading zeros)
-    pattern: new RegExp(`^${IPV4}$`),
-    errorMessage: 'Please enter a valid IPv4 address.',
-  },
-  ipv6: {
-    // IPv6 in full, compressed (::) or IPv4-embedded form
-    pattern: new RegExp(`^${IPV6}$`),
-    errorMessage: 'Please enter a valid IPv6 address.',
-  },
-  uuid: {
-    // RFC 9562 UUID, versions 1–8
-    pattern: createUuid().pattern,
-    errorMessage: 'Please enter a valid UUID.',
-  },
-  hexColor: {
-    // Hex color codes: #RGB, #RGBA, #RRGGBB or #RRGGBBAA
-    pattern: /^#(?:[0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/,
-    errorMessage: 'Please enter a valid hex color code (e.g., #FFF or #FFFFFF).',
-  },
-  hashtag: {
-    // Letters in any script, digits and _, not digits only
-    pattern: /^#(?=[\p{L}\p{M}\p{N}_]*[\p{L}_])[\p{L}\p{M}\p{N}_]+$/u,
-    errorMessage: 'Please enter a valid hashtag (e.g., #example).',
-  },
-  mention: {
-    // Up to 30 letters, digits, _ and inner single dots
-    pattern: /^@(?=[A-Za-z0-9_.]{1,30}$)[A-Za-z0-9_]+(?:\.[A-Za-z0-9_]+)*$/,
-    errorMessage: 'Please enter a valid mention (e.g., @username).',
-  },
-  postalCode: {
-    // US ZIP or ZIP+4 (5 digits also fits a Mexican CP; use `cp` for Mexico)
-    pattern: /^\d{5}(?:-\d{4})?$/,
-    errorMessage: 'Please enter a valid postal code (e.g., 90210 or 90210-1234).',
-  },
-  time24: {
-    // 24-hour time HH:MM with optional :SS
-    pattern: /^(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d)?$/,
-    errorMessage: 'Please enter a valid 24-hour time (HH:MM).',
-  },
-  time12: {
-    // 12-hour time with AM/PM: 9:30 pm, 09:30:15 AM, 9:30 p. m.
-    pattern: /^(?:0?[1-9]|1[0-2]):[0-5]\d(?::[0-5]\d)? ?[AaPp]\.? ?[Mm]\.?$/,
-    errorMessage: 'Please enter a valid 12-hour time (e.g., 9:30 PM).',
-  },
-  date: {
-    // Real calendar date YYYY-MM-DD (leap years included)
-    pattern: ISO_DATE.pattern,
-    errorMessage: 'Please enter a valid date (YYYY-MM-DD).',
-  },
-  isoDateTime: {
-    // ISO 8601 / RFC 3339 date-time: 2026-11-13T09:30, …:15.250Z, …+06:00
-    pattern: new RegExp(
-      `${ISO_DATE.pattern.source.slice(0, -1)}` +
-        `[T ](?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d{1,9})?)?(?:Z|[+-](?:[01]\\d|2[0-3]):?[0-5]\\d)?$`
-    ),
-    errorMessage: 'Please enter a valid date and time (YYYY-MM-DDTHH:MM).',
-  },
-  latitude: {
-    // -90 to 90, optional decimals
-    pattern: /^[-+]?(?:90(?:\.0+)?|[1-8]?\d(?:\.\d+)?)$/,
-    errorMessage: 'Please enter a valid latitude (-90 to 90).',
-  },
-  longitude: {
-    // -180 to 180, optional decimals
-    pattern: /^[-+]?(?:180(?:\.0+)?|(?:1[0-7]\d|[1-9]?\d)(?:\.\d+)?)$/,
-    errorMessage: 'Please enter a valid longitude (-180 to 180).',
-  },
-  slug: {
-    // URL slug (lowercase, hyphens, no spaces)
-    pattern: /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
-    errorMessage: 'Please enter a valid slug (lowercase, hyphens, no spaces).',
-  },
-  username: {
-    // Username: 3-20 chars, alphanumeric, underscore, hyphen
-    pattern: /^[a-zA-Z0-9_-]{3,20}$/,
-    errorMessage: 'Please enter a valid username (3-20 chars, letters, numbers, _ or -).',
-  },
-  macAddress: {
-    // Six pairs with one separator (: or -) throughout, or Cisco dotted form
-    pattern:
-      /^(?:[0-9A-Fa-f]{2}([:-])(?:[0-9A-Fa-f]{2}\1){4}[0-9A-Fa-f]{2}|[0-9A-Fa-f]{4}\.[0-9A-Fa-f]{4}\.[0-9A-Fa-f]{4})$/,
-    errorMessage: 'Please enter a valid MAC address (e.g., 00:1B:44:11:3A:B7).',
-  },
-  semver: {
-    // Semantic Versioning 2.0.0: X.Y.Z, optional -prerelease and +build
-    pattern:
-      /^(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)(?:-(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*)?(?:\+[0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*)?$/,
-    errorMessage: 'Please enter a valid semantic version (e.g., 1.2.3).',
-  },
-  base64: {
-    // Padded Base64, not empty
-    pattern: /^(?=.)(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/,
-    errorMessage: 'Please enter a valid Base64 encoded string.',
-  },
-  base64url: {
-    // URL-safe Base64 (JWT segments), padding optional, not empty
-    pattern: /^(?=.)(?:[A-Za-z0-9_-]{4})*(?:[A-Za-z0-9_-]{2}(?:==)?|[A-Za-z0-9_-]{3}=?)?$/,
-    errorMessage: 'Please enter a valid Base64URL encoded string.',
-  },
-} as const
+/*
+ * The catalog is built inside functions and created with a PURE call below,
+ * so bundlers drop it entirely from applications that never import `regex`.
+ */
+const buildStatic = () => {
+  const ISO_DATE = createDate({ datePattern: ['Y', 'm', 'd'], delimiter: '-' })
+  return {
+    phone: {
+      // 10 digits; spaces, hyphens, dots, parentheses and + may separate them
+      pattern: createPhone(10).pattern,
+      errorMessage: 'Please enter a valid 10-digit phone number.',
+    },
+    email: {
+      // Dot-atom local part (no leading, trailing or doubled dots) and a domain
+      // with a top-level label. Length limits: 64 for the local part, 254 total.
+      pattern: new RegExp(
+        `^(?=.{1,254}$)(?=[^@]{1,64}@)[A-Za-z0-9!#$%&'*+/=?^_\`{|}~-]+(?:\\.[A-Za-z0-9!#$%&'*+/=?^_\`{|}~-]+)*@${DOMAIN}$`,
+        'u'
+      ),
+      errorMessage: 'Please enter a valid email address.',
+    },
+    rfc: {
+      // Mexican RFC: 3 letters (company) or 4 (person), a real YYMMDD date and
+      // a 3-character homoclave whose last character is a digit or A.
+      pattern: RFC,
+      errorMessage: 'Please enter a valid RFC.',
+    },
+    curp: {
+      // Mexican CURP: initials (second is a vowel or X), YYMMDD, sex (H, M or
+      // X), state code (NE for born abroad), 3 inner consonants, the century
+      // differentiator and the check digit.
+      pattern: CURP,
+      errorMessage: 'Please enter a valid CURP.',
+    },
+    cp: {
+      // Mexican postal code: 5 digits, 01000–99999
+      pattern: /^(?!00)\d{5}$/,
+      errorMessage: 'Please enter a valid 5-digit postal code.',
+    },
+    clabe: {
+      // Mexican interbank account number (CLABE): 18 digits
+      pattern: /^\d{18}$/,
+      errorMessage: 'Please enter a valid 18-digit CLABE.',
+    },
+    nss: {
+      // Mexican social security number (NSS, IMSS): 11 digits
+      pattern: /^\d{11}$/,
+      errorMessage: 'Please enter a valid 11-digit NSS.',
+    },
+    numeral: {
+      // Whole value: optional sign, plain or comma-grouped digits, optional decimals
+      pattern: createNumeral().pattern,
+      errorMessage: 'Please enter a valid number.',
+    },
+    onlyNumbers: {
+      pattern: /^\d+$/,
+      errorMessage: 'Please enter only numbers.',
+    },
+    creditCard: {
+      // 12–19 digits (every ISO/IEC 7812 card length), optional spaces or hyphens
+      pattern: createCreditCard(12, 19).pattern,
+      errorMessage: 'Please enter a valid card number (12-19 digits).',
+    },
+    expirationDate: {
+      // MM/YY or MM/YYYY format
+      pattern: /^(0[1-9]|1[0-2]) ?\/ ?(\d{2}|\d{4})$/,
+      errorMessage: 'Please enter a valid expiration date (MM/YY or MM/YYYY).',
+    },
+    cardCvc: {
+      // 3 or 4 digit card security codes
+      pattern: /^\d{3,4}$/,
+      errorMessage: 'Please enter a valid CVC (3-4 digits).',
+    },
+    onlyLetters: {
+      // Letters in any script (accents, ü, ç…) and spaces; at least one letter
+      pattern: /^(?=.*\p{L})[\p{L}\p{M} ]+$/u,
+      errorMessage: 'Please enter only letters.',
+    },
+    onlyAlphanumeric: {
+      // Letters in any script, digits and spaces; at least one letter or digit
+      pattern: /^(?=.*[\p{L}\d])[\p{L}\p{M}\d ]+$/u,
+      errorMessage: 'Please enter only letters and numbers.',
+    },
+    personName: {
+      // Words of letters joined by a space, apostrophe, hyphen or period:
+      // "María José", "O'Connor", "Pérez-Gómez", "Ma. Fernanda"
+      pattern: new RegExp(`^${LETTER}+(?:(?: |['’.-] ?)${LETTER}+)*\\.?$`, 'u'),
+      errorMessage: 'Please enter a valid name.',
+    },
+    url: {
+      // http, https or ftp with a real host (domain, localhost or IP)
+      pattern: createUrl('all').pattern,
+      errorMessage: 'Please enter a valid URL.',
+    },
+    domain: {
+      // Host name without protocol: example.com, sub.dominio.mx
+      pattern: new RegExp(`^${DOMAIN}$`, 'iu'),
+      errorMessage: 'Please enter a valid domain (e.g., example.com).',
+    },
+    ipv4: {
+      // IPv4 addresses (0-255 per octet, no leading zeros)
+      pattern: new RegExp(`^${IPV4}$`),
+      errorMessage: 'Please enter a valid IPv4 address.',
+    },
+    ipv6: {
+      // IPv6 in full, compressed (::) or IPv4-embedded form
+      pattern: new RegExp(`^${IPV6}$`),
+      errorMessage: 'Please enter a valid IPv6 address.',
+    },
+    uuid: {
+      // RFC 9562 UUID, versions 1–8
+      pattern: createUuid().pattern,
+      errorMessage: 'Please enter a valid UUID.',
+    },
+    hexColor: {
+      // Hex color codes: #RGB, #RGBA, #RRGGBB or #RRGGBBAA
+      pattern: /^#(?:[0-9a-fA-F]{3,4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/,
+      errorMessage: 'Please enter a valid hex color code (e.g., #FFF or #FFFFFF).',
+    },
+    hashtag: {
+      // Letters in any script, digits and _, not digits only
+      pattern: /^#(?=[\p{L}\p{M}\p{N}_]*[\p{L}_])[\p{L}\p{M}\p{N}_]+$/u,
+      errorMessage: 'Please enter a valid hashtag (e.g., #example).',
+    },
+    mention: {
+      // Up to 30 letters, digits, _ and inner single dots
+      pattern: /^@(?=[A-Za-z0-9_.]{1,30}$)[A-Za-z0-9_]+(?:\.[A-Za-z0-9_]+)*$/,
+      errorMessage: 'Please enter a valid mention (e.g., @username).',
+    },
+    ssn: {
+      // US Social Security number: no 000, 666 or 9xx area, 00 group or 0000 serial
+      pattern: /^(?!000|666|9)\d{3}([- ]?)(?!00)\d{2}\1(?!0000)\d{4}$/,
+      errorMessage: 'Please enter a valid SSN (e.g., 123-45-6789).',
+    },
+    ein: {
+      // US Employer Identification Number with an IRS-assigned prefix
+      pattern: /^(?!0[0789]|1[789]|2[89]|49|69|7[089]|89|9[67])\d{2}-?\d{7}$/,
+      errorMessage: 'Please enter a valid EIN (e.g., 12-3456789).',
+    },
+    routingNumber: {
+      // US ABA routing number (9 digits); isValidRoutingNumber() checks its checksum
+      pattern: ROUTING_NUMBER,
+      errorMessage: 'Please enter a valid 9-digit routing number.',
+    },
+    iban: {
+      // IBAN: country, check digits and 11–30 characters, optionally in groups of 4;
+      // isValidIban() checks the country length and the mod-97 checksum
+      pattern: /^(?=(?: ?[A-Z\d]){15,34}$)[A-Z]{2}\d{2}(?: ?[A-Z\d]{4})*(?: ?[A-Z\d]{1,4})?$/i,
+      errorMessage: 'Please enter a valid IBAN.',
+    },
+    bic: {
+      // BIC / SWIFT code: bank, country, location and optional branch (8 or 11)
+      pattern: /^[A-Z]{4}[A-Z]{2}[A-Z\d]{2}(?:[A-Z\d]{3})?$/i,
+      errorMessage: 'Please enter a valid BIC/SWIFT code.',
+    },
+    vatEu: {
+      // EU VAT number with its country prefix, no spaces (DE123456789)
+      pattern: new RegExp(`^(?:${EU_VAT.join('|')})$`, 'i'),
+      errorMessage: 'Please enter a valid EU VAT number (e.g., DE123456789).',
+    },
+    dniEs: {
+      // Spanish DNI (8 digits + letter) or NIE (X, Y or Z + 7 digits + letter);
+      // isValidDniEs() checks the letter
+      pattern: DNI_ES,
+      errorMessage: 'Please enter a valid DNI or NIE.',
+    },
+    postalCode: {
+      // US ZIP or ZIP+4 (5 digits also fits a Mexican CP; use `cp` for Mexico)
+      pattern: /^\d{5}(?:-\d{4})?$/,
+      errorMessage: 'Please enter a valid postal code (e.g., 90210 or 90210-1234).',
+    },
+    time24: {
+      // 24-hour time HH:MM with optional :SS
+      pattern: /^(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d)?$/,
+      errorMessage: 'Please enter a valid 24-hour time (HH:MM).',
+    },
+    time12: {
+      // 12-hour time with AM/PM: 9:30 pm, 09:30:15 AM, 9:30 p. m.
+      pattern: /^(?:0?[1-9]|1[0-2]):[0-5]\d(?::[0-5]\d)? ?[AaPp]\.? ?[Mm]\.?$/,
+      errorMessage: 'Please enter a valid 12-hour time (e.g., 9:30 PM).',
+    },
+    date: {
+      // Real calendar date YYYY-MM-DD (leap years included)
+      pattern: ISO_DATE.pattern,
+      errorMessage: 'Please enter a valid date (YYYY-MM-DD).',
+    },
+    isoDateTime: {
+      // ISO 8601 / RFC 3339 date-time: 2026-11-13T09:30, …:15.250Z, …+06:00
+      pattern: new RegExp(
+        `${ISO_DATE.pattern.source.slice(0, -1)}` +
+          `[T ](?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d{1,9})?)?(?:Z|[+-](?:[01]\\d|2[0-3]):?[0-5]\\d)?$`
+      ),
+      errorMessage: 'Please enter a valid date and time (YYYY-MM-DDTHH:MM).',
+    },
+    latitude: {
+      // -90 to 90, optional decimals
+      pattern: /^[-+]?(?:90(?:\.0+)?|[1-8]?\d(?:\.\d+)?)$/,
+      errorMessage: 'Please enter a valid latitude (-90 to 90).',
+    },
+    longitude: {
+      // -180 to 180, optional decimals
+      pattern: /^[-+]?(?:180(?:\.0+)?|(?:1[0-7]\d|[1-9]?\d)(?:\.\d+)?)$/,
+      errorMessage: 'Please enter a valid longitude (-180 to 180).',
+    },
+    slug: {
+      // URL slug (lowercase, hyphens, no spaces)
+      pattern: /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
+      errorMessage: 'Please enter a valid slug (lowercase, hyphens, no spaces).',
+    },
+    username: {
+      // Username: 3-20 chars, alphanumeric, underscore, hyphen
+      pattern: /^[a-zA-Z0-9_-]{3,20}$/,
+      errorMessage: 'Please enter a valid username (3-20 chars, letters, numbers, _ or -).',
+    },
+    macAddress: {
+      // Six pairs with one separator (: or -) throughout, or Cisco dotted form
+      pattern:
+        /^(?:[0-9A-Fa-f]{2}([:-])(?:[0-9A-Fa-f]{2}\1){4}[0-9A-Fa-f]{2}|[0-9A-Fa-f]{4}\.[0-9A-Fa-f]{4}\.[0-9A-Fa-f]{4})$/,
+      errorMessage: 'Please enter a valid MAC address (e.g., 00:1B:44:11:3A:B7).',
+    },
+    semver: {
+      // Semantic Versioning 2.0.0: X.Y.Z, optional -prerelease and +build
+      pattern:
+        /^(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)(?:-(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*)?(?:\+[0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*)?$/,
+      errorMessage: 'Please enter a valid semantic version (e.g., 1.2.3).',
+    },
+    base64: {
+      // Padded Base64, not empty
+      pattern: /^(?=.)(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/,
+      errorMessage: 'Please enter a valid Base64 encoded string.',
+    },
+    base64url: {
+      // URL-safe Base64 (JWT segments), padding optional, not empty
+      pattern: /^(?=.)(?:[A-Za-z0-9_-]{4})*(?:[A-Za-z0-9_-]{2}(?:==)?|[A-Za-z0-9_-]{3}=?)?$/,
+      errorMessage: 'Please enter a valid Base64URL encoded string.',
+    },
+  } as const
+}
 
 // ─── Parametric Extensions ───────────────────────────────────────────────────
 
@@ -641,6 +750,21 @@ function _timeFn(params?: TimeParams): RegexEntry {
   return createTime(params)
 }
 
+/** Postal code of one country (static entry: US ZIP or ZIP+4). */
+function _postalCodeFn(params?: PostalCodeParams): RegexEntry {
+  const country = params?.country ?? 'US'
+  const source = (POSTAL_CODES as Record<string, string>)[String(country).toUpperCase()]
+  if (!source) {
+    throw new RangeError(
+      `regex: no postal code pattern for \`${String(country)}\`; use regex.custom().`
+    )
+  }
+  return {
+    pattern: new RegExp(`^${source}$`, 'i'),
+    errorMessage: `Please enter a valid postal code (${String(country).toUpperCase()}).`,
+  }
+}
+
 /**
  * Number as the `'numeral'` mask writes it. Pass the same options you give
  * `format()`: delimiter, decimal mark, group style, decimal scale, sign and prefix.
@@ -673,46 +797,53 @@ const attach = <F extends (params?: never) => RegexEntry>(
   entry: RegexEntry
 ): F & RegexEntry => Object.assign(fn, { pattern: entry.pattern, errorMessage: entry.errorMessage })
 
-const phoneFn = attach(_phoneFn, _regex.phone)
-const creditCardFn = attach(_creditCardFn, _regex.creditCard)
-const urlFn = attach(_urlFn, _regex.url)
-const uuidFn = attach(_uuidFn, _regex.uuid)
-const dateFn = attach(_dateFn, _regex.date)
-const numeralFn = attach(_numeralFn, _regex.numeral)
+const buildRegex = () => {
+  const _regex = buildStatic()
+  const phoneFn = attach(_phoneFn, _regex.phone)
+  const creditCardFn = attach(_creditCardFn, _regex.creditCard)
+  const urlFn = attach(_urlFn, _regex.url)
+  const uuidFn = attach(_uuidFn, _regex.uuid)
+  const dateFn = attach(_dateFn, _regex.date)
+  const numeralFn = attach(_numeralFn, _regex.numeral)
+  const postalCodeFn = attach(_postalCodeFn, _regex.postalCode)
 
-// Parametric-only functions need default error messages
-const digitsFn = digits as typeof digits & RegexEntry
-digitsFn.errorMessage = 'Please enter a valid number.'
+  // Parametric-only functions need default error messages
+  const digitsFn = digits as typeof digits & RegexEntry
+  digitsFn.errorMessage = 'Please enter a valid number.'
 
-const timeFn = _timeFn as typeof _timeFn & { errorMessage: string }
-timeFn.errorMessage = 'Please enter a valid time.'
+  const timeFn = _timeFn as typeof _timeFn & { errorMessage: string }
+  timeFn.errorMessage = 'Please enter a valid time.'
 
-const passwordFn = _passwordFn as typeof _passwordFn & RegexEntry
-passwordFn.errorMessage = 'Please enter a valid password.'
+  const passwordFn = _passwordFn as typeof _passwordFn & RegexEntry
+  passwordFn.errorMessage = 'Please enter a valid password.'
 
-const customFn = _customFn as typeof _customFn & RegexEntry
-customFn.errorMessage = 'Please enter a valid value.'
+  const customFn = _customFn as typeof _customFn & RegexEntry
+  customFn.errorMessage = 'Please enter a valid value.'
+
+  return {
+    ..._regex,
+
+    // Callable entries (static `.pattern` attached)
+    phone: phoneFn,
+    creditCard: creditCardFn,
+    url: urlFn,
+    uuid: uuidFn,
+    date: dateFn,
+    numeral: numeralFn,
+    postalCode: postalCodeFn,
+
+    // Parametric-only
+    digits: digitsFn,
+    time: timeFn,
+    password: passwordFn,
+    custom: customFn,
+  } as const
+}
 
 // ─── Final Export ─────────────────────────────────────────────────────────────
 
-export const regex = {
-  ..._regex,
-
-  // Callable entries (static `.pattern` attached)
-  phone: phoneFn,
-  creditCard: creditCardFn,
-  url: urlFn,
-  uuid: uuidFn,
-  date: dateFn,
-  numeral: numeralFn,
-
-  // Parametric-only
-  digits: digitsFn,
-  time: timeFn,
-  password: passwordFn,
-  custom: customFn,
-} as const
+export const regex = /* @__PURE__ */ buildRegex()
 
 /** Keys whose entries always expose a static `pattern` and `errorMessage`. */
-export type RegexKey = keyof typeof _regex
+export type RegexKey = keyof ReturnType<typeof buildStatic>
 export type Regex = typeof regex

@@ -8,7 +8,7 @@ import {
   formatNumeral,
   formatTime,
   getCreditCardType,
-  type FormatGeneralOptions
+  type FormatGeneralOptions,
 } from './engine/index.js'
 
 import { getPhoneFormatter, PHONE_NOT_REGISTERED_MESSAGE } from './phone-registry.js'
@@ -18,7 +18,7 @@ import {
   looksLikeRawDateValue,
   looksLikeRawTimeValue,
   type FormatOptions,
-  type FormatType
+  type FormatType,
 } from './raw.js'
 
 export type { FormatOptions, FormatType }
@@ -32,12 +32,11 @@ export const FORMAT_TYPES = [
   'creditCard',
   'creditCardType',
   'text',
-  'slug'
+  'slug',
 ] as const satisfies readonly FormatType[]
 
 export const isFormatType = (value: unknown): value is FormatType =>
-  typeof value === 'string' &&
-  (FORMAT_TYPES as readonly string[]).includes(value)
+  typeof value === 'string' && (FORMAT_TYPES as readonly string[]).includes(value)
 
 type RuntimeOptions = FormatOptions & {
   country: string
@@ -62,7 +61,7 @@ const resolveRuntimeOptions = (
 
   const runtime: RuntimeOptions = {
     ...options,
-    country
+    country,
   }
 
   if (options.delimiter !== undefined) {
@@ -78,11 +77,7 @@ const resolveRuntimeOptions = (
  * Internal: format a pre-processed value into its display representation
  * by delegating to the matching engine (or registered phone) helper.
  */
-const formatValue = (
-  value: string,
-  formatType: FormatType,
-  options: RuntimeOptions
-): string => {
+const formatValue = (value: string, formatType: FormatType, options: RuntimeOptions): string => {
   switch (formatType) {
     case 'phone': {
       const formatPhone = getPhoneFormatter()
@@ -115,16 +110,13 @@ const formatValue = (
         separator: options.delimiter ?? '-',
         ...(options.replacements && { replacements: options.replacements }),
         ...(options.maxLength !== undefined && { maxLength: options.maxLength }),
-        ...(options.locale && { locale: options.locale })
+        ...(options.locale && { locale: options.locale }),
       })
 
     case 'general':
       // `formatGeneral` requires `blocks`; `format()` has already rejected
       // a missing or empty array, so the cast only narrows the optional type.
-      return formatGeneral(
-        value,
-        options as unknown as FormatGeneralOptions
-      )
+      return formatGeneral(value, options as unknown as FormatGeneralOptions)
   }
 }
 
@@ -150,9 +142,7 @@ const getValueForFormatting = (
       return getDateValueFromRaw(value, options)
     }
     if (options.interpretInputAs === 'auto' || options.interpretInputAs === undefined) {
-      return looksLikeRawDateValue(value, options)
-        ? getDateValueFromRaw(value, options)
-        : value
+      return looksLikeRawDateValue(value, options) ? getDateValueFromRaw(value, options) : value
     }
     return value
   }
@@ -162,9 +152,7 @@ const getValueForFormatting = (
       return getTimeValueFromRaw(value, options)
     }
     if (options.interpretInputAs === 'auto' || options.interpretInputAs === undefined) {
-      return looksLikeRawTimeValue(value, options)
-        ? getTimeValueFromRaw(value, options)
-        : value
+      return looksLikeRawTimeValue(value, options) ? getTimeValueFromRaw(value, options) : value
     }
     return value
   }

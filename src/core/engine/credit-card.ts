@@ -11,7 +11,9 @@ const DEFAULT_CREDIT_CARD_DELIMITER = ' '
 const GENERAL_BLOCKS: BlocksType = [4, 4, 4, 4]
 
 /** Brand rules in priority order: the first matching prefix wins. */
-const CREDIT_CARD_RULES: ReadonlyArray<readonly [Exclude<CreditCardType, 'general'>, RegExp, BlocksType]> = [
+const CREDIT_CARD_RULES: ReadonlyArray<
+  readonly [Exclude<CreditCardType, 'general'>, RegExp, BlocksType]
+> = [
   // starts with 1; 15 digits, not starts with 1800 (jcb card)
   ['uatp', /^(?!1800)1\d{0,14}/, [4, 5, 6]],
   // starts with 34/37; 15 digits
@@ -38,13 +40,16 @@ const CREDIT_CARD_RULES: ReadonlyArray<readonly [Exclude<CreditCardType, 'genera
   // starts with 4; 16 digits
   ['visa', /^4\d{0,15}/, [4, 4, 4, 4]],
   // starts with 62/81; 16 digits
-  ['unionpay', /^(62|81)\d{0,14}/, [4, 4, 4, 4]]
+  ['unionpay', /^(62|81)\d{0,14}/, [4, 4, 4, 4]],
 ]
 
 /** `strictMode` extends the last block so the number can reach 19 digits. */
 const getStrictBlocks = (blocks: BlocksType): BlocksType => blocks.concat(19 - getMaxLength(blocks))
 
-const getCreditCardInfo = (value: string, strictMode: boolean): { type: CreditCardType; blocks: BlocksType } => {
+const getCreditCardInfo = (
+  value: string,
+  strictMode: boolean
+): { type: CreditCardType; blocks: BlocksType } => {
   for (const [type, pattern, blocks] of CREDIT_CARD_RULES) {
     if (pattern.test(value)) return { type, blocks: strictMode ? getStrictBlocks(blocks) : blocks }
   }
@@ -52,10 +57,18 @@ const getCreditCardInfo = (value: string, strictMode: boolean): { type: CreditCa
 }
 
 export const formatCreditCard = (value: string, options: FormatCreditCardOptions = {}): string => {
-  const { delimiter = DEFAULT_CREDIT_CARD_DELIMITER, delimiterLazyShow = false, strictMode = false } = options
+  const {
+    delimiter = DEFAULT_CREDIT_CARD_DELIMITER,
+    delimiterLazyShow = false,
+    strictMode = false,
+  } = options
   const digits = stripNonNumeric(value)
   const { blocks } = getCreditCardInfo(digits, strictMode)
-  return getFormattedValue(headStr(digits, getMaxLength(blocks)), { blocks, delimiter, delimiterLazyShow })
+  return getFormattedValue(headStr(digits, getMaxLength(blocks)), {
+    blocks,
+    delimiter,
+    delimiterLazyShow,
+  })
 }
 
 /** `delimiter` is accepted for API compatibility; non-digits are always ignored. */

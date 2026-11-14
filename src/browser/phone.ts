@@ -3,9 +3,9 @@ import { registerPhone } from '../phone/index.js'
 /*
  * Browser build with phone support. Loading this script registers the
  * phone formatter before exposing the same named exports as the core build
- * (`format`, `intl`, `regex`, `version`) on `window.Formatter`.
+ * (`checks`, `format`, `intl`, `regex`, `version`) on `window.Formatter`.
  */
 registerPhone()
 
-export { format, intl, regex, version } from './global.js'
+export { checks, format, intl, regex, version } from './global.js'
 export type { FormatterGlobal } from './global.js'

@@ -98,17 +98,48 @@ r.errorMessage // 'Invalid value.'
 
 ## Pattern reference
 
-### Phone & Identity
+### Phone & Mexico
 
-| Key          | Signature                                         | Description                                                                                             | Error message                                                   |
-| ------------ | ------------------------------------------------- | ------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
-| `phone`      | `phone()` / `phone({ length })` / `phone.pattern` | Phone numbers (default: 10 digits). Spaces, hyphens, dots, parentheses and `+` may separate the digits. | `Please enter a valid 10-digit phone number.`                   |
-| `rfc`        | `rfc.pattern`                                     | Mexican RFC: 3 or 4 letters, a real `YYMMDD` date and a 3-character homoclave                           | `Please enter a valid RFC.`                                     |
-| `curp`       | `curp.pattern`                                    | Mexican CURP: date, sex (`H`, `M`, `X`), state code (`NE` abroad), inner consonants and check digit     | `Please enter a valid CURP.`                                    |
-| `cp`         | `cp.pattern`                                      | Mexican postal code (`01000`–`99999`)                                                                   | `Please enter a valid 5-digit postal code.`                     |
-| `clabe`      | `clabe.pattern`                                   | Mexican interbank account number (18 digits)                                                            | `Please enter a valid 18-digit CLABE.`                          |
-| `nss`        | `nss.pattern`                                     | Mexican social security number (IMSS, 11 digits)                                                        | `Please enter a valid 11-digit NSS.`                            |
-| `postalCode` | `postalCode.pattern`                              | US ZIP or ZIP+4 (`90210` or `90210-1234`)                                                               | `Please enter a valid postal code (e.g., 90210 or 90210-1234).` |
+| Key     | Signature                                         | Description                                                                                             | Error message                                 |
+| ------- | ------------------------------------------------- | ------------------------------------------------------------------------------------------------------- | --------------------------------------------- |
+| `phone` | `phone()` / `phone({ length })` / `phone.pattern` | Phone numbers (default: 10 digits). Spaces, hyphens, dots, parentheses and `+` may separate the digits. | `Please enter a valid 10-digit phone number.` |
+| `rfc`   | `rfc.pattern`                                     | Mexican RFC: 3 or 4 letters, a real `YYMMDD` date and a 3-character homoclave                           | `Please enter a valid RFC.`                   |
+| `curp`  | `curp.pattern`                                    | Mexican CURP: date, sex (`H`, `M`, `X`), state code (`NE` abroad), inner consonants and check digit     | `Please enter a valid CURP.`                  |
+| `cp`    | `cp.pattern`                                      | Mexican postal code (`01000`–`99999`)                                                                   | `Please enter a valid 5-digit postal code.`   |
+| `clabe` | `clabe.pattern`                                   | Mexican interbank account number (18 digits)                                                            | `Please enter a valid 18-digit CLABE.`        |
+| `nss`   | `nss.pattern`                                     | Mexican social security number (IMSS, 11 digits)                                                        | `Please enter a valid 11-digit NSS.`          |
+
+### United States
+
+| Key             | Signature               | Description                                                                                                             | Error message                                   |
+| --------------- | ----------------------- | ----------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------- |
+| `ssn`           | `ssn.pattern`           | Social Security number (`123-45-6789`); no `000`, `666` or `9xx` area, `00` group or `0000` serial, one separator style | `Please enter a valid SSN (e.g., 123-45-6789).` |
+| `ein`           | `ein.pattern`           | Employer Identification Number (`12-3456789`) with an IRS-assigned prefix                                               | `Please enter a valid EIN (e.g., 12-3456789).`  |
+| `routingNumber` | `routingNumber.pattern` | ABA routing number (9 digits, Federal Reserve prefix); pair it with `isValidRoutingNumber`                              | `Please enter a valid 9-digit routing number.`  |
+
+US ZIP codes are `postalCode` (below); US phone numbers are `phone` (10 digits).
+
+### Europe & banking
+
+| Key     | Signature       | Description                                                                                                               | Error message                                             |
+| ------- | --------------- | ------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
+| `iban`  | `iban.pattern`  | IBAN shape, with or without groups of 4; pair it with `isValidIban` for length and checksum                               | `Please enter a valid IBAN.`                              |
+| `bic`   | `bic.pattern`   | BIC / SWIFT code (8 or 11 characters)                                                                                     | `Please enter a valid BIC/SWIFT code.`                    |
+| `vatEu` | `vatEu.pattern` | EU VAT number with its country prefix, no spaces (`DE123456789`, `NL123456789B01`; Greece is `EL`, Northern Ireland `XI`) | `Please enter a valid EU VAT number (e.g., DE123456789).` |
+| `dniEs` | `dniEs.pattern` | Spanish DNI (`12345678Z`) or NIE (`X1234567L`); pair it with `isValidDniEs`                                               | `Please enter a valid DNI or NIE.`                        |
+
+### Postal codes
+
+| Key          | Signature                                        | Description                                           | Error message                                                                                              |
+| ------------ | ------------------------------------------------ | ----------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `postalCode` | `postalCode.pattern` / `postalCode({ country })` | Static: US ZIP or ZIP+4. Called: the country's format | `Please enter a valid postal code (e.g., 90210 or 90210-1234).` / `Please enter a valid postal code (GB).` |
+
+`country` is an ISO code: `US`, `MX`, `CA`, `GB`, `IE`, `DE`, `FR`, `ES`, `IT`, `PT`, `NL`, `BE`, `AT`, `CH`, `PL`, `SE`, `BR`, `AR`, `CO`, `CL`, `PE`, `JP`, `IN` or `AU` (letters are case-insensitive, so `sw1a 1aa` passes for `GB`). Any other code throws a `RangeError`; write that country's rule with `regex.custom()`:
+
+```ts
+regex.postalCode({ country: 'CA' }).pattern.test('K1A 0B1') // true
+const nz = regex.custom(/^\d{4}$/, 'Please enter a valid postcode.')
+```
 
 ### Numbers & Cards
 
@@ -199,6 +230,38 @@ regex.date(options).pattern.test('31/04/2026') // false — April has 30 days
 | -------- | ---------------------------------------------------------------------- | -------------------------------------------------------- |
 | `custom` | `custom(pattern, errorMessage?)` / `custom({ pattern, errorMessage })` | User-defined regex. Returns `{ pattern, errorMessage }`. |
 
+## Check-digit validators
+
+A pattern checks the shape of a value; a check digit also catches most typos (a wrong or swapped digit). These functions are named exports of `@samline/formatter` (and `window.Formatter.checks` in the browser build). Each one takes the value as typed — spaces and hyphens are ignored, letters are upper-cased — and returns a boolean; non-strings return `false`.
+
+| Function                      | Checks                                                                                                           |
+| ----------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `isLuhn(value)`               | Luhn (mod 10) checksum, 2 or more digits                                                                         |
+| `isValidCard(value)`          | Card number: 12–19 digits and Luhn                                                                               |
+| `isValidClabe(value)`         | Mexican CLABE: 18 digits and the Banco de México 3-7-1 check digit                                               |
+| `isValidNss(value)`           | Mexican NSS (IMSS): 11 digits, Luhn check digit                                                                  |
+| `isValidCurp(value)`          | Mexican CURP: `regex.curp` and the RENAPO check digit                                                            |
+| `isValidRfc(value)`           | Mexican RFC: `regex.rfc` and the SAT mod-11 check digit; accepts the generic `XAXX010101000` and `XEXX010101000` |
+| `isValidIban(value)`          | IBAN in any registered country: that country's length and the ISO 13616 mod-97 checksum                          |
+| `isValidRoutingNumber(value)` | US ABA routing number: Federal Reserve prefix and the 3-7-1 checksum                                             |
+| `isValidDniEs(value)`         | Spanish DNI or NIE and its control letter                                                                        |
+
+With [`@samline/forms`](https://www.npmjs.com/package/@samline/forms), use the pattern for the message while typing and the check digit in `validate`:
+
+```ts
+import { isValidCurp, regex } from '@samline/formatter'
+
+const schema = {
+  curp: {
+    required: true,
+    pattern: { value: regex.curp.pattern, message: regex.curp.errorMessage },
+    validate: ({ value }) => isValidCurp(value) || 'The CURP check digit does not match.',
+  },
+}
+```
+
+A valid check digit proves the value is well formed, not that it exists or belongs to the person: confirm it with the issuer (SAT, RENAPO, the bank) when that matters. The CURP algorithm itself cannot see a typo in the 9th character (the tens of the birth day) or a change of exactly 5 in some digits.
+
 ## Type-safe access
 
 ```ts
@@ -216,9 +279,9 @@ validate('email', 'not-an-email') // 'Please enter a valid email address.'
 
 ## Notes
 
-- These patterns check shape, not existence: a CURP, RFC, CLABE or card number can match and still have a wrong check digit, and an email can match and still bounce. For check digits (Luhn, CLABE, CURP) add a `validate` function, and always validate again on the server.
+- These patterns check shape, not existence: a CURP, RFC, CLABE, IBAN or card number can match and still have a wrong check digit, and an email can match and still bounce. Pair them with the [check-digit validators](#check-digit-validators), and always validate again on the server.
 - Patterns that need Unicode letters (`email`, `url`, `domain`, `onlyLetters`, `onlyAlphanumeric`, `personName`, `hashtag`, `password`) use the `u` flag.
 - The `rfc` pattern targets the Mexican format (`XAXX000000XXX`). Replace it if you target a different jurisdiction, or use `regex.custom()` with your own pattern.
 - Parametric functions return a fresh `{ pattern, errorMessage }` object on every call, so they are safe to use inline without sharing state.
 - The `password` builder treats each flag as a **requirement**, not an allow-list: any non-whitespace character is accepted, so `Passw0rd!` passes the default policy. `uppercase` and `lowercase` count capitals and small letters in any script (`Ñ`, `É`), and `special: true` requires at least one character that is not a letter, number or space (`~`, `€`, `\`…). All flags default to `true` except `special`, which defaults to `false`. Disabling every flag leaves a length-only policy.
-- Parametric builders (`digits`, `phone`, `creditCard`, `password`, `numeral`) throw a `RangeError` for negative or fractional counts and for `min > max`; `uuid` throws for a version outside 1–8, and `date` / `time` for an unknown pattern unit.
+- Parametric builders (`digits`, `phone`, `creditCard`, `password`, `numeral`, `postalCode` for an unknown country) throw a `RangeError` for negative or fractional counts and for `min > max`; `uuid` throws for a version outside 1–8, and `date` / `time` for an unknown pattern unit.

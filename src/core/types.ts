@@ -3,13 +3,10 @@ export type {
   FormatOptions,
   FormatType,
   NumeralThousandsGroupStyle,
-  TimePatternType
+  TimePatternType,
 } from './raw.js'
 
-export {
-  FORMAT_TYPES,
-  isFormatType
-} from './format.js'
+export { FORMAT_TYPES, isFormatType } from './format.js'
 
 import type { FormatType } from './raw.js'
 

@@ -6,7 +6,8 @@ import { describe, expect, it } from 'vitest'
 import packageJson from '../../package.json'
 
 const documentationRoots = ['README.md', 'docs/src/content/docs']
-const cdnUrlPattern = /https:\/\/(?:unpkg\.com\/|cdn\.jsdelivr\.net\/npm\/)@samline\/formatter(?:@([^/\s"`]+))?\/[^\s"`)]+/g
+const cdnUrlPattern =
+  /https:\/\/(?:unpkg\.com\/|cdn\.jsdelivr\.net\/npm\/)@samline\/formatter(?:@([^/\s"`]+))?\/[^\s"`)]+/g
 
 async function findMarkdownFiles(path: string): Promise<string[]> {
   const pathStats = await stat(path)
@@ -16,10 +17,10 @@ async function findMarkdownFiles(path: string): Promise<string[]> {
 
   const entries = await readdir(path, { withFileTypes: true })
   const nestedFiles = await Promise.all(
-    entries.map((entry) => findMarkdownFiles(join(path, entry.name)))
+    entries.map(entry => findMarkdownFiles(join(path, entry.name)))
   )
 
-  return nestedFiles.flat().filter((file) => ['.md', '.mdx'].includes(extname(file)))
+  return nestedFiles.flat().filter(file => ['.md', '.mdx'].includes(extname(file)))
 }
 
 describe('browser CDN documentation', () => {

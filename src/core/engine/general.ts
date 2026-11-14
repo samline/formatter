@@ -31,9 +31,12 @@ export const formatGeneral = (value: string, options: FormatGeneralOptions): str
     prefix = '',
     numericOnly = false,
     uppercase = false,
-    lowercase = false
+    lowercase = false,
   } = options
-  const delimiters = delimiter.length > 0 ? [...(options.delimiters ?? []), delimiter] : [...(options.delimiters ?? [])]
+  const delimiters =
+    delimiter.length > 0
+      ? [...(options.delimiters ?? []), delimiter]
+      : [...(options.delimiters ?? [])]
 
   let result = stripDelimiters(value, delimiters)
   result = stripPrefix(result, prefix)

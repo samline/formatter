@@ -194,13 +194,25 @@ formatPhone('5512345678', 'MX', '-') // '55-1234-5678'
 
 ## Browser global: `window.Formatter`
 
-The browser entrypoints register a focused `Formatter` object on `window`. It exposes `format`, `intl`, `regex` and `version`; lower-level root helpers are not added to the global. `formatter.phone.global.js` registers phones on load; `formatter.global.js` does not. The optional `formatter.date.global.js` add-on, loaded after either one, adds `date` with the [date tools](../date/).
+The browser entrypoints register a focused `Formatter` object on `window`. It exposes `format`, `intl`, `regex`, `checks` (the [check-digit validators](../regex/#check-digit-validators)) and `version`; lower-level root helpers are not added to the global. `formatter.phone.global.js` registers phones on load; `formatter.global.js` does not. The optional `formatter.date.global.js` add-on, loaded after either one, adds `date` with the [date tools](../date/).
 
 ```ts
 interface FormatterGlobal {
   format: (value: unknown, formatType: FormatType, options?: FormatOptions) => FormatterResult
   intl: typeof import('@samline/formatter/intl')
   regex: typeof regex
+  checks: Pick<
+    typeof import('@samline/formatter'),
+    | 'isLuhn'
+    | 'isValidCard'
+    | 'isValidClabe'
+    | 'isValidCurp'
+    | 'isValidRfc'
+    | 'isValidNss'
+    | 'isValidIban'
+    | 'isValidRoutingNumber'
+    | 'isValidDniEs'
+  >
   version: string
   date?: typeof import('@samline/formatter/date') // with formatter.date.global.js
 }

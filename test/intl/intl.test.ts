@@ -4,7 +4,7 @@ import {
   formatDate,
   formatNumber,
   formatPercent,
-  formatRelativeTime
+  formatRelativeTime,
 } from '../../src/intl'
 import { format } from '../../src'
 
@@ -52,7 +52,9 @@ describe('intl: numbers', () => {
     expect(formatNumber(1234, { locale: 'en-US', notation: 'compact' })).toBe('1.2K')
     expect(s(formatNumber(1234, { locale: 'es-MX', notation: 'compact' }))).toBe('1.2 k')
     expect(formatNumber(5, { locale: 'en-US', signDisplay: 'always' })).toBe('+5')
-    expect(formatNumber(12345678901234567890n, { locale: 'en-US' })).toBe('12,345,678,901,234,567,890')
+    expect(formatNumber(12345678901234567890n, { locale: 'en-US' })).toBe(
+      '12,345,678,901,234,567,890'
+    )
   })
 
   it("reads formatter's numeral raw strings", () => {
@@ -67,10 +69,18 @@ describe('intl: currency and percent', () => {
     expect(formatCurrency(1234.5, { locale: 'es-MX', currency: 'MXN' })).toBe('$1,234.50')
     expect(formatCurrency(1234.5, { locale: 'en-US', currency: 'USD' })).toBe('$1,234.50')
     expect(s(formatCurrency(2, { locale: 'es-MX', currency: 'USD' }))).toBe('USD 2.00')
-    expect(s(formatCurrency(2, { locale: 'en-US', currency: 'MXN', display: 'code' }))).toBe('MXN 2.00')
-    expect(formatCurrency(2, { locale: 'en-US', currency: 'USD', display: 'name' })).toBe('2.00 US dollars')
-    expect(formatCurrency(1234.567, { locale: 'en-US', currency: 'USD', decimals: 0 })).toBe('$1,235')
-    expect(formatCurrency(-5, { locale: 'en-US', currency: 'USD', currencySign: 'accounting' })).toBe('($5.00)')
+    expect(s(formatCurrency(2, { locale: 'en-US', currency: 'MXN', display: 'code' }))).toBe(
+      'MXN 2.00'
+    )
+    expect(formatCurrency(2, { locale: 'en-US', currency: 'USD', display: 'name' })).toBe(
+      '2.00 US dollars'
+    )
+    expect(formatCurrency(1234.567, { locale: 'en-US', currency: 'USD', decimals: 0 })).toBe(
+      '$1,235'
+    )
+    expect(
+      formatCurrency(-5, { locale: 'en-US', currency: 'USD', currencySign: 'accounting' })
+    ).toBe('($5.00)')
   })
 
   it('formats ratios as percentages', () => {
@@ -87,16 +97,22 @@ describe('intl: dates', () => {
     expect(formatDate(date, { locale: 'en-US' })).toBe('Nov 12, 2026')
     expect(formatDate(date, { locale: 'en-US', preset: 'short' })).toBe('11/12/26')
     expect(formatDate(date, { locale: 'es-MX', preset: 'long' })).toBe('12 de noviembre de 2026')
-    expect(formatDate(date, { locale: 'es-MX', preset: 'full' })).toBe('jueves, 12 de noviembre de 2026')
+    expect(formatDate(date, { locale: 'es-MX', preset: 'full' })).toBe(
+      'jueves, 12 de noviembre de 2026'
+    )
   })
 
   it('accepts Intl.DateTimeFormat options, which override the preset', () => {
-    expect(formatDate(date, { locale: 'en-US', month: 'short', day: 'numeric', preset: 'full' })).toBe('Nov 12')
+    expect(
+      formatDate(date, { locale: 'en-US', month: 'short', day: 'numeric', preset: 'full' })
+    ).toBe('Nov 12')
     expect(formatDate(date, { locale: 'es-MX', weekday: 'long' })).toBe('jueves')
-    expect(formatDate(Date.UTC(2026, 10, 12, 3), { locale: 'en-US', timeZone: 'UTC', preset: 'medium' })).toBe(
-      'Nov 12, 2026'
+    expect(
+      formatDate(Date.UTC(2026, 10, 12, 3), { locale: 'en-US', timeZone: 'UTC', preset: 'medium' })
+    ).toBe('Nov 12, 2026')
+    expect(s(formatDate(date, { locale: 'en-US', preset: 'medium', timeStyle: 'short' }))).toBe(
+      'Nov 12, 2026, 3:30 PM'
     )
-    expect(s(formatDate(date, { locale: 'en-US', preset: 'medium', timeStyle: 'short' }))).toBe('Nov 12, 2026, 3:30 PM')
   })
 
   it("reads timestamps, ISO strings and formatter's date raw strings as local dates", () => {
@@ -106,16 +122,21 @@ describe('intl: dates', () => {
     expect(formatDate('20261112', { locale: 'en-US' })).toBe('Nov 12, 2026')
     expect(formatDate('2026-11-12T15:30:00', { locale: 'en-US' })).toBe('Nov 12, 2026')
 
-    const { raw } = format('12/11/2026', 'date', { datePattern: ['d', 'm', 'Y'], dateRawPattern: ['Y', 'm', 'd'] })
+    const { raw } = format('12/11/2026', 'date', {
+      datePattern: ['d', 'm', 'Y'],
+      dateRawPattern: ['Y', 'm', 'd'],
+    })
     expect(raw).toBe('2026-11-12')
     expect(formatDate(raw, { locale: 'es-MX', preset: 'long' })).toBe('12 de noviembre de 2026')
   })
 
   it('reads digit strings with a custom pattern', () => {
-    expect(formatDate('12/11/2026', { locale: 'en-US', pattern: ['d', 'm', 'Y'] })).toBe('Nov 12, 2026')
-    expect(formatDate('11/26', { locale: 'en-US', pattern: ['m', 'y'], month: 'long', year: 'numeric' })).toBe(
-      'November 2026'
+    expect(formatDate('12/11/2026', { locale: 'en-US', pattern: ['d', 'm', 'Y'] })).toBe(
+      'Nov 12, 2026'
     )
+    expect(
+      formatDate('11/26', { locale: 'en-US', pattern: ['m', 'y'], month: 'long', year: 'numeric' })
+    ).toBe('November 2026')
     expect(formatDate('0099-01-01', { locale: 'en-US', year: 'numeric' })).toBe('99')
     expect(formatDate('12/11', { pattern: ['d', 'm'], fallback: '—' })).toBe('—') // no year
   })
@@ -142,9 +163,17 @@ describe('intl: relative time', () => {
   })
 
   it('supports a forced unit, numeric always and styles', () => {
-    expect(formatRelativeTime(at(-86400), { now, locale: 'en-US', numeric: 'always' })).toBe('1 day ago')
-    expect(formatRelativeTime(at(-3 * 86400), { now, locale: 'en-US', unit: 'hour' })).toBe('72 hours ago')
-    expect(formatRelativeTime(at(3 * 60), { now, locale: 'en-US', style: 'short' })).toBe('in 3 min.')
-    expect(formatRelativeTime('2026-11-15', { now, locale: 'en-US', unit: 'day' })).toBe('in 3 days')
+    expect(formatRelativeTime(at(-86400), { now, locale: 'en-US', numeric: 'always' })).toBe(
+      '1 day ago'
+    )
+    expect(formatRelativeTime(at(-3 * 86400), { now, locale: 'en-US', unit: 'hour' })).toBe(
+      '72 hours ago'
+    )
+    expect(formatRelativeTime(at(3 * 60), { now, locale: 'en-US', style: 'short' })).toBe(
+      'in 3 min.'
+    )
+    expect(formatRelativeTime('2026-11-15', { now, locale: 'en-US', unit: 'day' })).toBe(
+      'in 3 days'
+    )
   })
 })

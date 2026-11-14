@@ -39,7 +39,7 @@ describe('format', () => {
     it('formats with delimiter', () => {
       const result = format('1234567890', 'general', {
         blocks: [4, 4, 4, 4],
-        delimiter: ' '
+        delimiter: ' ',
       })
       expect(result.type).toBe('general')
       expect(result.formatted).toBe('1234 5678 90')
@@ -48,7 +48,7 @@ describe('format', () => {
     it('returns digits-only raw value', () => {
       const result = format('1234 5678 90', 'general', {
         blocks: [4, 4, 4, 4],
-        delimiter: ' '
+        delimiter: ' ',
       })
       expect(result.raw).toBe('1234567890')
     })
@@ -112,7 +112,7 @@ describe('format', () => {
     it('honors a custom datePattern with custom delimiter', () => {
       const result = format('20260512', 'date', {
         datePattern: ['Y', 'm', 'd'],
-        delimiter: '-'
+        delimiter: '-',
       })
       expect(result.formatted).toBe('2026-05-12')
       expect(result.raw).toBe('2026-05-12')
@@ -176,7 +176,7 @@ describe('format', () => {
     it('strips prefix before computing raw', () => {
       const result = format('$1,234.50', 'numeral', {
         prefix: '$',
-        numeralDecimalMark: '.'
+        numeralDecimalMark: '.',
       })
       expect(result.formatted).toContain('1,234')
       expect(result.raw).toBe('1234.50')
@@ -186,7 +186,7 @@ describe('format', () => {
       const result = format('1234.50 USD', 'numeral', {
         prefix: ' USD',
         tailPrefix: true,
-        numeralDecimalMark: '.'
+        numeralDecimalMark: '.',
       })
       expect(result.raw).toBe('1234.50')
     })
@@ -203,7 +203,7 @@ describe('format', () => {
 
     const lockOpts = {
       blocks: [13],
-      prefix: 'EASY'
+      prefix: 'EASY',
     }
 
     it('auto-prepends the configured prefix when the user types only the suffix', () => {
@@ -222,7 +222,7 @@ describe('format', () => {
       const result = format('easy12345abc', 'general', {
         ...lockOpts,
         numericOnly: true,
-        uppercase: true
+        uppercase: true,
       })
       expect(result.formatted).toBe('EASY12345')
       // The typed body is the raw mirror; cleave-zen's numericOnly /
@@ -236,7 +236,7 @@ describe('format', () => {
       const result = format('123456789', 'general', {
         prefix: 'USD',
         tailPrefix: true,
-        blocks: [12]
+        blocks: [12],
       })
       expect(result.formatted).toBe('123456789USD')
       expect(result.raw).toBe('123456789')
@@ -246,11 +246,7 @@ describe('format', () => {
       // `blocks` is a display-time shape, not a hard cap on the input.
       // The backend already knows the canonical length and would surface
       // its own validation; the formatter intentionally does not clip.
-      const result = format(
-        '1234567890EXTRA',
-        'general',
-        { blocks: [13], prefix: 'EASY' }
-      )
+      const result = format('1234567890EXTRA', 'general', { blocks: [13], prefix: 'EASY' })
       expect(result.formatted.startsWith('EASY')).toBe(true)
       expect(result.raw).toBe('1234567890EXTRA')
     })
@@ -265,7 +261,7 @@ describe('format', () => {
       const result = format('123456789', 'general', {
         blocks: [13],
         prefix: 'EASY',
-        rawPrefix: true
+        rawPrefix: true,
       })
       expect(result.formatted).toBe('EASY123456789')
       expect(result.raw).toBe('EASY123456789')
@@ -274,7 +270,7 @@ describe('format', () => {
     it('excludes the prefix in raw when rawPrefix: false (default)', () => {
       const result = format('123456789', 'general', {
         blocks: [13],
-        prefix: 'EASY'
+        prefix: 'EASY',
       })
       expect(result.formatted).toBe('EASY123456789')
       expect(result.raw).toBe('123456789')
@@ -284,7 +280,7 @@ describe('format', () => {
       const result = format('EASY123456789', 'general', {
         blocks: [13],
         prefix: 'EASY',
-        rawPrefix: true
+        rawPrefix: true,
       })
       expect(result.formatted).toBe('EASY123456789')
       expect(result.raw).toBe('EASY123456789')
@@ -301,7 +297,7 @@ describe('format', () => {
     const passthroughOpts = {
       blocks: [13],
       prefix: 'EASY',
-      prefixMode: 'passthrough' as const
+      prefixMode: 'passthrough' as const,
     }
 
     it('keeps a fully-prefixed value with raw matching the typed input', () => {
@@ -316,18 +312,14 @@ describe('format', () => {
       // stick on every keystroke (instead of snapping to the literal
       // prefix and emptying the suffix).
       expect(format('EA', 'general', passthroughOpts).formatted).toBe('EA')
-      expect(format('EASY', 'general', passthroughOpts).formatted).toBe(
-        'EASY'
-      )
-      expect(format('EASY1', 'general', passthroughOpts).formatted).toBe(
-        'EASY1'
-      )
+      expect(format('EASY', 'general', passthroughOpts).formatted).toBe('EASY')
+      expect(format('EASY1', 'general', passthroughOpts).formatted).toBe('EASY1')
     })
 
     it('still formats and clamps raw when rawPrefix: true in passthrough mode', () => {
       const result = format('EASY123456789', 'general', {
         ...passthroughOpts,
-        rawPrefix: true
+        rawPrefix: true,
       })
       expect(result.formatted).toBe('EASY123456789')
       expect(result.raw).toBe('EASY123456789')
@@ -353,7 +345,7 @@ describe('format', () => {
 
     const lockSuffixOpts = {
       blocks: [12],
-      suffix: 'USD'
+      suffix: 'USD',
     }
 
     it('auto-appends the configured suffix when the user types only the body', () => {
@@ -371,7 +363,7 @@ describe('format', () => {
     it('honors numericOnly on the body', () => {
       const result = format('abc12345', 'general', {
         ...lockSuffixOpts,
-        numericOnly: true
+        numericOnly: true,
       })
       // numericOnly filters the display body to digits; raw mirrors what
       // the user typed (matching the prefix-side convention).
@@ -393,7 +385,7 @@ describe('format', () => {
       const result = format('123456789', 'general', {
         blocks: [12],
         suffix: 'USD',
-        rawSuffix: true
+        rawSuffix: true,
       })
       expect(result.formatted).toBe('123456789USD')
       expect(result.raw).toBe('123456789USD')
@@ -402,7 +394,7 @@ describe('format', () => {
     it('excludes the suffix in raw when rawSuffix: false (default)', () => {
       const result = format('123456789', 'general', {
         blocks: [12],
-        suffix: 'USD'
+        suffix: 'USD',
       })
       expect(result.formatted).toBe('123456789USD')
       expect(result.raw).toBe('123456789')
@@ -414,7 +406,7 @@ describe('format', () => {
         prefix: 'PRE-',
         suffix: '-END',
         rawPrefix: true,
-        rawSuffix: true
+        rawSuffix: true,
       })
       expect(result.formatted).toBe('PRE-12345-END')
       expect(result.raw).toBe('PRE-12345-END')
@@ -425,7 +417,7 @@ describe('format', () => {
     const passthroughSuffixOpts = {
       blocks: [12],
       suffix: 'USD',
-      suffixMode: 'passthrough' as const
+      suffixMode: 'passthrough' as const,
     }
 
     it('keeps a fully-typed suffix and strips it from raw', () => {
@@ -437,21 +429,15 @@ describe('format', () => {
     it('lets the user build up the suffix character by character', () => {
       // Each suffix character the user types sticks on the display
       // instead of snapping to the full configured suffix.
-      expect(format('12345U', 'general', passthroughSuffixOpts).formatted).toBe(
-        '12345U'
-      )
-      expect(format('12345US', 'general', passthroughSuffixOpts).formatted).toBe(
-        '12345US'
-      )
-      expect(
-        format('12345USD', 'general', passthroughSuffixOpts).formatted
-      ).toBe('12345USD')
+      expect(format('12345U', 'general', passthroughSuffixOpts).formatted).toBe('12345U')
+      expect(format('12345US', 'general', passthroughSuffixOpts).formatted).toBe('12345US')
+      expect(format('12345USD', 'general', passthroughSuffixOpts).formatted).toBe('12345USD')
     })
 
     it('still includes the suffix in raw when rawSuffix: true in passthrough', () => {
       const result = format('12345USD', 'general', {
         ...passthroughSuffixOpts,
-        rawSuffix: true
+        rawSuffix: true,
       })
       expect(result.formatted).toBe('12345USD')
       expect(result.raw).toBe('12345USD')
@@ -463,7 +449,7 @@ describe('format', () => {
       const result = format('12345', 'general', {
         blocks: [11],
         prefix: 'PRE-',
-        suffix: '-END'
+        suffix: '-END',
       })
       expect(result.formatted).toBe('PRE-12345-END')
       expect(result.raw).toBe('12345')
@@ -473,7 +459,7 @@ describe('format', () => {
       const result = format('PRE-12345-END', 'general', {
         blocks: [11],
         prefix: 'PRE-',
-        suffix: '-END'
+        suffix: '-END',
       })
       expect(result.formatted).toBe('PRE-12345-END')
       expect(result.raw).toBe('12345')
@@ -489,7 +475,7 @@ describe('format', () => {
       const result = format('123456789', 'general', {
         blocks: [12],
         prefix: 'USD',
-        tailPrefix: true
+        tailPrefix: true,
       })
       expect(result.formatted).toBe('123456789USD')
       expect(result.raw).toBe('123456789')
@@ -500,7 +486,7 @@ describe('format', () => {
         blocks: [11],
         prefix: 'X',
         tailPrefix: true,
-        suffix: 'OK'
+        suffix: 'OK',
       })
       // `prefix` becomes the head decoration (legacy tailPrefix is
       // ignored), `suffix` is the tail.
@@ -534,7 +520,7 @@ describe('format', () => {
         prefix: 'EASY',
         prefixMode: 'lock',
         rawPrefix: true,
-        numericOnly: true
+        numericOnly: true,
       })
       expect(result.formatted).toBe('EASY1234 56789')
       expect(result.raw).toBe('EASY123456789')
@@ -551,7 +537,7 @@ describe('format', () => {
         prefix: 'EASY',
         prefixMode: 'lock',
         rawPrefix: true,
-        numericOnly: true
+        numericOnly: true,
       })
       expect(result.formatted).toBe('EASY1234 5678 9')
       expect(result.raw).toBe('EASY123456789')
@@ -564,7 +550,7 @@ describe('format', () => {
         suffix: 'USD',
         suffixMode: 'lock',
         rawSuffix: true,
-        numericOnly: true
+        numericOnly: true,
       })
       expect(result.formatted).toBe('1234 56789USD')
       expect(result.raw).toBe('123456789USD')
@@ -577,7 +563,7 @@ describe('format', () => {
         prefix: 'EASY',
         prefixMode: 'passthrough',
         rawPrefix: true,
-        numericOnly: true
+        numericOnly: true,
       })
       // The user typed the full `EASY` prefix themselves, so it sticks;
       // the body's non-digits are stripped from both display and raw.
@@ -595,7 +581,7 @@ describe('format', () => {
         suffix: 'USD',
         suffixMode: 'lock',
         rawSuffix: true,
-        numericOnly: true
+        numericOnly: true,
       })
       expect(result.formatted).toBe('EASY1234 56789USD')
       expect(result.raw).toBe('EASY123456789USD')
@@ -611,7 +597,7 @@ describe('format', () => {
         blocks: [13],
         prefix: 'EASY',
         prefixMode: 'lock',
-        rawPrefix: true
+        rawPrefix: true,
       })
       expect(result.formatted).toBe('EASYeasy12345abc')
       expect(result.raw).toBe('EASYeasy12345abc')
@@ -626,7 +612,7 @@ describe('format', () => {
         delimiter: ' ',
         prefix: 'EASY',
         prefixMode: 'lock',
-        numericOnly: true
+        numericOnly: true,
       })
       expect(result.formatted).toBe('EASY1234 56789')
       expect(result.raw).toBe('1a2b3c4d5e6f7g8h9i')
@@ -642,7 +628,7 @@ describe('format', () => {
         prefix: 'EASY',
         prefixMode: 'lock',
         rawPrefix: true,
-        numericOnly: true
+        numericOnly: true,
       })
       expect(result.formatted).toBe('EASY1234-56789')
       expect(result.raw).toBe('EASY123456789')
@@ -659,7 +645,7 @@ describe('format', () => {
     it('formats a d-m-Y date with / delimiter and round-trips identically', () => {
       const result = format('15091989', 'date', {
         datePattern: ['d', 'm', 'Y'],
-        delimiter: '/'
+        delimiter: '/',
       })
       expect(result.formatted).toBe('15/09/1989')
       expect(result.raw).toBe('15/09/1989')
@@ -681,7 +667,7 @@ describe('format', () => {
     it('honours a Y-m-d pattern with - delimiter end-to-end', () => {
       const result = format('20260512', 'date', {
         datePattern: ['Y', 'm', 'd'],
-        delimiter: '-'
+        delimiter: '-',
       })
       expect(result.formatted).toBe('2026-05-12')
       expect(result.raw).toBe('2026-05-12')
@@ -697,7 +683,7 @@ describe('format', () => {
         delimiter: '/',
         dateRawPattern: ['Y', 'm', 'd'],
         dateRawPatternDelimiter: '-',
-        interpretInputAs: 'raw'
+        interpretInputAs: 'raw',
       })
       expect(result.formatted).toBe('12/05/2026')
       expect(result.raw).toBe('2026-05-12')
@@ -712,17 +698,17 @@ describe('format', () => {
       delimiter: '/',
       dateRawPattern: ['Y', 'm', 'd'],
       dateRawPatternDelimiter: '',
-      interpretInputAs: 'display'
+      interpretInputAs: 'display',
     }
 
     const easyTripTimeOpts: FormatOptions = {
       timePattern: ['h', 'm', 's'],
       timeRawPattern: ['h', 'm'],
       timeRawPatternDelimiter: ':',
-      interpretInputAs: 'display'
+      interpretInputAs: 'display',
     }
 
-    it('date live keystrokes keep the visible and raw aligned with the user\'s input (d/m/Y + Ymd)', () => {
+    it("date live keystrokes keep the visible and raw aligned with the user's input (d/m/Y + Ymd)", () => {
       // The EasyTrip-style config: user sees `DD/MM/AAAA` and the backend
       // expects `YYYYMMDD`. The fix: typing `15091989` produces
       // visible `15/09/1989` and raw `19890915` (the canonical form the
@@ -742,7 +728,7 @@ describe('format', () => {
         ['1509', '15/09/', '0915'],
         ['15091', '15/09/1', '10915'],
         ['150919', '15/09/19', '190915'],
-        ['15091989', '15/09/1989', '19890915']
+        ['15091989', '15/09/1989', '19890915'],
       ]
       for (const [input, expectedFormatted, expectedRaw] of expected) {
         const r = format(input, 'date', easTripDateOpts)
@@ -768,7 +754,7 @@ describe('format', () => {
         ['143', '14:3', '14:3'],
         ['1430', '14:30:', '14:30'],
         ['14300', '14:30:0', '14:30'],
-        ['143000', '14:30:00', '14:30']
+        ['143000', '14:30:00', '14:30'],
       ]
       for (const [input, expectedFormatted, expectedRaw] of expected) {
         const r = format(input, 'time', easyTripTimeOpts)
@@ -791,7 +777,7 @@ describe('format', () => {
         timePattern: ['h', 'm', 's'],
         timeRawPattern: ['s', 'm', 'h'],
         timeRawPatternDelimiter: '',
-        interpretInputAs: 'display'
+        interpretInputAs: 'display',
       }
       // The KEY assertion: `formatted` is no longer scrambled. The raw
       // still re-segments (it's the round-trip helper, doing what it
@@ -802,23 +788,23 @@ describe('format', () => {
       expect(format('143059', 'time', opts).formatted).toBe('14:30:59')
     })
 
-    it('date interpretInputAs: \'raw\' preserves the legacy raw-input round-trip', () => {
+    it("date interpretInputAs: 'raw' preserves the legacy raw-input round-trip", () => {
       // Callers that pass a raw-formatted value (e.g. a `setValue` from
       // a backend pre-filling the field) can opt into the historical
       // rearrangement. The fix lands as a strict opt-in so the default
       // change is safe.
       const result = format('19890915', 'date', {
         ...easTripDateOpts,
-        interpretInputAs: 'raw'
+        interpretInputAs: 'raw',
       })
       expect(result.formatted).toBe('15/09/1989')
       expect(result.raw).toBe('19890915')
     })
 
-    it('time interpretInputAs: \'raw\' preserves the legacy raw-input round-trip', () => {
+    it("time interpretInputAs: 'raw' preserves the legacy raw-input round-trip", () => {
       const result = format('1430', 'time', {
         ...easyTripTimeOpts,
-        interpretInputAs: 'raw'
+        interpretInputAs: 'raw',
       })
       expect(result.formatted).toBe('14:30:')
       expect(result.raw).toBe('14:30')
@@ -846,7 +832,7 @@ describe('format', () => {
         datePattern: ['d', 'm', 'Y'],
         delimiter: '/',
         dateRawPattern: ['Y', 'm', 'd'],
-        dateRawPatternDelimiter: '-'
+        dateRawPatternDelimiter: '-',
       })
       expect(result.formatted).toBe('15/09/1989')
       expect(result.raw).toBe('1989-09-15')
@@ -862,7 +848,7 @@ describe('format', () => {
       const result = format('143000', 'time', {
         timePattern: ['h', 'm', 's'],
         timeRawPattern: ['h', 'm'],
-        delimiter: '-'
+        delimiter: '-',
       })
       expect(result.formatted).toBe('14-30-00')
       expect(result.raw).toBe('14-30')
@@ -877,7 +863,7 @@ describe('format', () => {
         timePattern: ['h', 'm', 's'],
         timeRawPattern: ['h', 'm'],
         delimiter: '-',
-        timeRawPatternDelimiter: ':'
+        timeRawPatternDelimiter: ':',
       })
       expect(result.formatted).toBe('14-30-00')
       expect(result.raw).toBe('14:30')
@@ -898,13 +884,13 @@ describe('format', () => {
       datePattern: ['d', 'm', 'Y'],
       delimiter: '/',
       dateRawPattern: ['Y', 'm', 'd'],
-      dateRawPatternDelimiter: ''
+      dateRawPatternDelimiter: '',
     }
 
     const timeAutoOpts: FormatOptions = {
       timePattern: ['h', 'm', 's'],
       timeRawPattern: ['h', 'm'],
-      timeRawPatternDelimiter: ''
+      timeRawPatternDelimiter: '',
     }
 
     it('treats a delimiter-less raw-length date as raw (the easytrip Blade old() case)', () => {
@@ -952,12 +938,12 @@ describe('format', () => {
       expect(result.raw).toBe('1430')
     })
 
-    it('treats a custom delimiter consistently (the delimiter is the auto heuristic\'s discriminator)', () => {
+    it("treats a custom delimiter consistently (the delimiter is the auto heuristic's discriminator)", () => {
       const dashOpts: FormatOptions = {
         datePattern: ['d', 'm', 'Y'],
         delimiter: '-',
         dateRawPattern: ['Y', 'm', 'd'],
-        dateRawPatternDelimiter: ''
+        dateRawPatternDelimiter: '',
       }
       const display = format('12-12-1990', 'date', dashOpts)
       expect(display.formatted).toBe('12-12-1990')
@@ -972,7 +958,7 @@ describe('format', () => {
         datePattern: ['d', 'm', 'Y'],
         delimiter: '',
         dateRawPattern: ['Y', 'm', 'd'],
-        dateRawPatternDelimiter: ''
+        dateRawPatternDelimiter: '',
       })
 
       expect(result.formatted).toBe('12121990')
@@ -984,7 +970,7 @@ describe('format', () => {
         timePattern: ['h', 'm', 's'],
         delimiter: '',
         timeRawPattern: ['h', 'm', 's'],
-        timeRawPatternDelimiter: ''
+        timeRawPatternDelimiter: '',
       })
 
       expect(result.formatted).toBe('143000')
@@ -994,7 +980,7 @@ describe('format', () => {
     it('explicit interpretInputAs: "display" still opts into the v1.2.0 strict behaviour', () => {
       const result = format('15091989', 'date', {
         ...dateAutoOpts,
-        interpretInputAs: 'display'
+        interpretInputAs: 'display',
       })
       expect(result.formatted).toBe('15/09/1989')
       expect(result.raw).toBe('19890915')
@@ -1003,7 +989,7 @@ describe('format', () => {
     it('explicit interpretInputAs: "raw" still opts into the v1.0 round-trip', () => {
       const result = format('19890915', 'date', {
         ...dateAutoOpts,
-        interpretInputAs: 'raw'
+        interpretInputAs: 'raw',
       })
       expect(result.formatted).toBe('15/09/1989')
       expect(result.raw).toBe('19890915')
@@ -1022,7 +1008,7 @@ describe('FORMAT_TYPES', () => {
       'creditCard',
       'creditCardType',
       'text',
-      'slug'
+      'slug',
     ])
   })
 })

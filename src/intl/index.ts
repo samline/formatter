@@ -142,7 +142,12 @@ const formatWithNumberFormat = (
   const number = toNumber(value as number | bigint | string)
   if (number === undefined) return fallback
   const resolved = compact(options)
-  return cached('number', locale, resolved, () => new Intl.NumberFormat(toLocales(locale), resolved)).format(number)
+  return cached(
+    'number',
+    locale,
+    resolved,
+    () => new Intl.NumberFormat(toLocales(locale), resolved)
+  ).format(number)
 }
 
 /**
@@ -167,7 +172,7 @@ export const formatCurrency = (value: IntlNumberInput, options: IntlCurrencyOpti
     style: 'currency',
     currency,
     currencyDisplay: display,
-    currencySign
+    currencySign,
   })
 }
 
@@ -200,7 +205,7 @@ const parsePatternDate = (value: string, pattern: DatePatternType): Date | undef
     const expected = pattern.reduce((total, unit) => total + unitLength(unit), 0)
     if (digits.length !== expected) return undefined
     let start = 0
-    segments = pattern.map((unit) => {
+    segments = pattern.map(unit => {
       const segment = digits.slice(start, start + unitLength(unit))
       start += unitLength(unit)
       return segment
@@ -225,8 +230,17 @@ const parsePatternDate = (value: string, pattern: DatePatternType): Date | undef
   })
 
   // Every segment must have its full length; a missing year cannot be guessed.
-  const complete = pattern.every((unit, index) => (segments[index] ?? '').length === unitLength(unit))
-  if (!complete || year === undefined || month < 1 || month > 12 || day < 1 || day > daysInMonth(year, month)) {
+  const complete = pattern.every(
+    (unit, index) => (segments[index] ?? '').length === unitLength(unit)
+  )
+  if (
+    !complete ||
+    year === undefined ||
+    month < 1 ||
+    month > 12 ||
+    day < 1 ||
+    day > daysInMonth(year, month)
+  ) {
     return undefined
   }
   const date = new Date(year, month - 1, day)
@@ -259,7 +273,7 @@ const DATE_COMPONENTS = [
   'minute',
   'second',
   'fractionalSecondDigits',
-  'timeZoneName'
+  'timeZoneName',
 ] as const
 
 /**
@@ -274,14 +288,19 @@ export const formatDate = (value: IntlDateInput, options: IntlDateOptions = {}):
   if (!date) return fallback
 
   const record = intlOptions as Record<string, unknown>
-  const hasComponents = DATE_COMPONENTS.some((key) => record[key] !== undefined)
+  const hasComponents = DATE_COMPONENTS.some(key => record[key] !== undefined)
   const resolved = compact(
     hasComponents || intlOptions.dateStyle !== undefined || intlOptions.timeStyle !== undefined
       ? intlOptions
       : { ...intlOptions, dateStyle: preset ?? 'medium' }
   )
   if (!hasComponents && preset !== undefined) resolved.dateStyle = preset
-  return cached('date', locale, resolved, () => new Intl.DateTimeFormat(toLocales(locale), resolved)).format(date)
+  return cached(
+    'date',
+    locale,
+    resolved,
+    () => new Intl.DateTimeFormat(toLocales(locale), resolved)
+  ).format(date)
 }
 
 /* ------------------------------------------------------------------------ */
@@ -295,7 +314,7 @@ const SECONDS: Record<IntlRelativeTimeUnit, number> = {
   day: 86400,
   week: 604800,
   month: 2629746, // average Gregorian month (365.2425 / 12 days)
-  year: 31556952
+  year: 31556952,
 }
 
 /** Each unit, and how many of it make the next one. */
@@ -306,7 +325,7 @@ const LADDER: ReadonlyArray<readonly [IntlRelativeTimeUnit, number]> = [
   ['day', 7],
   ['week', SECONDS.month / SECONDS.week],
   ['month', 12],
-  ['year', Infinity]
+  ['year', Infinity],
 ]
 
 /** Round half away from zero so past and future values are symmetric. */
@@ -330,18 +349,33 @@ const pickUnit = (seconds: number): [number, IntlRelativeTimeUnit] => {
  * Format the distance from `now`: `formatRelativeTime(threeDaysAgo, { locale: 'es-MX' })`
  * → `'hace 3 días'`. The unit is chosen automatically unless `unit` is set.
  */
-export const formatRelativeTime = (value: IntlDateInput, options: IntlRelativeTimeOptions = {}): string => {
-  const { locale, fallback = '', now, style = 'long', numeric = 'auto', unit, pattern = DEFAULT_PATTERN } = options
+export const formatRelativeTime = (
+  value: IntlDateInput,
+  options: IntlRelativeTimeOptions = {}
+): string => {
+  const {
+    locale,
+    fallback = '',
+    now,
+    style = 'long',
+    numeric = 'auto',
+    unit,
+    pattern = DEFAULT_PATTERN,
+  } = options
   if (isEmpty(value)) return ''
   const date = toDate(value as Date | number | string, pattern)
   const reference = now === undefined ? new Date() : toDate(now, pattern)
   if (!date || !reference) return fallback
 
   const seconds = (date.getTime() - reference.getTime()) / 1000
-  const [amount, resolvedUnit] = unit ? [roundAway(seconds / SECONDS[unit]), unit] : pickUnit(seconds)
+  const [amount, resolvedUnit] = unit
+    ? [roundAway(seconds / SECONDS[unit]), unit]
+    : pickUnit(seconds)
   const resolved = { style, numeric }
-  return cached('relative', locale, resolved, () => new Intl.RelativeTimeFormat(toLocales(locale), resolved)).format(
-    amount,
-    resolvedUnit
-  )
+  return cached(
+    'relative',
+    locale,
+    resolved,
+    () => new Intl.RelativeTimeFormat(toLocales(locale), resolved)
+  ).format(amount, resolvedUnit)
 }

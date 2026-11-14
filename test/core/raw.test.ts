@@ -4,7 +4,7 @@ import {
   getDateValueFromRaw,
   getTimeValueFromRaw,
   stripPrefixAndSuffix,
-  type FormatOptions
+  type FormatOptions,
 } from '../../src/core/raw'
 
 describe('getRawValue', () => {
@@ -24,17 +24,13 @@ describe('getRawValue', () => {
     })
 
     it('preserves decimal mark', () => {
-      expect(
-        getRawValue('1,234.50', 'numeral', { numeralDecimalMark: '.' })
-      ).toBe('1234.50')
+      expect(getRawValue('1,234.50', 'numeral', { numeralDecimalMark: '.' })).toBe('1234.50')
     })
   })
 
   describe('creditCard', () => {
     it('strips spaces and dashes', () => {
-      expect(getRawValue('4111 1111 1111 1111', 'creditCard')).toBe(
-        '4111111111111111'
-      )
+      expect(getRawValue('4111 1111 1111 1111', 'creditCard')).toBe('4111111111111111')
     })
   })
 
@@ -56,9 +52,7 @@ describe('getRawValue', () => {
     })
 
     it('honors a custom raw pattern', () => {
-      expect(
-        getRawValue('12-05-2026', 'date', { dateRawPatternDelimiter: '-' })
-      ).toBe('2026-05-12')
+      expect(getRawValue('12-05-2026', 'date', { dateRawPatternDelimiter: '-' })).toBe('2026-05-12')
     })
   })
 
@@ -78,7 +72,7 @@ describe('getRawValue', () => {
         getRawValue('14-30-00', 'time', {
           timePattern: ['h', 'm', 's'],
           timeRawPattern: ['h', 'm'],
-          delimiter: '-'
+          delimiter: '-',
         })
       ).toBe('14-30')
     })
@@ -89,7 +83,7 @@ describe('getRawValue', () => {
           timePattern: ['h', 'm', 's'],
           timeRawPattern: ['h', 'm'],
           delimiter: '-',
-          timeRawPatternDelimiter: ':'
+          timeRawPatternDelimiter: ':',
         })
       ).toBe('14:30')
     })
@@ -112,9 +106,7 @@ describe('getDateValueFromRaw', () => {
   })
 
   it('honors custom datePattern', () => {
-    expect(
-      getDateValueFromRaw('2026-05-12', { datePattern: ['Y', 'm', 'd'] })
-    ).toBe('20260512')
+    expect(getDateValueFromRaw('2026-05-12', { datePattern: ['Y', 'm', 'd'] })).toBe('20260512')
   })
 
   it('passes short segments through', () => {
@@ -134,9 +126,7 @@ describe('getTimeValueFromRaw', () => {
   })
 
   it('honors custom timePattern', () => {
-    expect(
-      getTimeValueFromRaw('14:30', { timePattern: ['h', 'm'] })
-    ).toBe('1430')
+    expect(getTimeValueFromRaw('14:30', { timePattern: ['h', 'm'] })).toBe('1430')
   })
 
   it('returns empty for empty input', () => {
@@ -165,15 +155,13 @@ describe('stripPrefixAndSuffix', () => {
     expect(
       stripPrefixAndSuffix('PRE-123-END', {
         prefix: 'PRE-',
-        suffix: '-END'
+        suffix: '-END',
       })
     ).toBe('123')
   })
 
   it('strips a tailPrefix (suffix) when tailPrefix: true', () => {
-    expect(
-      stripPrefixAndSuffix('100 USD', { prefix: ' USD', tailPrefix: true })
-    ).toBe('100')
+    expect(stripPrefixAndSuffix('100 USD', { prefix: ' USD', tailPrefix: true })).toBe('100')
   })
 
   it('leaves value untouched when prefix not present', () => {
@@ -181,8 +169,6 @@ describe('stripPrefixAndSuffix', () => {
   })
 
   it('does not strip leading prefix when tailPrefix: true', () => {
-    expect(
-      stripPrefixAndSuffix('USD 100', { prefix: 'USD', tailPrefix: true })
-    ).toBe('USD 100')
+    expect(stripPrefixAndSuffix('USD 100', { prefix: 'USD', tailPrefix: true })).toBe('USD 100')
   })
 })

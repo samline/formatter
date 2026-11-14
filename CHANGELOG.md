@@ -12,8 +12,9 @@ and `Intl` APIs with no dependencies. They replace the retired
 `@samline/date` (a Day.js wrapper) and cover the rest of what Day.js and
 its plugins offer. Nothing changes for existing imports: input masks for
 dates and times stay in the core. The `regex` catalog was audited: 21
-patterns accepted invalid values or rejected valid ones, and new
-patterns cover common Mexican and web fields.
+patterns accepted invalid values or rejected valid ones; new patterns
+cover common Mexican, US, European and web fields, and check-digit
+validators catch the typos a pattern cannot.
 
 ### Added
 
@@ -26,11 +27,14 @@ patterns cover common Mexican and web fields.
   - Durations: `createDuration` (milliseconds, ISO 8601 or an object), `durationAs`, `durationToISO`, `formatDuration` (words in any locale, or `H:mm:ss`), `formatDurationPattern` and `humanizeDuration`.
 - **`formatter.date.global.js`.** A browser add-on loaded after either global script that adds `window.Formatter.date`, reusing `Formatter.intl.formatRelativeTime`. Exported as `@samline/formatter/browser/date`.
 - **New `regex` entries.** `personName` (`O'Connor`, `Pérez-Gómez`, `Ma. Fernanda`), `domain`, `clabe`, `nss`, `time12`, `isoDateTime`, `latitude`, `longitude` and `base64url`.
+- **US and European patterns.** `ssn`, `ein`, `routingNumber`, `iban`, `bic`, `vatEu` (all 27 EU countries plus Northern Ireland) and `dniEs` (Spanish DNI and NIE). `postalCode({ country })` covers 24 countries (US, MX, CA, GB, IE, DE, FR, ES, IT, PT, NL, BE, AT, CH, PL, SE, BR, AR, CO, CL, PE, JP, IN, AU); the static `postalCode` stays US ZIP. Other countries use `regex.custom()`.
+- **Check-digit validators.** `isLuhn`, `isValidCard`, `isValidClabe`, `isValidNss`, `isValidCurp`, `isValidRfc`, `isValidIban` (length per country and mod 97), `isValidRoutingNumber` and `isValidDniEs`, exported from the root and as `window.Formatter.checks`. They ignore spaces and hyphens and return a boolean, ready for a `validate` rule in `@samline/forms`.
 - **Patterns that follow the masks.** `regex.date(options)`, `regex.time(options)` and `regex.numeral(options)` take the same options as `format()` (pattern order, delimiter, 12/24-hour clock, decimal mark, grouping style, decimal scale, sign and prefix) and accept exactly what that mask writes. `regex.uuid({ version })` pins one UUID version.
 - Tests for the date tools across six local time zones, daylight-saving days in New York, half-hour offsets, leap years, ISO and locale weeks, and the CLDR fallback; built-package tests for the ESM, CommonJS and add-on entries and their size budget (every date function together under 30 KB minified and 10 KB gzip).
 
 ### Fixed
 
+- `regex` was bundled into every application, even one that imported only `format` (about 5 KB before this release, 12 KB with the new catalog). It is now built in a side-effect-free call, so bundlers drop it when unused: `format` alone is about 15 KB minified, down from 21 KB in 3.1.0. The check-digit validators do not pull in `regex` either (`isValidIban` alone is about 1.3 KB).
 - `regex.phone` and `regex.creditCard` accepted any non-digit between digits, so `abc5512345678` passed. Only spaces, hyphens, dots, parentheses and `+` (phones) or single spaces and hyphens (cards) are allowed now.
 - `regex.creditCard` rejected valid 12–14 and 17–19 digit cards (Diners, Maestro, long Visa, UnionPay). It now accepts every ISO/IEC 7812 length, 12–19; `creditCard({ min, max })` still narrows it.
 - `regex.email` accepted `a..b@c.com`, `.a@c.com`, `a@b..com`, `<a>@b.com` and `a,b@c.com`. It now checks a dot-atom local part, real domain labels and the 64/254 length limits, and accepts internationalized domains.

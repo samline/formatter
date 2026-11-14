@@ -4,7 +4,13 @@
  * released under the MIT License. See LICENSE.md for the full notice.
  */
 
-import type { BlocksType, FormatTimeOptions, TimeFormatType, TimePatternType, TimeUnit } from './types.js'
+import type {
+  BlocksType,
+  FormatTimeOptions,
+  TimeFormatType,
+  TimePatternType,
+  TimeUnit,
+} from './types.js'
 import { getFormattedValue, getMaxLength, headStr, stripNonNumeric } from './utils.js'
 
 const DEFAULT_TIME_FORMAT: TimeFormatType = '24'
@@ -44,7 +50,12 @@ const getFixedTimeString = (value: string, pattern: TimePatternType): string => 
 }
 
 /** Clamp each typed segment to the limits of the 12/24-hour clock. */
-const getValidatedTime = (value: string, blocks: BlocksType, pattern: TimePatternType, timeFormat: TimeFormatType): string => {
+const getValidatedTime = (
+  value: string,
+  blocks: BlocksType,
+  pattern: TimePatternType,
+  timeFormat: TimeFormatType
+): string => {
   const limits = getTimeLimits(timeFormat)
   let result = ''
   let remaining = value
@@ -80,9 +91,13 @@ export const formatTime = (value: string, options: FormatTimeOptions = {}): stri
     delimiterLazyShow = false,
     delimiter = DEFAULT_TIME_DELIMITER,
     timePattern = DEFAULT_TIME_PATTERN,
-    timeFormat = DEFAULT_TIME_FORMAT
+    timeFormat = DEFAULT_TIME_FORMAT,
   } = options
   const blocks: BlocksType = timePattern.map(() => 2)
   const result = getValidatedTime(stripNonNumeric(value), blocks, timePattern, timeFormat)
-  return getFormattedValue(headStr(result, getMaxLength(blocks)), { blocks, delimiter, delimiterLazyShow })
+  return getFormattedValue(headStr(result, getMaxLength(blocks)), {
+    blocks,
+    delimiter,
+    delimiterLazyShow,
+  })
 }

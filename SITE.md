@@ -85,11 +85,15 @@ add-on that sets `window.Formatter.date`. Docs gained `reference/date.md`;
 entrypoints, browser, API, TypeScript and Intl pages link it. CDN pins,
 `content-audit.json` and the skill moved to 3.2.0.
 
-The `regex` catalog was audited in the same release: 21 patterns fixed, nine
-new entries and mask-aware `date()`, `time()` and `numeral()` builders.
+The `regex` catalog was audited in the same release: 21 patterns fixed, new
+Mexican, US and European entries, `postalCode({ country })` for 24 countries,
+mask-aware `date()`, `time()` and `numeral()` builders, and check-digit
+validators (`src/core/checks.ts`, also `window.Formatter.checks`).
 `reference/regex.md` was rewritten; the Playground rule picker gained CURP and
-person name. The root-entry size budget moved from 25 to 27 KB minified (IIFE
-30 → 32 KB); gzip stays under 10 KB, and the quoted sizes were re-measured.
+person name. `regex` is now built in a PURE call and the validators no longer import it,
+so `format` alone dropped to about 15 KB (it pulled the whole catalog
+before). `test:package` budgets the format-only bundle (17 KB), every root
+export (32 KB) and the IIFE (36 KB); the quoted sizes were re-measured.
 
 ## Theme provenance
 

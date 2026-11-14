@@ -14,21 +14,22 @@ const DEFAULT_DATE_PATTERN: DatePatternType = ['d', 'm', 'Y']
 type DateParts = [number, number, number]
 
 const getBlocksByDatePattern = (pattern: DatePatternType): BlocksType =>
-  pattern.map((unit) => (unit === 'Y' ? 4 : 2))
+  pattern.map(unit => (unit === 'Y' ? 4 : 2))
 
 /** Parse `YYYY-MM-DD` or `YYYY-MM` bounds into `[day, month, year]`. */
 const parseDateBound = (bound: string): number[] => {
   const parts = bound
     .split('-')
     .reverse()
-    .map((part) => parseInt(part, 10))
+    .map(part => parseInt(part, 10))
   if (parts.length === 2) parts.unshift(0)
   return parts
 }
 
 const pad = (value: number, length: number): string => String(value).padStart(length, '0')
 
-const isLeapYear = (year: number): boolean => (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0
+const isLeapYear = (year: number): boolean =>
+  (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0
 
 const getFixedDate = (day: number, month: number, year: number): DateParts => {
   const fixedMonth = Math.min(month, 12)
@@ -43,7 +44,9 @@ const getFixedDate = (day: number, month: number, year: number): DateParts => {
 const isAfter = (a: readonly number[], b: readonly number[]): boolean => {
   const [aDay = NaN, aMonth = NaN, aYear = NaN] = a
   const [bDay = NaN, bMonth = NaN, bYear = NaN] = b
-  return aYear > bYear || (aYear === bYear && (aMonth > bMonth || (aMonth === bMonth && aDay > bDay)))
+  return (
+    aYear > bYear || (aYear === bYear && (aMonth > bMonth || (aMonth === bMonth && aDay > bDay)))
+  )
 }
 
 const getRangeFixedDate = (
@@ -53,7 +56,7 @@ const getRangeFixedDate = (
   max: readonly number[]
 ): readonly number[] => {
   if (date.length === 0 || (min.length < 3 && max.length < 3)) return date
-  if (pattern.some((unit) => unit.toLowerCase() === 'y') && date[2] === 0) return date
+  if (pattern.some(unit => unit.toLowerCase() === 'y') && date[2] === 0) return date
   if (max.length > 0 && isAfter(date, max)) return max
   if (min.length > 0 && isAfter(min, date)) return min
   return date
@@ -182,7 +185,7 @@ export const formatDate = (value: string, options: FormatDateOptions = {}): stri
     delimiter = DEFAULT_DATE_DELIMITER,
     datePattern = DEFAULT_DATE_PATTERN,
     dateMax = '',
-    dateMin = ''
+    dateMin = '',
   } = options
   const blocks = getBlocksByDatePattern(datePattern)
   // Validation only ever sees digits, so the delimiter never needs stripping.
@@ -193,5 +196,9 @@ export const formatDate = (value: string, options: FormatDateOptions = {}): stri
     parseDateBound(dateMin),
     parseDateBound(dateMax)
   )
-  return getFormattedValue(headStr(result, getMaxLength(blocks)), { blocks, delimiter, delimiterLazyShow })
+  return getFormattedValue(headStr(result, getMaxLength(blocks)), {
+    blocks,
+    delimiter,
+    delimiterLazyShow,
+  })
 }

@@ -4,7 +4,7 @@ import {
   resolveRuntimeOptions,
   FORMAT_TYPES,
   isFormatType,
-  type FormatType
+  type FormatType,
 } from './format.js'
 
 import { applyCase } from './engine/case.js'
@@ -21,11 +21,7 @@ export { FORMAT_TYPES, isFormatType, stripPrefixAndSuffix }
  * `side`. This is what a single Backspace/Delete inside a locked decoration
  * produces (e.g. `100 US` for the suffix ` USD`).
  */
-const damagedAffixLength = (
-  value: string,
-  affix: string,
-  side: 'start' | 'end'
-): number => {
+const damagedAffixLength = (value: string, affix: string, side: 'start' | 'end'): number => {
   if (affix.length < 2) return 0
   const length = affix.length - 1
   const candidate = side === 'start' ? value.slice(0, length) : value.slice(-length)
@@ -63,7 +59,7 @@ const stripTypedAffix = (
       }
       return {
         typed: value.slice(value.length - typedLen),
-        core: value.slice(0, value.length - typedLen)
+        core: value.slice(0, value.length - typedLen),
       }
     }
     // Lock mode: a single deleted character restores the whole suffix.
@@ -119,10 +115,7 @@ export const format = (
     return { formatted: '', raw: '', type: formatType }
   }
 
-  if (
-    formatType === 'general' &&
-    (!Array.isArray(options.blocks) || options.blocks.length === 0)
-  ) {
+  if (formatType === 'general' && (!Array.isArray(options.blocks) || options.blocks.length === 0)) {
     throw new TypeError(
       "The 'general' format requires a non-empty `blocks` array, e.g. { blocks: [4, 4, 4] }."
     )
@@ -143,18 +136,16 @@ export const format = (
         rawPrefix.length > 0 &&
         tailLegacy &&
         !(typeof rawSuffix === 'string' && rawSuffix.length > 0))
-    const hasHeadSuffixOverlap = tailLegacy && !(typeof rawSuffix === 'string' && rawSuffix.length > 0)
-    const hasPrefix =
-      typeof rawPrefix === 'string' &&
-      rawPrefix.length > 0 &&
-      !hasHeadSuffixOverlap
+    const hasHeadSuffixOverlap =
+      tailLegacy && !(typeof rawSuffix === 'string' && rawSuffix.length > 0)
+    const hasPrefix = typeof rawPrefix === 'string' && rawPrefix.length > 0 && !hasHeadSuffixOverlap
 
     if (hasPrefix || hasSuffix) {
       const effPrefix = hasPrefix ? rawPrefix : ''
       const effSuffix = hasSuffix
-        ? ((typeof rawSuffix === 'string' && rawSuffix.length > 0)
-            ? rawSuffix
-            : rawPrefix)
+        ? typeof rawSuffix === 'string' && rawSuffix.length > 0
+          ? rawSuffix
+          : rawPrefix
         : ''
 
       // Match decorations against the case-transformed value so a prefix
@@ -169,24 +160,14 @@ export const format = (
       let tailCut = 0
 
       if (effPrefix) {
-        const r = stripTypedAffix(
-          body,
-          effPrefix,
-          'start',
-          runtime.prefixMode === 'passthrough'
-        )
+        const r = stripTypedAffix(body, effPrefix, 'start', runtime.prefixMode === 'passthrough')
         typedHead = r.typed
         headCut = body.length - r.core.length
         body = r.core
       }
 
       if (effSuffix) {
-        const r = stripTypedAffix(
-          body,
-          effSuffix,
-          'end',
-          runtime.suffixMode === 'passthrough'
-        )
+        const r = stripTypedAffix(body, effSuffix, 'end', runtime.suffixMode === 'passthrough')
         typedTail = r.typed
         tailCut = body.length - r.core.length
         body = r.core
@@ -212,28 +193,25 @@ export const format = (
       const bodyFormatted = formatValue(body, formatType, {
         ...generalRest,
         prefix: '',
-        country: runtime.country ?? ''
+        country: runtime.country ?? '',
       })
 
-      const displayedHead = effPrefix ? (typedHead || effPrefix) : ''
-      const displayedTail = effSuffix ? (typedTail || effSuffix) : ''
+      const displayedHead = effPrefix ? typedHead || effPrefix : ''
+      const displayedTail = effSuffix ? typedTail || effSuffix : ''
       const formatted = displayedHead + bodyFormatted + displayedTail
 
       // Canonical raw values inherit display transformations without
       // separators. The default keeps the historical typed-body contract.
       const wantsCanonicalRaw =
-        (runtime.rawPrefix === true && effPrefix) ||
-        (runtime.rawSuffix === true && effSuffix)
+        (runtime.rawPrefix === true && effPrefix) || (runtime.rawSuffix === true && effSuffix)
 
       const delimiterOptions = {
         ...(runtime.delimiter !== undefined ? { delimiter: runtime.delimiter } : {}),
-        ...(runtime.delimiters !== undefined ? { delimiters: runtime.delimiters } : {})
+        ...(runtime.delimiters !== undefined ? { delimiters: runtime.delimiters } : {}),
       }
       // Default: the typed body without the formatter's own delimiters, so
       // re-formatting a displayed value (every keystroke) keeps `raw` stable.
-      const typedBody = caseSafe
-        ? stringValue.slice(headCut, stringValue.length - tailCut)
-        : body
+      const typedBody = caseSafe ? stringValue.slice(headCut, stringValue.length - tailCut) : body
       let raw = getRawValue(typedBody, formatType, delimiterOptions)
       if (wantsCanonicalRaw) {
         raw = getRawValue(bodyFormatted, formatType, delimiterOptions).replace(/\s/g, '')
