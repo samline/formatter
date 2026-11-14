@@ -132,7 +132,8 @@ Pin the version in production, or self-host the same file. 3.0.0 renamed the for
 - Card numbers grouped by brand, and brand detection.
 - Free text with title, sentence or capitalize casing (`'text'`) and live URL slugs (`'slug'`), built on [@samline/string](https://github.com/samline/utils/tree/main/packages/string).
 - General block masks with delimiters, case transforms, numeric-only input and locked or typed prefixes and suffixes.
-- A validation catalog that pairs each pattern with its error message, including parametric rules for digits, phones, cards, URLs and passwords.
+- A validation catalog that pairs each pattern with its error message: Mexican IDs (RFC, CURP, INE, CLABE, NSS), US IDs (SSN, ITIN, EIN, routing numbers), IBAN, BIC, EU VAT, postal codes for 24 countries, email, URLs, IPs and more, plus rules built from the same options as `format()` for dates, times and numbers.
+- Check-digit validators (`isValidCard`, `isValidCurp`, `isValidRfc`, `isValidClabe`, `isValidIban`…) that catch the typos a pattern cannot.
 
 [Working examples](https://samline.github.io/formatter/examples/) cover fifteen real fields: phones by country, currencies, quantities, ISO dates, card expiry, times, card numbers, order references, units, promo codes, ZIP codes, CURP, hex colors and validation rules. [Framework integrations](https://samline.github.io/formatter/docs/guides/frameworks/) covers React, Vue, Svelte, vanilla and server-side use.
 

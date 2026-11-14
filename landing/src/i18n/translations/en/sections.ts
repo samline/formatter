@@ -101,7 +101,8 @@ export default {
       global: {
         label: 'Browser global',
         entrypoint: 'window.Formatter',
-        description: 'The standalone script defines format, regex and version on one global.',
+        description:
+          'The standalone script defines format, intl, regex, checks and version on one global.',
       },
       core: {
         label: 'Types',
@@ -274,7 +275,7 @@ field.addEventListener('input', () => {
       validation: {
         question: text('Does formatting validate the value?'),
         answer: text(
-          'No. Formatting shapes input; it does not decide whether it is correct. Pair it with the regex catalog, which gives each pattern a ready error message for setCustomValidity() or your own UI, and always validate again on the server. Card formatting is not payment validation.'
+          'No. Formatting shapes input; it does not decide whether it is correct. Pair it with the regex catalog, which gives each pattern a ready error message for setCustomValidity() or your own UI, and with the check-digit validators (isValidCard, isValidCurp, isValidIban and others) that catch mistyped digits. Always validate again on the server: a valid card number is not an authorized payment.'
         ),
       },
       countries: {

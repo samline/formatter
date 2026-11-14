@@ -186,7 +186,15 @@ validate('email', 'foo@bar.com') // null  (valid)
 validate('email', 'not-an-email') // 'Please enter a valid email address.'
 ```
 
-`RegexKey` covers the static entries (`phone`, `email`, `rfc`, `curp`, `cp`, `clabe`, `nss`, `ssn`, `ein`, `routingNumber`, `iban`, `bic`, `vatEu`, `dniEs`, `postalCode`, `numeral`, `onlyNumbers`, `creditCard`, `expirationDate`, `cardCvc`, `onlyLetters`, `onlyAlphanumeric`, `personName`, `url`, `domain`, `ipv4`, `ipv6`, `uuid`, `hexColor`, `hashtag`, `mention`, `base64`, `base64url`, `semver`, `macAddress`, `time24`, `time12`, `date`, `isoDateTime`, `latitude`, `longitude`, `slug`, `username`). It excludes the parametric-only helpers `digits`, `time`, `password`, and `custom`. `PostalCountry` is the union of ISO codes `regex.postalCode({ country })` accepts.
+`RegexKey` covers the static entries (`phone`, `email`, `rfc`, `curp`, `cp`, `clabe`, `nss`, `ine`, `ineCic`, `ineOcr`, `passportMx`, `ssn`, `itin`, `passportUs`, `ein`, `routingNumber`, `iban`, `bic`, `vatEu`, `dniEs`, `postalCode`, `numeral`, `onlyNumbers`, `creditCard`, `expirationDate`, `cardCvc`, `onlyLetters`, `onlyAlphanumeric`, `personName`, `url`, `domain`, `ipv4`, `ipv6`, `uuid`, `hexColor`, `hashtag`, `mention`, `base64`, `base64url`, `semver`, `macAddress`, `time24`, `time12`, `date`, `isoDateTime`, `latitude`, `longitude`, `slug`, `username`). It excludes the parametric-only helpers `digits`, `time`, `password`, and `custom`. `PostalCountry` is the union of ISO codes `regex.postalCode({ country })` accepts.
+
+The check-digit validators share one signature:
+
+```ts
+type CheckDigitValidator = (value: unknown) => boolean
+// isLuhn, isValidCard, isValidClabe, isValidNss, isValidCurp,
+// isValidRfc, isValidIban, isValidRoutingNumber, isValidDniEs
+```
 
 ### `Regex`
 

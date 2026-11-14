@@ -267,10 +267,11 @@ When `rawSuffix` is omitted, `raw` is digits-only — pass `true` to ship the ca
 Pair `format()` with the bundled `regex` object so the error message you show the user matches what the validator checks.
 
 ```ts title="src/validate.ts"
-import { format, regex } from '@samline/formatter'
+import { format, isValidCard, regex } from '@samline/formatter'
 
 export function validateCardNumber(value: string): string | null {
-  return regex.creditCard.pattern.test(value) ? null : regex.creditCard.errorMessage
+  if (!regex.creditCard.pattern.test(value)) return regex.creditCard.errorMessage
+  return isValidCard(value) ? null : 'Check the card number: one digit looks wrong.'
 }
 
 export function validateEmail(value: string): string | null {
@@ -295,6 +296,73 @@ export function attachEmailField(
 ```
 
 `regex` always returns `{ pattern, errorMessage }` so the same string flows into the native HTML5 validation (`input.setCustomValidity(regex.email.errorMessage)`) and your UI.
+
+## Recipe: IDs and bank accounts with a check digit
+
+A pattern accepts any value with the right shape; the check digit catches a mistyped or swapped digit. Test the shape first for a precise message, then the check digit.
+
+```ts title="src/identity.ts"
+import { isValidClabe, isValidCurp, isValidIban, regex } from '@samline/formatter'
+
+type Rule = { pattern: RegExp; errorMessage: string; check?: (value: string) => boolean }
+
+const rules: Record<string, Rule> = {
+  curp: { ...regex.curp, check: isValidCurp },
+  clabe: { ...regex.clabe, check: isValidClabe },
+  iban: { ...regex.iban, check: isValidIban },
+  ine: regex.ine, // the clave de elector has no published check digit
+}
+
+export function validateId(kind: string, value: string): string | null {
+  const rule = rules[kind]
+  if (!rule) return null
+  if (!rule.pattern.test(value)) return rule.errorMessage
+  return rule.check && !rule.check(value)
+    ? 'The check digit does not match. Review the value.'
+    : null
+}
+```
+
+The validators ignore spaces and hyphens, so `validateId('iban', 'GB82 WEST 1234 5698 7654 32')` passes as typed. A valid check digit proves the value is well formed, not that it exists.
+
+## Recipe: Validate exactly what the mask shows
+
+`regex.date`, `regex.time` and `regex.numeral` take the options you give `format()`, so the rule always matches the visible value:
+
+```ts title="src/booking.ts"
+import { format, regex, type FormatOptions } from '@samline/formatter'
+
+const dateOptions: FormatOptions = { datePattern: ['d', 'm', 'Y'], delimiter: '/' }
+const priceOptions: FormatOptions = { delimiter: '.', numeralDecimalMark: ',', prefix: '€ ' }
+
+// The mask clamps impossible days ('31042026' → '30/04/2026') but lets a
+// half-typed value through; the rule tells you whether it is complete.
+const typing = format('3004202', 'date', dateOptions) // '30/04/202'
+regex.date(dateOptions).pattern.test(typing.formatted) // false — not finished
+const done = format('30042026', 'date', { ...dateOptions, interpretInputAs: 'display' })
+regex.date(dateOptions).pattern.test(done.formatted) // true — '30/04/2026'
+
+const price = format('1234,5', 'numeral', priceOptions)
+regex.numeral(priceOptions).pattern.test(price.formatted) // true — '€ 1.234,5'
+```
+
+## Recipe: A country without a built-in rule
+
+`regex.postalCode({ country })` knows 24 countries and throws a `RangeError` for any other code. Keep the same `{ pattern, errorMessage }` shape with `regex.custom()`:
+
+```ts title="src/postal.ts"
+import { regex } from '@samline/formatter'
+
+const known = ['US', 'MX', 'CA', 'GB', 'ES'] as const
+
+export function postalRule(country: string) {
+  if ((known as readonly string[]).includes(country)) {
+    return regex.postalCode({ country: country as (typeof known)[number] })
+  }
+  if (country === 'NZ') return regex.custom(/^\d{4}$/, 'Please enter a valid postcode.')
+  return regex.custom(/^[A-Z0-9 -]{3,10}$/i, 'Please enter a valid postal code.')
+}
+```
 
 ## Recipe: Vanilla `<form>` posted natively
 

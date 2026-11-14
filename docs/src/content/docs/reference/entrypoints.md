@@ -10,16 +10,16 @@ description: 'The ESM, CommonJS, vanilla and browser IIFE entrypoints of @samlin
 
 Every module entrypoint shares one core — what changes is the bundle shape and what each one adds. Pick the entrypoint that matches your build target, then add `/phone`, `/intl` or `/date` only when you need them.
 
-| Entrypoint                         | Build shape                        | Use when                                                                                                    |
-| ---------------------------------- | ---------------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| `@samline/formatter`               | ESM + CJS dual package             | Main entry: `format()`, `regex` and the helpers. Use with Vite, Webpack, Rollup, esbuild, Bun, ts-node.     |
-| `@samline/formatter/vanilla`       | ESM + CJS dual package             | Same surface as the root, with an explicit `/vanilla` subpath.                                              |
-| `@samline/formatter/phone`         | ESM + CJS dual package             | Opt-in phone support: `registerPhone()`, `formatPhone()` and `isPhoneRegistered()`. Adds libphonenumber-js. |
-| `@samline/formatter/intl`          | ESM + CJS dual package             | Display helpers on native `Intl`: numbers, currency, percent, dates and relative time. No dependencies.     |
-| `@samline/formatter/date`          | ESM + CJS dual package             | Read, format, change, compare and measure dates, in any time zone, with durations. No dependencies.         |
-| `@samline/formatter/browser`       | IIFE (`formatter.global.js`)       | HTML, Shopify or WordPress without a bundler. Registers `window.Formatter` without phone support.           |
-| `@samline/formatter/browser/phone` | IIFE (`formatter.phone.global.js`) | Same global with phone support already registered.                                                          |
-| `@samline/formatter/browser/date`  | IIFE (`formatter.date.global.js`)  | Add-on loaded after either global: adds `window.Formatter.date`.                                            |
+| Entrypoint                         | Build shape                        | Use when                                                                                                                            |
+| ---------------------------------- | ---------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| `@samline/formatter`               | ESM + CJS dual package             | Main entry: `format()`, `regex`, the check-digit validators and the helpers. Use with Vite, Webpack, Rollup, esbuild, Bun, ts-node. |
+| `@samline/formatter/vanilla`       | ESM + CJS dual package             | Same surface as the root, with an explicit `/vanilla` subpath.                                                                      |
+| `@samline/formatter/phone`         | ESM + CJS dual package             | Opt-in phone support: `registerPhone()`, `formatPhone()` and `isPhoneRegistered()`. Adds libphonenumber-js.                         |
+| `@samline/formatter/intl`          | ESM + CJS dual package             | Display helpers on native `Intl`: numbers, currency, percent, dates and relative time. No dependencies.                             |
+| `@samline/formatter/date`          | ESM + CJS dual package             | Read, format, change, compare and measure dates, in any time zone, with durations. No dependencies.                                 |
+| `@samline/formatter/browser`       | IIFE (`formatter.global.js`)       | HTML, Shopify or WordPress without a bundler. Registers `window.Formatter` without phone support.                                   |
+| `@samline/formatter/browser/phone` | IIFE (`formatter.phone.global.js`) | Same global with phone support already registered.                                                                                  |
+| `@samline/formatter/browser/date`  | IIFE (`formatter.date.global.js`)  | Add-on loaded after either global: adds `window.Formatter.date`.                                                                    |
 
 ## Root entrypoint — `@samline/formatter`
 
@@ -28,7 +28,7 @@ import { format, regex } from '@samline/formatter'
 import type { FormatOptions, FormatterResult, FormatType } from '@samline/formatter'
 ```
 
-This is the recommended entry point for bundlers and Node code. It re-exports the core (`format`, `regex`, the type guards, the parametric helpers) and the `FormatterResult` interface. It has no runtime dependency: the numeral, date, time, card and general engine is built in.
+This is the recommended entry point for bundlers and Node code. It re-exports the core (`format`, `regex`, the check-digit validators such as `isValidCurp` and `isValidIban`, the type guards, the parametric helpers) and the `FormatterResult` interface. Import only what you use: `regex` and the validators tree-shake away when unused. It has no runtime dependency: the numeral, date, time, card and general engine is built in.
 
 ## Vanilla entrypoint — `@samline/formatter/vanilla`
 

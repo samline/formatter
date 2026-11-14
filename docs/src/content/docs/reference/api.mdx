@@ -21,22 +21,23 @@ Functions that return data (rather than calling side-effect-ful APIs) end in a d
 
 Use this as a quick lookup when you need to know what a function will touch.
 
-| Function                        | DOM mutation | Network | Reads globals | Reads time | Notes                                                                        |
-| ------------------------------- | ------------ | ------- | ------------- | ---------- | ---------------------------------------------------------------------------- |
-| `format(value, type, options?)` | no           | no      | no            | no         | Pure string transformer. Safe to call on every keystroke.                    |
-| `isFormatType(value)`           | no           | no      | no            | no         | Type-guard. No allocation beyond the comparison.                             |
-| `FORMAT_TYPES`                  | n/a          | n/a     | n/a           | n/a        | A `readonly` tuple; iteration is the only legitimate use.                    |
-| `regex.<key>.pattern`           | no           | no      | no            | no         | A compiled `RegExp`. `regex.<key>` is also callable for parametric variants. |
-| `regex.<key>.errorMessage`      | n/a          | n/a     | n/a           | n/a        | A short human-readable message paired with the pattern.                      |
-| `registerPhone()`               | no           | no      | no            | no         | From `/phone`. Sets the one module-level switch that enables `'phone'`.      |
-| `isPhoneRegistered()`           | no           | no      | yes           | no         | Reads the phone switch.                                                      |
-| `formatPhone`                   | no           | no      | no            | no         | From `/phone`. Lower-level helper called by `format(..., 'phone')`.          |
-| `getRawValue`                   | no           | no      | no            | no         | Lower-level raw value extractor.                                             |
-| `getDateValueFromRaw`           | no           | no      | no            | no         | Legacy round-trip helper for dates.                                          |
-| `getTimeValueFromRaw`           | no           | no      | no            | no         | Legacy round-trip helper for times.                                          |
-| `looksLikeRawDateValue`         | no           | no      | no            | no         | Heuristic test for the v2.0.0 `auto` mode.                                   |
-| `looksLikeRawTimeValue`         | no           | no      | no            | no         | Heuristic test for the v2.0.0 `auto` mode.                                   |
-| `stripPrefixAndSuffix`          | no           | no      | no            | no         | Strips the configured `prefix` and `suffix` from a string.                   |
+| Function                                             | DOM mutation | Network | Reads globals | Reads time | Notes                                                                        |
+| ---------------------------------------------------- | ------------ | ------- | ------------- | ---------- | ---------------------------------------------------------------------------- |
+| `format(value, type, options?)`                      | no           | no      | no            | no         | Pure string transformer. Safe to call on every keystroke.                    |
+| `isFormatType(value)`                                | no           | no      | no            | no         | Type-guard. No allocation beyond the comparison.                             |
+| `FORMAT_TYPES`                                       | n/a          | n/a     | n/a           | n/a        | A `readonly` tuple; iteration is the only legitimate use.                    |
+| `regex.<key>.pattern`                                | no           | no      | no            | no         | A compiled `RegExp`. `regex.<key>` is also callable for parametric variants. |
+| `regex.<key>.errorMessage`                           | n/a          | n/a     | n/a           | n/a        | A short human-readable message paired with the pattern.                      |
+| `isValidCard()` and the other check-digit validators | no           | no      | no            | no         | Return a boolean; never throw, non-strings return `false`.                   |
+| `registerPhone()`                                    | no           | no      | no            | no         | From `/phone`. Sets the one module-level switch that enables `'phone'`.      |
+| `isPhoneRegistered()`                                | no           | no      | yes           | no         | Reads the phone switch.                                                      |
+| `formatPhone`                                        | no           | no      | no            | no         | From `/phone`. Lower-level helper called by `format(..., 'phone')`.          |
+| `getRawValue`                                        | no           | no      | no            | no         | Lower-level raw value extractor.                                             |
+| `getDateValueFromRaw`                                | no           | no      | no            | no         | Legacy round-trip helper for dates.                                          |
+| `getTimeValueFromRaw`                                | no           | no      | no            | no         | Legacy round-trip helper for times.                                          |
+| `looksLikeRawDateValue`                              | no           | no      | no            | no         | Heuristic test for the v2.0.0 `auto` mode.                                   |
+| `looksLikeRawTimeValue`                              | no           | no      | no            | no         | Heuristic test for the v2.0.0 `auto` mode.                                   |
+| `stripPrefixAndSuffix`                               | no           | no      | no            | no         | Strips the configured `prefix` and `suffix` from a string.                   |
 
 The `format` function and every helper it delegates to are referentially transparent — the same `(value, formatType, options)` triple always returns the same `FormatterResult`. This is what enables SSR re-rendering and testing without mocks. The only module state is the phone switch: once `registerPhone()` runs, `'phone'` formats instead of throwing. The [Intl display helpers](../intl/) and the [date tools](../date/) are listed on their own pages; `formatRelativeTime`, `formatCalendar`, `isToday` and the parsers that fill a missing date read the clock when `now` is omitted.
 
@@ -177,6 +178,25 @@ import { regex } from '@samline/formatter'
 
 regex.email.pattern.test('foo@bar.com') // true
 regex.email.errorMessage // 'Please enter a valid email address.'
+```
+
+Static entries expose `.pattern` and `.errorMessage`. The builders `digits`, `phone`, `creditCard`, `url`, `uuid`, `date`, `time`, `numeral`, `postalCode`, `password` and `custom` return a fresh `{ pattern, errorMessage }`; `date`, `time` and `numeral` take the same options as `format()`:
+
+```ts
+regex.postalCode({ country: 'CA' }).pattern.test('K1A 0B1') // true
+regex.date({ datePattern: ['d', 'm', 'Y'] }).pattern.test('31/04/2026') // false
+```
+
+## Check-digit validators
+
+`isLuhn`, `isValidCard`, `isValidClabe`, `isValidNss`, `isValidCurp`, `isValidRfc`, `isValidIban`, `isValidRoutingNumber` and `isValidDniEs` verify the check digit that a pattern cannot. Each takes `value: unknown`, ignores spaces and hyphens, upper-cases letters and returns a `boolean`. They are also on `window.Formatter.checks`. See [Check-digit validators](../regex/#check-digit-validators) for what each one verifies.
+
+```ts
+import { isValidCard, isValidIban } from '@samline/formatter'
+
+isValidCard('4111 1111 1111 1111') // true
+isValidIban('GB82 WEST 1234 5698 7654 32') // true
+isValidIban('GB82 WEST 1234 5698 7654 33') // false — one digit changed
 ```
 
 ## Phone support

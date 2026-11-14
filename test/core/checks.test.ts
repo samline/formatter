@@ -164,6 +164,34 @@ describe('US and European patterns', () => {
     }
   })
 
+  it('identity documents: INE, passports and ITIN', () => {
+    const cases: [keyof typeof regex, string, boolean][] = [
+      ['ine', 'GMVLMR80070501M100', true],
+      ['ine', 'gmvlmr80070501m100', true],
+      ['ine', 'GMVLMR80130501M100', false],
+      ['ine', 'GMVLMR80070533M100', false],
+      ['ine', 'GMVLMR80070501Z100', false],
+      ['ine', 'GMVLMR8007051M100', false],
+      ['ineCic', '123456789', true],
+      ['ineCic', '12345678', false],
+      ['ineOcr', '1234567890123', true],
+      ['passportMx', 'G12345678', true],
+      ['passportMx', '1234567890', false],
+      ['itin', '912-70-1234', true],
+      ['itin', '912701234', true],
+      ['itin', '912-93-1234', false],
+      ['itin', '812-70-1234', false],
+      ['itin', '912-70 1234', false],
+      ['passportUs', '123456789', true],
+      ['passportUs', 'A12345678', true],
+      ['passportUs', '12345678', false],
+    ]
+    for (const [key, value, expected] of cases) {
+      const entry = regex[key] as { pattern: RegExp }
+      expect([key, value, entry.pattern.test(value)]).toEqual([key, value, expected])
+    }
+  })
+
   it('iban, bic, vatEu and dniEs', () => {
     const cases: [keyof typeof regex, string, boolean][] = [
       ['iban', 'GB82 WEST 1234 5698 7654 32', true],

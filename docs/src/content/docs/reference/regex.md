@@ -100,24 +100,36 @@ r.errorMessage // 'Invalid value.'
 
 ### Phone & Mexico
 
-| Key     | Signature                                         | Description                                                                                             | Error message                                 |
-| ------- | ------------------------------------------------- | ------------------------------------------------------------------------------------------------------- | --------------------------------------------- |
-| `phone` | `phone()` / `phone({ length })` / `phone.pattern` | Phone numbers (default: 10 digits). Spaces, hyphens, dots, parentheses and `+` may separate the digits. | `Please enter a valid 10-digit phone number.` |
-| `rfc`   | `rfc.pattern`                                     | Mexican RFC: 3 or 4 letters, a real `YYMMDD` date and a 3-character homoclave                           | `Please enter a valid RFC.`                   |
-| `curp`  | `curp.pattern`                                    | Mexican CURP: date, sex (`H`, `M`, `X`), state code (`NE` abroad), inner consonants and check digit     | `Please enter a valid CURP.`                  |
-| `cp`    | `cp.pattern`                                      | Mexican postal code (`01000`–`99999`)                                                                   | `Please enter a valid 5-digit postal code.`   |
-| `clabe` | `clabe.pattern`                                   | Mexican interbank account number (18 digits)                                                            | `Please enter a valid 18-digit CLABE.`        |
-| `nss`   | `nss.pattern`                                     | Mexican social security number (IMSS, 11 digits)                                                        | `Please enter a valid 11-digit NSS.`          |
+| Key          | Signature                                         | Description                                                                                                | Error message                                             |
+| ------------ | ------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
+| `phone`      | `phone()` / `phone({ length })` / `phone.pattern` | Phone numbers (default: 10 digits). Spaces, hyphens, dots, parentheses and `+` may separate the digits.    | `Please enter a valid 10-digit phone number.`             |
+| `rfc`        | `rfc.pattern`                                     | Mexican RFC: 3 or 4 letters, a real `YYMMDD` date and a 3-character homoclave                              | `Please enter a valid RFC.`                               |
+| `curp`       | `curp.pattern`                                    | Mexican CURP: date, sex (`H`, `M`, `X`), state code (`NE` abroad), inner consonants and check digit        | `Please enter a valid CURP.`                              |
+| `cp`         | `cp.pattern`                                      | Mexican postal code (`01000`–`99999`)                                                                      | `Please enter a valid 5-digit postal code.`               |
+| `clabe`      | `clabe.pattern`                                   | Mexican interbank account number (18 digits)                                                               | `Please enter a valid 18-digit CLABE.`                    |
+| `ine`        | `ine.pattern`                                     | Mexican voter ID key (clave de elector, INE): 6 letters, birth `YYMMDD`, state `01`–`32`, sex and 3 digits | `Please enter a valid voter ID key (clave de elector).`   |
+| `ineCic`     | `ineCic.pattern`                                  | CIC on the back of INE credentials from model D on (9 digits)                                              | `Please enter a valid 9-digit CIC.`                       |
+| `ineOcr`     | `ineOcr.pattern`                                  | OCR on the back of older INE/IFE credentials (13 digits)                                                   | `Please enter a valid 13-digit OCR.`                      |
+| `passportMx` | `passportMx.pattern`                              | Mexican passport (a letter and 8 digits, `G12345678`)                                                      | `Please enter a valid passport number (e.g., G12345678).` |
+| `nss`        | `nss.pattern`                                     | Mexican social security number (IMSS, 11 digits)                                                           | `Please enter a valid 11-digit NSS.`                      |
 
 ### United States
 
-| Key             | Signature               | Description                                                                                                             | Error message                                   |
-| --------------- | ----------------------- | ----------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------- |
-| `ssn`           | `ssn.pattern`           | Social Security number (`123-45-6789`); no `000`, `666` or `9xx` area, `00` group or `0000` serial, one separator style | `Please enter a valid SSN (e.g., 123-45-6789).` |
-| `ein`           | `ein.pattern`           | Employer Identification Number (`12-3456789`) with an IRS-assigned prefix                                               | `Please enter a valid EIN (e.g., 12-3456789).`  |
-| `routingNumber` | `routingNumber.pattern` | ABA routing number (9 digits, Federal Reserve prefix); pair it with `isValidRoutingNumber`                              | `Please enter a valid 9-digit routing number.`  |
+| Key             | Signature               | Description                                                                                                             | Error message                                    |
+| --------------- | ----------------------- | ----------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------ |
+| `ssn`           | `ssn.pattern`           | Social Security number (`123-45-6789`); no `000`, `666` or `9xx` area, `00` group or `0000` serial, one separator style | `Please enter a valid SSN (e.g., 123-45-6789).`  |
+| `itin`          | `itin.pattern`          | Individual Taxpayer Identification Number (`912-70-1234`): starts with 9, group 50–65, 70–88, 90–92 or 94–99            | `Please enter a valid ITIN (e.g., 912-70-1234).` |
+| `passportUs`    | `passportUs.pattern`    | US passport book (9 digits) or next-generation book or card (a letter and 8 digits)                                     | `Please enter a valid US passport number.`       |
+| `ein`           | `ein.pattern`           | Employer Identification Number (`12-3456789`) with an IRS-assigned prefix                                               | `Please enter a valid EIN (e.g., 12-3456789).`   |
+| `routingNumber` | `routingNumber.pattern` | ABA routing number (9 digits, Federal Reserve prefix); pair it with `isValidRoutingNumber`                              | `Please enter a valid 9-digit routing number.`   |
 
 US ZIP codes are `postalCode` (below); US phone numbers are `phone` (10 digits).
+
+The US has no national ID card: the everyday equivalent of the Mexican INE is the state driver's license or state ID, and each of the 50 states numbers it differently (for example `A1234567` in California, `123 456 789` in New York, `A123-456-78-901-0` in Florida). There is no built-in rule for it; write the states you serve with `regex.custom()`:
+
+```ts
+const licenseCa = regex.custom(/^[A-Z]\d{7}$/i, 'Please enter a valid California license number.')
+```
 
 ### Europe & banking
 

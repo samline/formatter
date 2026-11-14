@@ -490,6 +490,28 @@ const buildStatic = () => {
       pattern: /^\d{18}$/,
       errorMessage: 'Please enter a valid 18-digit CLABE.',
     },
+    ine: {
+      // Mexican voter ID key (clave de elector, INE): 6 letters, birth
+      // YYMMDD, state 01–32, sex (H, M or X) and 3 digits
+      pattern:
+        /^[A-Z]{6}\d{2}(?:0[1-9]|1[0-2])(?:0[1-9]|[12]\d|3[01])(?:0[1-9]|[12]\d|3[0-2])[HMX]\d{3}$/i,
+      errorMessage: 'Please enter a valid voter ID key (clave de elector).',
+    },
+    ineCic: {
+      // CIC on the back of INE credentials from model D on (9 digits)
+      pattern: /^\d{9}$/,
+      errorMessage: 'Please enter a valid 9-digit CIC.',
+    },
+    ineOcr: {
+      // OCR on the back of older INE/IFE credentials (13 digits)
+      pattern: /^\d{13}$/,
+      errorMessage: 'Please enter a valid 13-digit OCR.',
+    },
+    passportMx: {
+      // Mexican passport: a letter and 8 digits (G12345678)
+      pattern: /^[A-Z]\d{8}$/i,
+      errorMessage: 'Please enter a valid passport number (e.g., G12345678).',
+    },
     nss: {
       // Mexican social security number (NSS, IMSS): 11 digits
       pattern: /^\d{11}$/,
@@ -579,6 +601,17 @@ const buildStatic = () => {
       // US Social Security number: no 000, 666 or 9xx area, 00 group or 0000 serial
       pattern: /^(?!000|666|9)\d{3}([- ]?)(?!00)\d{2}\1(?!0000)\d{4}$/,
       errorMessage: 'Please enter a valid SSN (e.g., 123-45-6789).',
+    },
+    itin: {
+      // US Individual Taxpayer Identification Number: 9XX, group 50–65,
+      // 70–88, 90–92 or 94–99, one separator style
+      pattern: /^9\d{2}([- ]?)(?:5\d|6[0-5]|7\d|8[0-8]|9[0-2]|9[4-9])\1\d{4}$/,
+      errorMessage: 'Please enter a valid ITIN (e.g., 912-70-1234).',
+    },
+    passportUs: {
+      // US passport book (9 digits) or next-generation book or card (a letter and 8 digits)
+      pattern: /^(?:\d{9}|[A-Z]\d{8})$/i,
+      errorMessage: 'Please enter a valid US passport number.',
     },
     ein: {
       // US Employer Identification Number with an IRS-assigned prefix

@@ -455,6 +455,9 @@ export const scenarios = {
         ['rfc', 'Mexican RFC'],
         ['curp', 'Mexican CURP'],
         ['personName', 'Person name'],
+        ['ine', 'Mexican INE voter key'],
+        ['ssn', 'US Social Security number'],
+        ['iban', 'IBAN'],
         ['ipv4', 'IPv4 address'],
         ['uuid', 'UUID'],
         ['slug', 'URL slug'],
@@ -468,6 +471,7 @@ export const scenarios = {
       { label: 'Strong password', value: 'Passw0rd!', choice: 'password' },
       { label: 'Slug with spaces', value: 'my new post', choice: 'slug' },
       { label: 'Accented name', value: 'José Pérez-Güemes', choice: 'personName' },
+      { label: 'IBAN with spaces', value: 'GB82 WEST 1234 5698 7654 32', choice: 'iban' },
     ],
   },
 } as const satisfies Record<string, Scenario>
