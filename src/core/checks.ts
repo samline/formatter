@@ -7,7 +7,7 @@
  * letters are upper-cased) and returns a boolean. Non-strings return `false`.
  *
  * ```ts
- * isValidCurp('GODE561231HDFRRN09') // check digit verified
+ * isValidCurp('GODE561231HDFRRN00') // check digit verified
  * isValidCard('4111 1111 1111 1111') // 12–19 digits and Luhn
  * ```
  */
