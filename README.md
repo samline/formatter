@@ -105,7 +105,7 @@ parseDate('2026-02-30', { format: 'YYYY-MM-DD' }) // undefined: no error object,
 Load the versioned standalone script, then use `window.Formatter`:
 
 ```html
-<script src="https://unpkg.com/@samline/formatter@3.2.0/dist/browser/formatter.phone.global.js"></script>
+<script src="https://unpkg.com/@samline/formatter@3.2.1/dist/browser/formatter.phone.global.js"></script>
 <script>
   const { format, regex } = window.Formatter
   console.log(format('5512345678', 'phone').formatted) // '55 1234 5678'
@@ -116,8 +116,8 @@ Both scripts are minified IIFEs that define `window.Formatter` with `format`, `i
 
 | Script                                                                               | Phones      | Size (minified)           |
 | ------------------------------------------------------------------------------------ | ----------- | ------------------------- |
-| `https://unpkg.com/@samline/formatter@3.2.0/dist/browser/formatter.global.js`        | no          | about 34 KB (13 KB gzip)  |
-| `https://unpkg.com/@samline/formatter@3.2.0/dist/browser/formatter.phone.global.js`  | registered  | about 177 KB (46 KB gzip) |
+| `https://unpkg.com/@samline/formatter@3.2.1/dist/browser/formatter.global.js`        | no          | about 34 KB (13 KB gzip)  |
+| `https://unpkg.com/@samline/formatter@3.2.1/dist/browser/formatter.phone.global.js`  | registered  | about 177 KB (46 KB gzip) |
 
 For the date tools, add `formatter.date.global.js` from the same folder after either script (about 24 KB minified, 9 KB gzip); it adds `window.Formatter.date`.
 

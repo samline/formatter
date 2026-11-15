@@ -5,7 +5,9 @@ All notable changes to `@samline/formatter` are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Unreleased
+## [3.2.1] - 2026-11-15
+
+Fixes for the date tools in Japanese, Chinese and Korean, and two new date-tools examples.
 
 ### Fixed
 
@@ -426,6 +428,7 @@ These come from auditing the ported engine and change a few outputs:
 - Pre-built validation regex catalog with paired error messages.
 - Advanced helpers: `formatPhone`, `getRawValue`, `getDateValueFromRaw`, `getTimeValueFromRaw`, `stripPrefixAndSuffix`.
 
+[3.2.1]: https://github.com/samline/formatter/compare/v3.2.0...v3.2.1
 [3.2.0]: https://github.com/samline/formatter/compare/v3.1.0...v3.2.0
 [3.1.0]: https://github.com/samline/formatter/compare/v3.0.0...v3.1.0
 [3.0.0]: https://github.com/samline/formatter/compare/v2.1.0...v3.0.0

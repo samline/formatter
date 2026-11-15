@@ -86,7 +86,7 @@ Parsing with tokens, formatting, calendar math, comparisons, weeks, time zones a
 ## Browser entrypoints — `@samline/formatter/browser`
 
 ```html
-<script src="https://unpkg.com/@samline/formatter@3.2.0/dist/browser/formatter.phone.global.js"></script>
+<script src="https://unpkg.com/@samline/formatter@3.2.1/dist/browser/formatter.phone.global.js"></script>
 <script>
   const result = window.Formatter.format('5512345678', 'phone')
   console.log(result.formatted) // '55 1234 5678'

@@ -1,6 +1,6 @@
 # Formatter website
 
-Landing, Examples and Docs for `@samline/formatter` 3.2.0. The package runtime, exports, Node 20+ requirement, README, license and release history remain the package contract. Website tooling requires Node **22.12+**.
+Landing, Examples and Docs for `@samline/formatter` 3.2.1. The package runtime, exports, Node 20+ requirement, README, license and release history remain the package contract. Website tooling requires Node **22.12+**.
 
 ## Run locally
 
@@ -75,6 +75,16 @@ bundled `@samline/string`. `reference/configuration.md` gained `## text` and
 `## slug`, `case` joined the `general` table, and the API / TypeScript type
 lists show nine types. CDN pins, `content-audit.json` and the skill moved to
 3.1.0.
+
+## 3.2.1 release — 2026-11-15
+
+Patch: `MMMM`/`MMM` keep the month counter in `ja` and `zh` (`3月`), and
+`parseDate` reads Korean month and weekday names. Examples gained **Check a
+date strictly** (`strict`) and **Move a date by months** (`shift`), twenty
+scenarios in all; the date readout now has `locale`, `strict` and `shift`
+kinds. `reference/intl.md` and `reference/date.md` document that `parseDate`
+returns `undefined` where `@samline/date` returned an object. CDN pins,
+`content-audit.json` and the skill moved to 3.2.1.
 
 ## 3.2.0 release — 2026-11-13
 
