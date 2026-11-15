@@ -134,7 +134,7 @@ test('file tabs copy exact highlighted source and feedback resets independently'
     }
   }
 })
-test('copied CDN and ESM files run for all eighteen scenarios', async ({ page, context }) => {
+test('copied CDN and ESM files run for all twenty scenarios', async ({ page, context }) => {
   // The CDN URL is served from this checkout's build; this proves the copied
   // code, not unpkg availability or npm publication.
   const coreIife = readFileSync(
@@ -159,6 +159,8 @@ test('copied CDN and ESM files run for all eighteen scenarios', async ({ page, c
     expiry: ['0731', '07/31', '07/31'],
     time: ['1805', '18:05', '18:05'],
     weekday: ['24122026', '24/12/2026', '24/12/2026'],
+    strict: ['2026-02-30', '2026-02-30', '2026-02-30'],
+    shift: ['20270228', '2027-02-28', '2027-02-28'],
     card: ['5555555555554444', '5555 5555 5555 4444', '5555555555554444'],
     reference: ['11112222', 'ORD-1111-2222', '11112222'],
     weight: ['250', '250 kg', '250'],
@@ -170,6 +172,8 @@ test('copied CDN and ESM files run for all eighteen scenarios', async ({ page, c
     iban: ['gb82west12345698765433', 'GB82 WEST 1234 5698 7654 33', 'GB82WEST12345698765433'],
     validator: ['not-an-email', 'not-an-email', ''],
   }
+  // Scenarios whose copied files load the date add-on.
+  const datePresets = ['weekday', 'strict', 'shift']
   await page.goto('examples/')
   const example = await context.newPage()
   const errors: string[] = []
@@ -197,7 +201,10 @@ test('copied CDN and ESM files run for all eighteen scenarios', async ({ page, c
   )
   await example.route('https://example.test/formatter-date.js', route =>
     route.fulfill({
-      body: 'export const { formatDatePattern, parseDate } = window.Formatter.date',
+      body: [
+        'export const { addDate, daysInMonth, endOfDate, formatDatePattern } = window.Formatter.date',
+        'export const { isValidDate, parseDate } = window.Formatter.date',
+      ].join('\n'),
       contentType: 'text/javascript',
     })
   )
@@ -222,7 +229,7 @@ test('copied CDN and ESM files run for all eighteen scenarios', async ({ page, c
         const usesPhone = complete.includes("from '@samline/formatter/phone'")
         expect(usesPhone, preset).toBe(preset === 'phone')
         const usesDate = complete.includes("from '@samline/formatter/date'")
-        expect(usesDate, preset).toBe(preset === 'weekday')
+        expect(usesDate, preset).toBe(datePresets.includes(preset))
         const iife = (usesPhone ? phoneIife : coreIife) + (usesDate ? `\n${dateIife}` : '')
         complete = complete
           .replace("from '@samline/formatter'", "from 'https://example.test/formatter.js'")
@@ -241,7 +248,9 @@ test('copied CDN and ESM files run for all eighteen scenarios', async ({ page, c
       } else {
         expect(complete).toContain('https://unpkg.com/@samline/formatter@')
         expect(complete.includes('formatter.phone.global.js'), preset).toBe(preset === 'phone')
-        expect(complete.includes('formatter.date.global.js'), preset).toBe(preset === 'weekday')
+        expect(complete.includes('formatter.date.global.js'), preset).toBe(
+          datePresets.includes(preset)
+        )
       }
       // Navigate (instead of setContent) so each document gets fresh globals.
       const document = complete
@@ -266,6 +275,20 @@ test('copied CDN and ESM files run for all eighteen scenarios', async ({ page, c
       }
       await expect(example.locator('input[type=hidden]')).toHaveValue(raw)
       await expect(example.locator('output[data-raw]')).toHaveText(raw)
+      if (preset === 'strict') {
+        // The copied rejectReason must match the preview's (demo-runtime.ts).
+        await expect(example.locator('[data-status]')).toHaveText('February 2026 has 28 days.')
+        await expect(example.locator('output[data-date]')).toHaveText('—')
+        await field.fill('2026-13-01')
+        await expect(example.locator('[data-status]')).toHaveText('Month 13 does not exist.')
+        await field.fill('2028-02-29')
+        await expect(example.locator('[data-status]')).toHaveText('Valid date')
+        await expect(example.locator('output[data-date]')).toHaveText('Tuesday, February 29, 2028')
+      }
+      if (preset === 'shift') {
+        await example.locator('select').selectOption('12')
+        await expect(example.locator('output[data-date]')).toHaveText(['2028-02-28', '2028-02-29'])
+      }
       if (preset === 'weekday') {
         await expect(example.locator('output[data-date]').first()).toHaveText('jueves')
         await example.locator('select').selectOption('en-US')

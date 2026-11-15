@@ -35,7 +35,12 @@ Every function is a separate export, so a bundle only carries what it imports: `
 
 ### `parseDate(value, options?)`
 
-Returns a `Date`, or `undefined` when the value cannot be read.
+Returns a `Date`, or `undefined` when the value cannot be read: wrong form, an impossible day or time, or text left over in strict mode. There is no error object (`@samline/date` returned `{ isValid: false, error }`), so check the result before using it:
+
+```ts
+const date = parseDate(input.value, { format: 'YYYY-MM-DD' })
+if (!date) return 'Type a real date as YYYY-MM-DD.'
+```
 
 ```ts
 parseDate('2026-11-12') // local midnight, November 12
@@ -95,7 +100,7 @@ formatDatePattern(date, 'LL', { locale: 'es-MX' }) // '12 de noviembre de 2026'
 formatDatePattern(date, 'HH:mm z', { timeZone: 'America/Mexico_City', locale: 'en-US' })
 ```
 
-`pattern` defaults to ISO 8601 with the offset (`'YYYY-MM-DDTHH:mm:ssZ'`). Names come from `Intl`, so every locale works without loading locale files. Next to a day number, months use the grammatical form the language needs (`'12 ноября'`, but `'ноябрь 2026'`). `options` takes `timeZone`, `locale`, `weekStart`, `minimalDays` and `fallback`.
+`pattern` defaults to ISO 8601 with the offset (`'YYYY-MM-DDTHH:mm:ssZ'`). Names come from `Intl`, so every locale works without loading locale files. Next to a day number, months use the grammatical form the language needs (`'12 ноября'`, but `'ноябрь 2026'`). In Japanese and Chinese, `MMMM` and `MMM` keep the month counter (`formatDatePattern(date, 'D MMMM YYYY', { locale: 'ja' })` → `'23 3月 2026'`), and `parseDate` reads them back, Korean `3월` included. `options` takes `timeZone`, `locale`, `weekStart`, `minimalDays` and `fallback`.
 
 ### Tokens
 

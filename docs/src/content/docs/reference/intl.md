@@ -150,7 +150,10 @@ formatRelativeTime(threeDaysAgo, { locale: 'en-US', unit: 'hour' }) // '72 hours
 | the same, with locale presets                                                        | `formatDate('23/03/2026', { pattern: ['d', 'm', 'Y'], locale: 'en-US', preset: 'long' })` from `./intl`                       |
 | `createDateFormatter({ locale: 'es-mx' })`                                           | pass `locale: 'es-MX'` per call; `Intl` instances are cached for you                                                          |
 | `isValidDate(...)`                                                                   | `isValidDate('31/04/2026', { format: 'DD/MM/YYYY' })` from `./date` → `false`; `regex.date(options)` for a masked input       |
+| an invalid date gave `{ isValid: false, error }`                                     | `parseDate('31/04/2026', { format: 'DD/MM/YYYY' })` → `undefined`; there is no error object, so test `if (!date)`             |
 | `createDateChain(...)` (add, subtract, start of…)                                    | `addDate`, `subtractDate`, `startOfDate`, `endOfDate` and `setDateUnit` from `./date`, one function per step                  |
+
+Invalid input is not an object anymore: `parseDate` returns `undefined`, `isValidDate` returns `false` and `formatDatePattern` returns its `fallback` (`''` by default), so check the parsed value before using it. The [strict date example](../../guides/examples/#check-a-date-strictly) shows how to tell people why a date was rejected.
 
 `./intl` follows the locale's conventions (presets and `Intl.DateTimeFormatOptions`); use `formatDatePattern` from `./date` when you need an exact token pattern.
 

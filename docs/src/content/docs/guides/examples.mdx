@@ -5,7 +5,7 @@ sidebar:
   order: 1
 title: 'Working examples'
 titleAccent: 'examples'
-description: 'Eighteen live form fields covering every format type, decorations, the regex catalog, check digits and the date tools, with copyable source files.'
+description: 'Twenty live form fields covering every format type, decorations, the regex catalog, check digits and the date tools, with copyable source files.'
 ---
 
 import Playground from '../../../../../shared/components/Playground.astro'
@@ -67,6 +67,18 @@ The `numeral` type adds grouping, a prefix and a decimal limit. `raw` is a plain
 The mask writes `DD/MM/YYYY`; `parseDate` from `@samline/formatter/date` reads it back with the same tokens and `formatDatePattern` shows the weekday (`dddd`), the long date (`LL`) and the ISO week (`WW`) in the selected locale. `parseDate` is strict, so it returns `undefined` until the date is complete and real, and `regex.date(options)` reports the same state for the visible value. The copied ESM file imports `@samline/formatter/date`; the CDN file loads `formatter.date.global.js` after the core script and reads `window.Formatter.date`. See [Date tools](../../reference/date/) for every function.
 
 <Playground preset="weekday" showCode />
+
+### Check a date strictly
+
+This field has no mask, so nothing corrects the value: it shows what `parseDate` does with a date that does not exist. `isValidDate(value, { format: 'YYYY-MM-DD' })` is `false` for `2026-02-30`, and `parseDate` returns `undefined` instead of rolling it over to March 2 the way `new Date(2026, 1, 30)` does. There is no error object, so the copied code explains the rejection itself with `daysInMonth`: **February 2026 has 28 days.**, **Month 13 does not exist.** or a reminder of the `YYYY-MM-DD` form.
+
+<Playground preset="strict" showCode />
+
+### Move a date by months
+
+`addDate(date, months, 'month')` adds calendar months and clamps the day, so `2026-01-31` plus one month is `2026-02-28`, never March 3. `endOfDate(result, 'month')` gives the last day of that month: `2027-02-28` plus twelve months ends on `2028-02-29`. The mask writes `YYYY-MM-DD` and `parseDate` reads it with the same tokens.
+
+<Playground preset="shift" showCode />
 
 ## Payment cards
 

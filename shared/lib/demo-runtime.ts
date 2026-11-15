@@ -7,7 +7,14 @@ import {
   regex,
   type FormatOptions,
 } from '@samline/formatter'
-import { formatDatePattern, parseDate } from '@samline/formatter/date'
+import {
+  addDate,
+  daysInMonth,
+  endOfDate,
+  formatDatePattern,
+  isValidDate,
+  parseDate,
+} from '@samline/formatter/date'
 import t, { type CheckDigit, type Scenario } from '../i18n/translations/en/demo'
 
 /**
@@ -48,9 +55,26 @@ export const ruleFor = (item: Scenario, choice?: string): Rule | null => {
   return resolve(check.key, check.args)
 }
 
+/**
+ * Why a strict `YYYY-MM-DD` value was rejected. The copied files carry the
+ * same function (`demo-source.ts`), and the browser suite compares them.
+ */
+export const rejectReason = (text: string): string => {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(text)
+  if (!match) return 'Use the YYYY-MM-DD form, for example 2026-02-28.'
+  const [year, month, day] = match.slice(1).map(Number) as [number, number, number]
+  if (month < 1 || month > 12) return `Month ${month} does not exist.`
+  const first = new Date(year, month - 1, 1)
+  const days = daysInMonth(first)
+  if (day < 1 || day > days)
+    return `${formatDatePattern(first, 'MMMM YYYY', { locale: 'en-US' })} has ${days} days.`
+  return 'Not a valid date.'
+}
+
 /** The label above the status, e.g. `regex.postalCode({ country }) + isValidIban`. */
 export const ruleLabel = (item: Scenario) => {
   const check = item.check
+  if (item.dateReadout?.kind === 'strict') return 'isValidDate(value, { format })'
   if (!item.formatType) return t.ruleLabel
   if (!check) return ''
   const args = check.withOptions
@@ -96,13 +120,27 @@ export const evaluate = (item: Scenario, value: string, choice?: string): DemoSt
     }
   }
   let dates: string[] | null = null
-  if (item.dateReadout) {
-    const readout = item.dateReadout
+  const readout = item.dateReadout
+  if (readout) {
+    const selected = choice ?? item.choice?.initial
     const date = parseDate(formatted, { format: readout.parse })
-    const locale = item.choice?.role === 'locale' ? (choice ?? item.choice.initial) : undefined
-    dates = readout.outputs.map(output =>
-      date ? formatDatePattern(date, output.pattern, { locale }) : readout.empty
-    )
+    if (readout.kind === 'strict') {
+      const valid = isValidDate(formatted, { format: readout.parse })
+      status = { valid, text: valid ? 'Valid date' : rejectReason(formatted) }
+      dates = readout.outputs.map(output =>
+        date ? formatDatePattern(date, output.pattern, { locale: 'en-US' }) : readout.empty
+      )
+    } else if (readout.kind === 'shift') {
+      const moved = date && addDate(date, Number(selected), 'month')
+      const results = moved ? [moved, endOfDate(moved, 'month')] : []
+      dates = readout.outputs.map((output, index) =>
+        results[index] ? formatDatePattern(results[index], output.pattern) : readout.empty
+      )
+    } else {
+      dates = readout.outputs.map(output =>
+        date ? formatDatePattern(date, output.pattern, { locale: selected }) : readout.empty
+      )
+    }
   }
   return {
     formatted,

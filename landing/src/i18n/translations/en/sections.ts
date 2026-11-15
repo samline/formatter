@@ -152,7 +152,7 @@ export default {
     titleAccent: 'Keep the data clean.',
     description:
       'Patterns that come up in real forms: server-filled values, regional numbers, stored values and validation messages.',
-    examplesLabel: 'Explore all eighteen examples',
+    examplesLabel: 'Explore all twenty examples',
     items: [
       {
         title: 'Show a value from your API',

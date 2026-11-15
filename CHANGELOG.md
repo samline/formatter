@@ -5,6 +5,18 @@ All notable changes to `@samline/formatter` are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Fixed
+
+- **Month names in Japanese and Chinese.** `formatDatePattern(date, 'D MMMM YYYY', { locale: 'ja' })` printed `'23 3 2026'`: `Intl` writes the month as a number with `月` as a separate part, and only the number was kept. `MMMM` and `MMM` now keep the counter (`'23 3月 2026'`) in `ja`, `zh` and `zh-TW`, as Day.js did.
+- **Korean month and weekday names in `parseDate`.** `parseDate('12 11월 2026', { format: 'D MMMM YYYY', locale: 'ko' })` returned `undefined`: names are compared after Unicode normalization, which splits each Hangul syllable into three letters, and the shortest prefix tried was longer than the name itself.
+
+### Documentation
+
+- Examples: two new live fields with the date tools (twenty in all). **Check a date strictly** has no mask and shows `isValidDate` and `parseDate` rejecting `2026-02-30`, with the reason written by the example itself; **Move a date by months** shows `formatDatePattern(endOfDate(addDate(date, n, 'month'), 'month'), 'YYYY-MM-DD')`. Both copy HTML / CDN files that load `formatter.date.global.js` and Package / ESM files that import `@samline/formatter/date`.
+- `parseDate` returns `undefined` for an invalid date where `@samline/date` returned `{ isValid: false, error }`; the migration table in `reference/intl.md`, `reference/date.md`, the README and the skill say so.
+
 ## [3.2.0] - 2026-11-13
 
 Date tools in a new `@samline/formatter/date` subpath, on the native `Date`

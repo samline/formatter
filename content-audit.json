@@ -638,6 +638,18 @@
         "reviewed": true
       },
       {
+        "name": "Check a date strictly (isValidDate, parseDate)",
+        "evidence": "shared/i18n/translations/en/demo.ts#strict; live preview and copied CDN/ESM files executed in site-e2e/site.spec.ts",
+        "destination": "landing/src/sections/ExamplesGallery.astro",
+        "reviewed": true
+      },
+      {
+        "name": "Move a date by months (addDate, endOfDate)",
+        "evidence": "shared/i18n/translations/en/demo.ts#shift; live preview and copied CDN/ESM files executed in site-e2e/site.spec.ts",
+        "destination": "landing/src/sections/ExamplesGallery.astro",
+        "reviewed": true
+      },
+      {
         "name": "Card number and brand",
         "evidence": "shared/i18n/translations/en/demo.ts#card; live preview and copied CDN/ESM files executed in site-e2e/site.spec.ts",
         "destination": "landing/src/sections/ExamplesGallery.astro",

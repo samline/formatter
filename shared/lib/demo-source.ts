@@ -84,7 +84,7 @@ ${item.choice.choices.map(([value, label]) => `    <option value="${value}"${val
   </select>`
     : ''
   const validation = !item.formatType
-  const status = item.check || validation
+  const status = item.check || validation || item.dateReadout?.kind === 'strict'
   const described = validation
     ? `${field.id}-status`
     : `${field.id}-raw${status ? ` ${field.id}-status` : ''}`
@@ -197,7 +197,62 @@ const choiceVariable = (item: Scenario) =>
     ? 'country'
     : item.choice?.role === 'locale'
       ? 'locale'
-      : 'choice'
+      : item.choice?.role === 'months'
+        ? 'months'
+        : 'choice'
+
+/** The date tools each readout kind imports. */
+const dateImportsFor = {
+  locale: 'formatDatePattern, parseDate',
+  strict: 'daysInMonth, formatDatePattern, isValidDate, parseDate',
+  shift: 'addDate, endOfDate, formatDatePattern, parseDate',
+} as const
+
+/** Same function as `rejectReason` in `demo-runtime.ts`, as consumers would write it. */
+const rejectReasonSource = [
+  '// parseDate only says undefined; this explains the most common reasons.',
+  'const rejectReason = text => {',
+  '  const match = /^(\\d{4})-(\\d{2})-(\\d{2})$/.exec(text)',
+  "  if (!match) return 'Use the YYYY-MM-DD form, for example 2026-02-28.'",
+  '  const [year, month, day] = match.slice(1).map(Number)',
+  '  if (month < 1 || month > 12) return `Month ${month} does not exist.`',
+  '  const first = new Date(year, month - 1, 1)',
+  '  const days = daysInMonth(first)',
+  '  if (day < 1 || day > days)',
+  "    return `${formatDatePattern(first, 'MMMM YYYY', { locale: 'en-US' })} has ${days} days.`",
+  "  return 'Not a valid date.'",
+  '}',
+]
+
+/** The lines inside `update()` that read the formatted date. */
+const readoutLines = (readout: NonNullable<Scenario['dateReadout']>, select: string | null) => {
+  const parse = `  const date = parseDate(formatted, { format: ${quote(readout.parse)} })`
+  const empty = quote(readout.empty)
+  if (readout.kind === 'strict')
+    return [
+      parse,
+      `  const valid = isValidDate(formatted, { format: ${quote(readout.parse)} })`,
+      `  dateOutputs[0].value = date ? formatDatePattern(date, ${quote(readout.outputs[0]!.pattern)}, { locale: 'en-US' }) : ${empty}`,
+      '  status.dataset.valid = String(valid)',
+      "  status.textContent = valid ? 'Valid date' : rejectReason(formatted)",
+    ]
+  if (readout.kind === 'shift')
+    return [
+      parse,
+      `  const moved = date && addDate(date, Number(${select}.value), 'month')`,
+      '  const [added, end] = dateOutputs',
+      `  added.value = moved ? formatDatePattern(moved, ${quote(readout.outputs[0]!.pattern)}) : ${empty}`,
+      `  end.value = moved ? formatDatePattern(endOfDate(moved, 'month'), ${quote(readout.outputs[1]!.pattern)}) : ${empty}`,
+    ]
+  return [
+    parse,
+    '  dateOutputs.forEach((output, index) => {',
+    '    output.value = date',
+    `      ? formatDatePattern(date, datePatterns[index]${select === 'locale' ? ', { locale: locale.value }' : ''})`,
+    `      : ${empty}`,
+    '  })',
+  ]
+}
 
 export const javascriptFor = (preset: DemoPreset, mode: DemoMode = 'cdn') => {
   const item = scenario(preset)
@@ -213,7 +268,8 @@ export const javascriptFor = (preset: DemoPreset, mode: DemoMode = 'cdn') => {
     ...(digit && mode === 'esm' ? [digit] : []),
     ...(check ? ['regex'] : []),
   ]
-  const dateImports = 'formatDatePattern, parseDate'
+  const dateImports = readout ? dateImportsFor[readout.kind] : ''
+  const strict = readout?.kind === 'strict'
   const staticOptions = Object.fromEntries(
     Object.entries(item.options).filter(([key]) => key !== 'country')
   )
@@ -240,12 +296,13 @@ export const javascriptFor = (preset: DemoPreset, mode: DemoMode = 'cdn') => {
     ...(select ? [`const ${select} = document.querySelector('#${item.choice!.id}')`] : []),
     ...(item.brand ? [`const brand = document.querySelector('[data-brand]')`] : []),
     ...(readout ? [`const dateOutputs = document.querySelectorAll('[data-date]')`] : []),
-    ...(check ? [`const status = document.querySelector('[data-status]')`] : []),
+    ...(check || strict ? [`const status = document.querySelector('[data-status]')`] : []),
     `const options = ${literal(staticOptions)}`,
     ...(check && !dynamicRule ? [`const rule = ${checkExpression(check)}`] : []),
-    ...(readout
+    ...(readout?.kind === 'locale'
       ? [`const datePatterns = ${literal(readout.outputs.map(output => output.pattern))}`]
       : []),
+    ...(strict ? ['', ...rejectReasonSource] : []),
     '',
     'const update = () => {',
     `  const { formatted, raw } = format(field.value, '${item.formatType}', ${options})`,
@@ -255,16 +312,7 @@ export const javascriptFor = (preset: DemoPreset, mode: DemoMode = 'cdn') => {
     ...(item.brand
       ? [`  brand.value = format(raw, 'creditCardType').formatted || '${item.brand.empty}'`]
       : []),
-    ...(readout
-      ? [
-          `  const date = parseDate(formatted, { format: ${quote(readout.parse)} })`,
-          '  dateOutputs.forEach((output, index) => {',
-          '    output.value = date',
-          `      ? formatDatePattern(date, datePatterns[index]${select === 'locale' ? ', { locale: locale.value }' : ''})`,
-          `      : ${quote(readout.empty)}`,
-          '  })',
-        ]
-      : []),
+    ...(readout ? readoutLines(readout, select) : []),
     ...(check && dynamicRule
       ? [`  const rule = ${checkExpression(check, select ?? 'choice')}`]
       : []),

@@ -28,13 +28,13 @@ export interface ScenarioCheck {
 
 /**
  * A select that changes one format option (`country`), the validation rule,
- * the rule's own option (`check`, see `ScenarioCheck.choiceOption`) or the
- * locale of the date readout.
+ * the rule's own option (`check`, see `ScenarioCheck.choiceOption`), the
+ * locale of the date readout or the months it adds.
  */
 export interface ScenarioChoice {
   readonly id: string
   readonly label: string
-  readonly role: 'country' | 'rule' | 'check' | 'locale'
+  readonly role: 'country' | 'rule' | 'check' | 'locale' | 'months'
   readonly initial: string
   readonly choices: readonly (readonly [value: string, label: string])[]
 }
@@ -61,10 +61,14 @@ export interface Scenario {
   readonly brand?: { readonly label: string; readonly empty: string }
   readonly check?: ScenarioCheck
   /**
-   * Reads the formatted value with `parseDate` from `@samline/formatter/date`
-   * and shows it again with `formatDatePattern` in the selected locale.
+   * Reads the formatted value with `parseDate` from `@samline/formatter/date`.
+   * `locale` shows every output pattern in the selected locale; `strict`
+   * reports `isValidDate` (or why the date was rejected) in the status and
+   * shows the first output; `shift` adds the selected months with `addDate`
+   * and shows the result and, second, `endOfDate(result, 'month')`.
    */
   readonly dateReadout?: {
+    readonly kind: 'locale' | 'strict' | 'shift'
     readonly parse: string
     readonly empty: string
     readonly outputs: readonly { readonly label: string; readonly pattern: string }[]
@@ -315,6 +319,7 @@ export const scenarios = {
     },
     check: { key: 'date', withOptions: true, on: 'formatted', valid: 'Complete date' },
     dateReadout: {
+      kind: 'locale',
       parse: 'DD/MM/YYYY',
       empty: 'Keep typing',
       outputs: [
@@ -327,6 +332,84 @@ export const scenarios = {
       { label: 'Leap day', value: '29022028', choice: 'en-US' },
       { label: 'In German', value: '01052026', choice: 'de-DE' },
       { label: 'Half typed', value: '0503' },
+    ],
+  },
+  strict: {
+    category: 'dates',
+    tab: 'Strict date',
+    title: 'Check a date strictly',
+    description:
+      'A date typed or pasted as YYYY-MM-DD, with no mask to correct it. isValidDate says whether it exists; parseDate returns undefined for 2026-02-30 instead of rolling it over to March 2.',
+    hint: 'new Date(2026, 1, 30) silently becomes March 2. parseDate rejects impossible days, months and times; the copied code explains why with daysInMonth.',
+    formatType: 'text',
+    options: {},
+    field: {
+      id: 'check-date',
+      name: 'check_date',
+      label: 'Date (YYYY-MM-DD)',
+      inputmode: 'numeric',
+      autocomplete: 'off',
+      value: '2026-02-30',
+      placeholder: 'YYYY-MM-DD',
+    },
+    dateReadout: {
+      kind: 'strict',
+      parse: 'YYYY-MM-DD',
+      empty: '—',
+      outputs: [{ label: 'Read as', pattern: 'dddd, MMMM D, YYYY' }],
+    },
+    samples: [
+      { label: 'Leap day 2028', value: '2028-02-29' },
+      { label: 'Leap day 2026', value: '2026-02-29' },
+      { label: 'Month 13', value: '2026-13-01' },
+      { label: 'Other order', value: '30/02/2026' },
+    ],
+  },
+  shift: {
+    category: 'dates',
+    tab: 'Move a date',
+    title: 'Move a date by months',
+    description:
+      'addDate adds calendar months and clamps the day to the end of shorter months, so January 31 plus one month is February 28. endOfDate then gives the last day of that month.',
+    hint: 'The mask writes YYYY-MM-DD and parseDate reads it with the same tokens. formatDatePattern(endOfDate(addDate(date, months, "month"), "month"), "YYYY-MM-DD") is the whole calculation.',
+    formatType: 'date',
+    options: { datePattern: ['Y', 'm', 'd'], delimiter: '-' },
+    field: {
+      id: 'start-date',
+      name: 'start_date',
+      label: 'Start date',
+      inputmode: 'numeric',
+      autocomplete: 'off',
+      value: '2026-01-31',
+      placeholder: 'YYYY-MM-DD',
+    },
+    choice: {
+      id: 'months',
+      label: 'Months to add',
+      role: 'months',
+      initial: '1',
+      choices: [
+        ['1', '+1 month'],
+        ['3', '+3 months'],
+        ['6', '+6 months'],
+        ['12', '+12 months'],
+        ['-1', '−1 month'],
+        ['-12', '−12 months'],
+      ],
+    },
+    dateReadout: {
+      kind: 'shift',
+      parse: 'YYYY-MM-DD',
+      empty: 'Keep typing',
+      outputs: [
+        { label: 'After adding', pattern: 'YYYY-MM-DD' },
+        { label: 'End of that month', pattern: 'YYYY-MM-DD' },
+      ],
+    },
+    samples: [
+      { label: 'Mid-month', value: '2026-03-15', choice: '1' },
+      { label: 'Leap year', value: '2027-02-28', choice: '12' },
+      { label: 'Back a year', value: '2028-02-29', choice: '-12' },
     ],
   },
   card: {
