@@ -124,6 +124,19 @@ describe('parseDate with a format', () => {
     )
   })
 
+  it('reads month names with their counter in Japanese, Chinese and Korean', () => {
+    expect(format('23 3月 2026', 'D MMMM YYYY', { locale: 'ja' })).toBe('2026-03-23T00:00:00.000Z')
+    // 11月 must not stop at 1月.
+    expect(format('12 11月 2026', 'D MMMM YYYY', { locale: 'zh-CN' })).toBe(
+      '2026-11-12T00:00:00.000Z'
+    )
+    // Hangul syllables grow under NFD normalization (월 is three jamo).
+    expect(format('12 11월 2026', 'D MMMM YYYY', { locale: 'ko' })).toBe('2026-11-12T00:00:00.000Z')
+    expect(format('목요일 12 11월 2026', 'dddd D MMMM YYYY', { locale: 'ko' })).toBe(
+      '2026-11-12T00:00:00.000Z'
+    )
+  })
+
   it('reads times, fractions, offsets and Unix timestamps', () => {
     expect(format('2026-11-12 23:59:58.5', 'YYYY-MM-DD HH:mm:ss.S')).toBe(
       '2026-11-12T23:59:58.500Z'
@@ -184,6 +197,21 @@ describe('formatDatePattern', () => {
   it('uses the grammatical month form next to a day', () => {
     expect(at('D MMMM', { locale: 'ru' })).toBe('12 ноября')
     expect(at('MMMM YYYY', { locale: 'ru' })).toBe('ноябрь 2026')
+  })
+
+  it('keeps the month counter in Japanese, Chinese and Korean', () => {
+    // Intl writes the number alone and 月 as a separate literal in ja and zh.
+    const march = formatDatePattern(utc('2026-03-23T12:00:00'), 'D MMMM YYYY', {
+      ...UTC,
+      locale: 'ja',
+    })
+    expect(march).toBe('23 3月 2026')
+    expect(at('MMMM', { locale: 'ja' })).toBe('11月')
+    expect(at('MMM', { locale: 'ja' })).toBe('11月')
+    expect(at('D MMMM', { locale: 'zh-CN' })).toBe('12 11月')
+    expect(at('MMM', { locale: 'zh-TW' })).toBe('11月')
+    expect(at('D MMMM', { locale: 'ko' })).toBe('12 11월')
+    expect(at('dddd', { locale: 'ja' })).toBe('木曜日')
   })
 
   it('prints ordinals per language', () => {

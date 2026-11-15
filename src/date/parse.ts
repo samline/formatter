@@ -90,10 +90,12 @@ const matchName = (
   names.forEach((name, index) => {
     const wanted = normalize(name, locale)
     if (!wanted) return
-    // Compare a growing prefix so dots and accents in the input are tolerated.
+    // Compare a shrinking prefix so dots and accents in the input are tolerated.
+    // NFD can lengthen a name (a Hangul syllable such as 월 becomes three jamo),
+    // so the shortest prefix tried is the name's own length, not the normalized one.
     for (
       let length = Math.min(text.length, name.length + 2);
-      length >= wanted.length;
+      length >= Math.min(wanted.length, name.length);
       length -= 1
     ) {
       if (normalize(text.slice(0, length), locale) === wanted) {

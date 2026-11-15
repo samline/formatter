@@ -9,6 +9,19 @@ const partOf = (
   type: Intl.DateTimeFormatPartTypes
 ): string => format.formatToParts(time).find(part => part.type === type)?.value ?? ''
 
+/**
+ * The month as `Intl` writes it. Japanese and Chinese return the number alone
+ * (`3`) with the counter as the next literal (`月`); the name is both, as in
+ * `3月`. Korean already includes it (`3월`).
+ */
+const monthPart = (parts: Intl.DateTimeFormatPart[]): string => {
+  const index = parts.findIndex(part => part.type === 'month')
+  const month = parts[index]?.value ?? ''
+  if (!/^\d+$/.test(month)) return month
+  const suffix = parts[index + 1]?.type === 'literal' ? parts[index + 1]!.value : ''
+  return month + (/^\S+/.exec(suffix)?.[0] ?? '')
+}
+
 export type NameWidth = 'long' | 'short'
 
 /**
@@ -29,7 +42,7 @@ export const monthNames = (
         : { timeZone: 'UTC', month: width }
     )
     return Array.from({ length: 12 }, (_, month) =>
-      partOf(format, UTC_NOON(2021, month, 15), 'month')
+      monthPart(format.formatToParts(UTC_NOON(2021, month, 15)))
     )
   })
 
