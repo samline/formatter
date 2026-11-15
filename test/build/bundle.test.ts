@@ -14,7 +14,7 @@ const dist = (path: string): string => `${root}dist/${path}`
 
 describe('built package', () => {
   it('has been built', () => {
-    expect(existsSync(dist('index.js')), 'run `npm run build` first').toBe(true)
+    expect(existsSync(dist('index.js')), 'run `bun run build` first').toBe(true)
   })
 
   const runClassicScript = (file: string): Record<string, unknown> => {
@@ -230,12 +230,12 @@ describe('built package', () => {
   })
 
   it('publishes only the runtime, its declarations and release notes', () => {
-    const [packed] = JSON.parse(
-      execFileSync('npm', ['pack', '--dry-run', '--json', '--ignore-scripts'], {
+    const packed = JSON.parse(
+      execFileSync('pnpm', ['pack', '--dry-run', '--json'], {
         cwd: root,
         encoding: 'utf8',
       })
-    ) as [{ files: { path: string }[] }]
+    ) as { files: { path: string }[] }
     const files = packed.files.map(file => file.path)
     for (const required of [
       'package.json',

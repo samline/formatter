@@ -57,5 +57,5 @@ for (const item of [...audit.sources, ...audit.publicExports]) {
   await readFile(destination)
 }
 console.log(
-  'Release evidence is complete. Run npm run site:verify and manually review claims and copied examples.'
+  'Release evidence is complete. Run bun run site:verify and manually review claims and copied examples.'
 )

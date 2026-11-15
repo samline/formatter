@@ -16,7 +16,7 @@ When writing or extending `docs/` or `example/src/content/docs/`, every example 
 
 - For every documented function: open `src/`, find the implementation, and trace the example input through it.
 - For every documented type: open `src/index.ts` → `src/vanilla/index.ts` → `src/core/index.ts` → leaf file, and confirm the re-export chain actually publishes the symbol.
-- If the example is "how it *should* behave", write the missing test / implementation first and document the resulting behavior — never document intent as fact.
+- If the example is "how it _should_ behave", write the missing test / implementation first and document the resulting behavior — never document intent as fact.
 
 **Evidence:**
 
@@ -204,4 +204,3 @@ Type: rule
 `registerPhone()` stores the phone formatter in module state. Separate tsup configs per entry would give `.`, `/vanilla` and `/phone` their own copies and registration would silently do nothing. Keep all module entries in one tsup config with `splitting: true` (ESM and CJS) and keep `test/build/bundle.test.ts` asserting that registering through `/phone` enables `.` and `/vanilla` in both formats.
 
 **Evidence:** 2026-11-12, 3.0.0 (`tsup.config.ts`).
-

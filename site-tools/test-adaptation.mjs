@@ -36,7 +36,7 @@ try {
   for (const base of ['/', '/tools/widget/']) {
     config.site.url = 'https://example.com' + base
     await writeFile(join(temporary, 'project.config.json'), JSON.stringify(config))
-    execFileSync('npm', ['run', 'site:build'], {
+    execFileSync('bun', ['run', 'site:build'], {
       cwd: temporary,
       stdio: 'pipe',
     })

@@ -5,11 +5,17 @@ export default defineConfig({
     environment: 'jsdom',
     environmentOptions: {
       jsdom: {
-        url: 'http://localhost/'
-      }
+        url: 'http://localhost/',
+      },
     },
     include: ['test/**/*.test.ts'],
-    // Built-output smoke tests run separately through `npm run test:package`.
-    exclude: ['test/build/**', '**/node_modules/**']
-  }
+    // Built-output smoke tests run separately through `bun run test:package`.
+    exclude: ['test/build/**', '**/node_modules/**'],
+    coverage: {
+      provider: 'v8',
+      include: ['src/**'],
+      reporter: ['text', 'json-summary'],
+      thresholds: { branches: 90, functions: 95, lines: 95, statements: 95 },
+    },
+  },
 })

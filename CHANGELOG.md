@@ -5,6 +5,21 @@ All notable changes to `@samline/formatter` are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.2.2] - 2026-11-15
+
+No API changes.
+
+### Changed
+
+- Installs with pnpm and runs every script with Bun, with the @samline family CI, Prettier settings and gzip budgets for each public entry.
+- CDN examples use pinned jsDelivr URLs.
+- Test toolchain upgraded to Vitest 5 and jsdom 30 (the previous Vitest had published advisories).
+
+### Tests
+
+- Coverage thresholds: 90 % branches and 95 % statements, functions and lines, with new tests for the date module.
+- Playwright tests of the three standalone scripts in Chromium, Firefox and WebKit.
+
 ## [3.2.1] - 2026-11-15
 
 Fixes for the date tools in Japanese, Chinese and Korean, and two new date-tools examples.
@@ -428,6 +443,7 @@ These come from auditing the ported engine and change a few outputs:
 - Pre-built validation regex catalog with paired error messages.
 - Advanced helpers: `formatPhone`, `getRawValue`, `getDateValueFromRaw`, `getTimeValueFromRaw`, `stripPrefixAndSuffix`.
 
+[3.2.2]: https://github.com/samline/formatter/compare/v3.2.1...v3.2.2
 [3.2.1]: https://github.com/samline/formatter/compare/v3.2.0...v3.2.1
 [3.2.0]: https://github.com/samline/formatter/compare/v3.1.0...v3.2.0
 [3.1.0]: https://github.com/samline/formatter/compare/v3.0.0...v3.1.0

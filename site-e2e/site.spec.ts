@@ -136,7 +136,7 @@ test('file tabs copy exact highlighted source and feedback resets independently'
 })
 test('copied CDN and ESM files run for all twenty scenarios', async ({ page, context }) => {
   // The CDN URL is served from this checkout's build; this proves the copied
-  // code, not unpkg availability or npm publication.
+  // code, not jsDelivr availability or npm publication.
   const coreIife = readFileSync(
     new URL('../dist/browser/formatter.global.js', import.meta.url),
     'utf8'
@@ -180,7 +180,7 @@ test('copied CDN and ESM files run for all twenty scenarios', async ({ page, con
   example.on('pageerror', error => errors.push(error.message))
   // Only the phone scenario may copy the phone build; the rest get the core,
   // and the date-tools scenario adds the date add-on after it.
-  await example.route('https://unpkg.com/**', route => {
+  await example.route('https://cdn.jsdelivr.net/npm/**', route => {
     const url = route.request().url()
     const body = url.endsWith('/formatter.phone.global.js')
       ? phoneIife
@@ -246,7 +246,7 @@ test('copied CDN and ESM files run for all twenty scenarios', async ({ page, con
             () => `<head><script>${iife.replaceAll('</script', '<\\/script')}</script>`
           )
       } else {
-        expect(complete).toContain('https://unpkg.com/@samline/formatter@')
+        expect(complete).toContain('https://cdn.jsdelivr.net/npm/@samline/formatter@')
         expect(complete.includes('formatter.phone.global.js'), preset).toBe(preset === 'phone')
         expect(complete.includes('formatter.date.global.js'), preset).toBe(
           datePresets.includes(preset)

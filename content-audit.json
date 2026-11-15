@@ -1,17 +1,17 @@
 {
   "status": "verified",
-  "packageVersion": "3.2.1",
+  "packageVersion": "3.2.2",
   "sources": [
     {
       "source": "README.md",
-      "sha256": "78e4346f7da0ddb8f9ebf669cb6ed5639744c0c200e98c02fb645c5ac5da029b",
+      "sha256": "a4252e708527f300082149aed3d74779614246a3082b4b37baed047770d01e61",
       "destination": "docs/src/content/docs/index.mdx",
       "reviewed": true,
       "reviewScope": "Package README remains the npm guide; its documentation table links to the website."
     },
     {
       "source": "CHANGELOG.md",
-      "sha256": "beddc6e1828e273370c8ea72cf272858df757aa726092a296aba9df9cfe56f08",
+      "sha256": "39259040351002488325e462cd42c7a53d43626eb1fe00b8a48c2f0674af32e5",
       "destination": "CHANGELOG.md",
       "reviewed": true,
       "reviewScope": "Single release history, loaded into the docs collection as /docs/changelog/."
@@ -532,7 +532,7 @@
   },
   "themeReview": {
     "status": "verified",
-    "source": "Maintainer requested lime green (\"verde limón\") in the 2026-11-05 audit and website request. Light #4d7c0f keeps text contrast on white; dark #a3e635.",
+    "source": "Maintainer requested lime green (\"verde lim\u00f3n\") in the 2026-11-05 audit and website request. Light #4d7c0f keeps text contrast on white; dark #a3e635.",
     "accentLight": "#4d7c0f",
     "accentDark": "#a3e635"
   },

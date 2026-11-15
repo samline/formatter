@@ -1,6 +1,6 @@
 # Formatter website
 
-Landing, Examples and Docs for `@samline/formatter` 3.2.1. The package runtime, exports, Node 20+ requirement, README, license and release history remain the package contract. Website tooling requires Node **22.12+**.
+Landing, Examples and Docs for `@samline/formatter` 3.2.2. The package runtime, exports, Node 20+ requirement, README, license and release history remain the package contract. Website tooling requires Node **22.12+**.
 
 ## Run locally
 
@@ -43,7 +43,7 @@ bun run site:verify
 bun run site:check:release
 ```
 
-`site:verify` covers both Astro diagnostics, the protected visual contract, formatting, tooling tests, alternate base builds, combined link checks and the Playwright suite. The browser suite executes every scenario's copied files in both loading modes (twenty scenarios × two modes); the unpkg URL is served from the local `dist/` build, so it does not prove CDN availability or npm publication. Framework recipes (React/Vue/Svelte) were migrated and reviewed against the API but are not compiled by this suite.
+`site:verify` covers both Astro diagnostics, the protected visual contract, formatting, tooling tests, alternate base builds, combined link checks and the Playwright suite. The browser suite executes every scenario's copied files in both loading modes (twenty scenarios × two modes); the jsDelivr URL is served from the local `dist/` build, so it does not prove CDN availability or npm publication. Framework recipes (React/Vue/Svelte) were migrated and reviewed against the API but are not compiled by this suite.
 
 ## Header synchronization — 2026-11-06
 

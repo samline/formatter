@@ -105,7 +105,7 @@ parseDate('2026-02-30', { format: 'YYYY-MM-DD' }) // undefined: no error object,
 Load the versioned standalone script, then use `window.Formatter`:
 
 ```html
-<script src="https://unpkg.com/@samline/formatter@3.2.1/dist/browser/formatter.phone.global.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@samline/formatter@3.2.2/dist/browser/formatter.phone.global.js"></script>
 <script>
   const { format, regex } = window.Formatter
   console.log(format('5512345678', 'phone').formatted) // '55 1234 5678'
@@ -114,10 +114,10 @@ Load the versioned standalone script, then use `window.Formatter`:
 
 Both scripts are minified IIFEs that define `window.Formatter` with `format`, `intl`, `regex`, `checks` and `version`:
 
-| Script                                                                               | Phones      | Size (minified)           |
-| ------------------------------------------------------------------------------------ | ----------- | ------------------------- |
-| `https://unpkg.com/@samline/formatter@3.2.1/dist/browser/formatter.global.js`        | no          | about 34 KB (13 KB gzip)  |
-| `https://unpkg.com/@samline/formatter@3.2.1/dist/browser/formatter.phone.global.js`  | registered  | about 177 KB (46 KB gzip) |
+| Script                                                                                         | Phones     | Size (minified)           |
+| ---------------------------------------------------------------------------------------------- | ---------- | ------------------------- |
+| `https://cdn.jsdelivr.net/npm/@samline/formatter@3.2.2/dist/browser/formatter.global.js`       | no         | about 34 KB (13 KB gzip)  |
+| `https://cdn.jsdelivr.net/npm/@samline/formatter@3.2.2/dist/browser/formatter.phone.global.js` | registered | about 177 KB (46 KB gzip) |
 
 For the date tools, add `formatter.date.global.js` from the same folder after either script (about 24 KB minified, 9 KB gzip); it adds `window.Formatter.date`.
 
@@ -144,31 +144,31 @@ Pin the version in production, or self-host the same file. 3.0.0 renamed the for
 
 ## API at a glance
 
-| API                                                                                                                                                                | Purpose        |
-| ------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------- |
-| `format(value, formatType, options?)`                                                                                                                              | Format         |
-| `'phone'`, `'numeral'`, `'date'`, `'time'`, `'creditCard'`, `'creditCardType'`, `'general'`, `'text'`, `'slug'`                                                                        | Format types   |
-| `FORMAT_TYPES`, `isFormatType()`                                                                                                                                   | Type checks    |
-| `regex` (static entries and the `digits`, `phone`, `creditCard`, `url`, `uuid`, `date`, `time`, `numeral`, `postalCode`, `password` and `custom` builders)          | Validation     |
-| `isLuhn()`, `isValidCard()`, `isValidClabe()`, `isValidNss()`, `isValidCurp()`, `isValidRfc()`, `isValidIban()`, `isValidRoutingNumber()`, `isValidDniEs()`             | Check digits   |
-| `getRawValue()`, `stripPrefixAndSuffix()`, `getDateValueFromRaw()`, `getTimeValueFromRaw()`, `looksLikeRawDateValue()`, `looksLikeRawTimeValue()`, `isPhoneRegistered()` | Helpers        |
-| `registerPhone()`, `formatPhone()` from `@samline/formatter/phone`                                                                                                 | Phones         |
-| `formatNumber()`, `formatCurrency()`, `formatPercent()`, `formatDate()`, `formatRelativeTime()` from `@samline/formatter/intl`                                     | Display        |
+| API                                                                                                                                                                          | Purpose        |
+| ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------- |
+| `format(value, formatType, options?)`                                                                                                                                        | Format         |
+| `'phone'`, `'numeral'`, `'date'`, `'time'`, `'creditCard'`, `'creditCardType'`, `'general'`, `'text'`, `'slug'`                                                              | Format types   |
+| `FORMAT_TYPES`, `isFormatType()`                                                                                                                                             | Type checks    |
+| `regex` (static entries and the `digits`, `phone`, `creditCard`, `url`, `uuid`, `date`, `time`, `numeral`, `postalCode`, `password` and `custom` builders)                   | Validation     |
+| `isLuhn()`, `isValidCard()`, `isValidClabe()`, `isValidNss()`, `isValidCurp()`, `isValidRfc()`, `isValidIban()`, `isValidRoutingNumber()`, `isValidDniEs()`                  | Check digits   |
+| `getRawValue()`, `stripPrefixAndSuffix()`, `getDateValueFromRaw()`, `getTimeValueFromRaw()`, `looksLikeRawDateValue()`, `looksLikeRawTimeValue()`, `isPhoneRegistered()`     | Helpers        |
+| `registerPhone()`, `formatPhone()` from `@samline/formatter/phone`                                                                                                           | Phones         |
+| `formatNumber()`, `formatCurrency()`, `formatPercent()`, `formatDate()`, `formatRelativeTime()` from `@samline/formatter/intl`                                               | Display        |
 | `parseDate()`, `formatDatePattern()`, `addDate()`, `diffDate()`, `startOfDate()`, `isSameDate()`, `createDate()`, `formatDuration()` and more from `@samline/formatter/date` | Dates          |
-| `window.Formatter.format`, `window.Formatter.intl`, `window.Formatter.regex`, `window.Formatter.checks`, `window.Formatter.version`, `window.Formatter.date` (add-on)                         | Browser global |
+| `window.Formatter.format`, `window.Formatter.intl`, `window.Formatter.regex`, `window.Formatter.checks`, `window.Formatter.version`, `window.Formatter.date` (add-on)        | Browser global |
 
 ### Entrypoints
 
-| Entrypoint                         | When to use                                                               |
-| ---------------------------------- | ------------------------------------------------------------------------- |
+| Entrypoint                         | When to use                                                                                                                      |
+| ---------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
 | `@samline/formatter`               | ESM and CommonJS with type declarations; `format` alone about 15 KB minified (6 KB gzip), every export about 30 KB (11 KB gzip). |
-| `@samline/formatter/vanilla`       | The same API under an explicit subpath.                                   |
-| `@samline/formatter/phone`         | `registerPhone()` and `formatPhone()`; adds libphonenumber-js.            |
-| `@samline/formatter/intl`          | `Intl` display helpers; no dependencies.                                  |
-| `@samline/formatter/date`          | Date tools; no dependencies; every function under 10 KB gzip together.    |
-| `@samline/formatter/browser`       | The standalone IIFE without phones (`formatter.global.js`).               |
-| `@samline/formatter/browser/phone` | The standalone IIFE with phones (`formatter.phone.global.js`).            |
-| `@samline/formatter/browser/date`  | The date add-on for either IIFE (`formatter.date.global.js`).             |
+| `@samline/formatter/vanilla`       | The same API under an explicit subpath.                                                                                          |
+| `@samline/formatter/phone`         | `registerPhone()` and `formatPhone()`; adds libphonenumber-js.                                                                   |
+| `@samline/formatter/intl`          | `Intl` display helpers; no dependencies.                                                                                         |
+| `@samline/formatter/date`          | Date tools; no dependencies; every function under 10 KB gzip together.                                                           |
+| `@samline/formatter/browser`       | The standalone IIFE without phones (`formatter.global.js`).                                                                      |
+| `@samline/formatter/browser/phone` | The standalone IIFE with phones (`formatter.phone.global.js`).                                                                   |
+| `@samline/formatter/browser/date`  | The date add-on for either IIFE (`formatter.date.global.js`).                                                                    |
 
 ### Validation
 
