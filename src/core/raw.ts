@@ -1,4 +1,6 @@
 import { slugify } from '@samline/string'
+
+import { slugifyOptions, type SlugCharMap } from './slug.js'
 import {
   unformatCreditCard,
   unformatGeneral,
@@ -36,6 +38,14 @@ type ExtraFormatOptions = {
   replacements?: Readonly<Record<string, string>>
   /** `slug`: maximum length, cut at a separator when possible. */
   maxLength?: number
+  /**
+   * `slug`: transliterate other scripts before slugging: `'cyrillic'`,
+   * `'greek'`, `'german'`, your own map such as `{ ä: 'ae' }`, or several
+   * merged in order. Without it, letters outside Latin are dropped.
+   */
+  charMap?: SlugCharMap
+  /** `slug`: characters kept as they are, for example `'._'`. */
+  preserve?: string
   country?: string
   dateRawPattern?: DatePatternType
   dateRawPatternDelimiter?: string
@@ -462,12 +472,7 @@ export const getRawValue = (
       return cleanValue
 
     case 'slug':
-      return slugify(cleanValue, {
-        separator: options.delimiter ?? '-',
-        ...(options.replacements && { replacements: options.replacements }),
-        ...(options.maxLength !== undefined && { maxLength: options.maxLength }),
-        ...(options.locale && { locale: options.locale }),
-      })
+      return slugify(cleanValue, slugifyOptions(options))
 
     case 'general': {
       const generalOpts: {

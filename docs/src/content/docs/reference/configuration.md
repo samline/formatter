@@ -314,19 +314,27 @@ format('el señor de los anillos', 'text', { case: 'title', smallWords: ['de', '
 
 > Type: `'slug'` (since 3.1.0)
 
-A URL slug while the user types. `formatted` keeps a trailing separator so a space can become one; `raw` is the final, trimmed slug. Built on `slugify` from [`@samline/string`](https://github.com/samline/utils/tree/main/packages/string).
+A URL slug while the user types. `formatted` keeps a trailing separator so a space can become one; `raw` is the final, trimmed slug. Built on `slugify` from [`@samline/string`](https://github.com/samline/string).
 
-| Field          | Type                     | Default | Notes                                                           |
-| -------------- | ------------------------ | ------- | --------------------------------------------------------------- |
-| `delimiter`    | `string`                 | `'-'`   | Word separator.                                                 |
-| `replacements` | `Record<string, string>` | `{}`    | Literal replacements applied first, for example `{ '&': 'y' }`. |
-| `maxLength`    | `number`                 | –       | Maximum length; cuts at a separator when possible.              |
-| `locale`       | `string \| string[]`     | –       | Locale for lower-casing.                                        |
+| Field          | Type                                                                      | Default | Notes                                                                                                                        |
+| -------------- | ------------------------------------------------------------------------- | ------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `delimiter`    | `string`                                                                  | `'-'`   | Word separator.                                                                                                              |
+| `replacements` | `Record<string, string>`                                                  | `{}`    | Literal replacements applied first, for example `{ '&': 'y' }`.                                                              |
+| `maxLength`    | `number`                                                                  | –       | Maximum length; cuts at a separator when possible.                                                                           |
+| `locale`       | `string \| string[]`                                                      | –       | Locale for lower-casing.                                                                                                     |
+| `charMap`      | `'cyrillic' \| 'greek' \| 'german' \| Record<string, string> \| Array<…>` | –       | Since 3.3.0. Transliterates other scripts first; several are merged in order. Without it, letters outside Latin are dropped. |
+| `preserve`     | `string`                                                                  | `''`    | Since 3.3.0. Characters kept as they are, for example `'._'`.                                                                |
 
 ```ts
 format('Mi Página ', 'slug')
 // => { formatted: 'mi-pagina-', raw: 'mi-pagina', type: 'slug' }
+
+format('Привет мир', 'slug', { charMap: 'cyrillic' }).raw // 'privet-mir'
+format('Grüße', 'slug', { charMap: 'german' }).raw // 'gruesse'
+format('Release v1.2_beta', 'slug', { preserve: '._' }).raw // 'release-v1.2_beta'
 ```
+
+A custom map such as `{ Å: 'Aa' }` also matches the lower-case letter, because the slug is lower-cased first. Each map object is read once and cached, so pass a new object to change it.
 
 ## `phone`
 

@@ -1,6 +1,6 @@
 # Formatter website
 
-Landing, Examples and Docs for `@samline/formatter` 3.2.2. The package runtime, exports, Node 20+ requirement, README, license and release history remain the package contract. Website tooling requires Node **22.12+**.
+Landing, Examples and Docs for `@samline/formatter` 3.3.0. The package runtime, exports, Node 20+ requirement, README, license and release history remain the package contract. Website tooling requires Node **22.12+**.
 
 ## Run locally
 

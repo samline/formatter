@@ -277,8 +277,8 @@ Add a duration with `addDate(date, duration)`, and measure one with `createDurat
 The date tools are an add-on to the browser builds, so pages that do not use them do not load them. Load it after `formatter.global.js` or `formatter.phone.global.js`:
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/@samline/formatter@3.2.2/dist/browser/formatter.global.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@samline/formatter@3.2.2/dist/browser/formatter.date.global.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@samline/formatter@3.3.0/dist/browser/formatter.global.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@samline/formatter@3.3.0/dist/browser/formatter.date.global.js"></script>
 <script>
   const { addDate, formatDatePattern } = window.Formatter.date
   formatDatePattern(addDate(new Date(), 1, 'day'), 'dddd D', { locale: 'es-MX' })

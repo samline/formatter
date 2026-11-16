@@ -1,17 +1,17 @@
 {
   "status": "verified",
-  "packageVersion": "3.2.2",
+  "packageVersion": "3.3.0",
   "sources": [
     {
       "source": "README.md",
-      "sha256": "e1597f0f43a52c7a05e6f59649f3a20635ef4a839589b9870013a548f03887f4",
+      "sha256": "6557721d7aa213f9dcf13a6ca02820cd0d3c35b8d72019a636dfdc8c5e8786e6",
       "destination": "docs/src/content/docs/index.mdx",
       "reviewed": true,
       "reviewScope": "Package README remains the npm guide; its documentation table links to the website."
     },
     {
       "source": "CHANGELOG.md",
-      "sha256": "c45581c67b944f6390fb302bcc4abb9a6fb38d0db2ccd217f1af427b2594223f",
+      "sha256": "48c2fa297c280d8ea13dba3cf8318bbae6c6418d014a24c1d0d49fb97a7fe55e",
       "destination": "CHANGELOG.md",
       "reviewed": true,
       "reviewScope": "Single release history, loaded into the docs collection as /docs/changelog/."

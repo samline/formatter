@@ -14,6 +14,7 @@ import { getRawValue, stripPrefixAndSuffix } from './raw.js'
 import type { FormatterResult, FormatOptions } from './types.js'
 
 export type { FormatOptions, FormatType, FormatterResult }
+export type { CharMap, CharMapName, SlugCharMap } from './slug.js'
 export { FORMAT_TYPES, isFormatType, stripPrefixAndSuffix }
 
 /**

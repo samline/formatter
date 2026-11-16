@@ -1,5 +1,7 @@
 import { slugify } from '@samline/string'
 
+import { slugifyOptions } from './slug.js'
+
 import { applyCase } from './engine/case.js'
 import {
   formatCreditCard,
@@ -105,13 +107,7 @@ const formatValue = (value: string, formatType: FormatType, options: RuntimeOpti
 
     case 'slug':
       // Keep a trailing separator while typing; `raw` holds the trimmed slug.
-      return slugify(value, {
-        trim: false,
-        separator: options.delimiter ?? '-',
-        ...(options.replacements && { replacements: options.replacements }),
-        ...(options.maxLength !== undefined && { maxLength: options.maxLength }),
-        ...(options.locale && { locale: options.locale }),
-      })
+      return slugify(value, { trim: false, ...slugifyOptions(options) })
 
     case 'general':
       // `formatGeneral` requires `blocks`; `format()` has already rejected
