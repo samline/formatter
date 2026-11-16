@@ -30,7 +30,7 @@ Format types: `'phone'`, `'numeral'`, `'date'`, `'time'`, `'creditCard'`, `'cred
 ## Choose a loading mode
 
 - **Package / ESM:** `npm install @samline/formatter` (or pnpm, yarn, bun), then `import { format, regex } from '@samline/formatter'`. For phones also `import { registerPhone } from '@samline/formatter/phone'` and call `registerPhone()` once. CommonJS `require` works too. `@samline/formatter/vanilla` exposes the same API. No stylesheet exists or is needed.
-- **HTML / CDN:** `<script src="https://cdn.jsdelivr.net/npm/@samline/formatter@3.2.2/dist/browser/formatter.phone.global.js"></script>` when the page formats phones (about 177 KB minified), or `formatter.global.js` from the same folder when it does not (about 34 KB). Then `const { format, regex, intl } = window.Formatter`. Load it once, before code that uses it. Pin the version; a repository version does not prove that npm or the CDN already serve it.
+- **HTML / CDN:** `<script src="https://cdn.jsdelivr.net/npm/@samline/formatter@3.2.2/dist/browser/formatter.phone.global.js"></script>` when the page formats phones (about 174 KB minified), or `formatter.global.js` from the same folder when it does not (about 36 KB). Then `const { format, regex, intl } = window.Formatter`. Load it once, before code that uses it. Pin the version; a repository version does not prove that npm or the CDN already serve it.
 
 Use one setup per page. Do not load the CDN script in a bundled application.
 

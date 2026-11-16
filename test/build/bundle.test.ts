@@ -52,9 +52,9 @@ describe('built package', () => {
   it('keeps the core inside its size budget', () => {
     // Budgets documented in README and docs/reference/entrypoints.md, all
     // without libphonenumber-js: an app importing only `format` stays under
-    // 17 KB minified (7 KB gzip), which proves `regex` and the check-digit
+    // 18 KB minified (7 KB gzip), which proves `regex` and the check-digit
     // validators tree-shake away; every root export together stays under
-    // 32 KB (12 KB gzip); the core IIFE (everything plus intl) under 36 KB.
+    // 34 KB (13 KB gzip); the core IIFE (everything plus intl) under 38 KB.
     const dir = mkdtempSync(join(tmpdir(), 'formatter-size-'))
     const bundle = (source: string): Buffer => {
       const entry = join(dir, `${Math.random().toString(36).slice(2)}.mjs`)
@@ -69,7 +69,7 @@ describe('built package', () => {
     const formatOnly = bundle(
       `import { format } from ${JSON.stringify(dist('index.js'))}\nconsole.log(format)`
     )
-    expect(formatOnly.byteLength).toBeLessThan(17 * 1024)
+    expect(formatOnly.byteLength).toBeLessThan(18 * 1024)
     expect(gzipSync(formatOnly).byteLength).toBeLessThan(7 * 1024)
 
     const checkOnly = bundle(
@@ -80,11 +80,11 @@ describe('built package', () => {
     const everything = bundle(
       `import * as all from ${JSON.stringify(dist('index.js'))}\nconsole.log(all)`
     )
-    expect(everything.byteLength).toBeLessThan(32 * 1024)
-    expect(gzipSync(everything).byteLength).toBeLessThan(12 * 1024)
+    expect(everything.byteLength).toBeLessThan(34 * 1024)
+    expect(gzipSync(everything).byteLength).toBeLessThan(13 * 1024)
 
     const iife = readFileSync(dist('browser/formatter.global.js'))
-    expect(iife.byteLength).toBeLessThan(36 * 1024)
+    expect(iife.byteLength).toBeLessThan(38 * 1024)
     expect(readFileSync(dist('browser/formatter.phone.global.js')).byteLength).toBeLessThan(
       185 * 1024
     )

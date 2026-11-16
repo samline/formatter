@@ -116,8 +116,8 @@ Both scripts are minified IIFEs that define `window.Formatter` with `format`, `i
 
 | Script                                                                                         | Phones     | Size (minified)           |
 | ---------------------------------------------------------------------------------------------- | ---------- | ------------------------- |
-| `https://cdn.jsdelivr.net/npm/@samline/formatter@3.2.2/dist/browser/formatter.global.js`       | no         | about 34 KB (13 KB gzip)  |
-| `https://cdn.jsdelivr.net/npm/@samline/formatter@3.2.2/dist/browser/formatter.phone.global.js` | registered | about 177 KB (46 KB gzip) |
+| `https://cdn.jsdelivr.net/npm/@samline/formatter@3.2.2/dist/browser/formatter.global.js`       | no         | about 36 KB (14 KB gzip)  |
+| `https://cdn.jsdelivr.net/npm/@samline/formatter@3.2.2/dist/browser/formatter.phone.global.js` | registered | about 174 KB (46 KB gzip) |
 
 For the date tools, add `formatter.date.global.js` from the same folder after either script (about 24 KB minified, 9 KB gzip); it adds `window.Formatter.date`.
 
@@ -161,7 +161,7 @@ Pin the version in production, or self-host the same file. 3.0.0 renamed the for
 
 | Entrypoint                         | When to use                                                                                                                      |
 | ---------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| `@samline/formatter`               | ESM and CommonJS with type declarations; `format` alone about 15 KB minified (6 KB gzip), every export about 30 KB (11 KB gzip). |
+| `@samline/formatter`               | ESM and CommonJS with type declarations; `format` alone about 16 KB minified (6 KB gzip), every export about 32 KB (12 KB gzip). |
 | `@samline/formatter/vanilla`       | The same API under an explicit subpath.                                                                                          |
 | `@samline/formatter/phone`         | `registerPhone()` and `formatPhone()`; adds libphonenumber-js.                                                                   |
 | `@samline/formatter/intl`          | `Intl` display helpers; no dependencies.                                                                                         |

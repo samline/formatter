@@ -177,8 +177,8 @@ importers:
         specifier: 1.62.1
         version: 1.62.1
       '@samline/string':
-        specifier: ^1.0.0
-        version: 1.0.0
+        specifier: ^1.5.0
+        version: 1.5.0
       '@types/node':
         specifier: ^24.0.0
         version: 24.19.2
@@ -1439,8 +1439,8 @@ packages:
     resolution: {integrity: sha512-sTjWF80KRLWNmphkhpddAC4s93LKcQBSn/+gn89NxEbmjgGCSEwbif5fWlDpyBl3tqG3afKvt6RBIJwh2MI+pw==}
     engines: {node: '>=20'}
 
-  '@samline/string@1.0.0':
-    resolution: {integrity: sha512-CFwi5N+wLUFVRGUOl2KZr0BAh7T9Z1mqC3qUdiA7fqdYZqbOrr/goLr86AtbunAhM59nYW9aUV55FunO78CsBQ==}
+  '@samline/string@1.5.0':
+    resolution: {integrity: sha512-4j+BNEAGxsDoCWaFUYosO08lD5lmHsNZ8E2uxT3xtfyNGwUoICLSmpA36CP09lArLYWvEhO4QKt8E/HK6r914A==}
     engines: {node: '>=20'}
 
   '@shikijs/core@4.6.0':
@@ -4373,7 +4373,7 @@ snapshots:
 
   '@samline/drawer@5.1.2': {}
 
-  '@samline/string@1.0.0': {}
+  '@samline/string@1.5.0': {}
 
   '@shikijs/core@4.6.0':
     dependencies:

@@ -144,15 +144,15 @@ If your bundler does not support `exports` (legacy Node 12, custom tooling), the
 
 | Surface                                    | Engine (numeral, date, time, card, general) | `libphonenumber-js` | Size (minified)           |
 | ------------------------------------------ | ------------------------------------------- | ------------------- | ------------------------- |
-| `@samline/formatter` / `/vanilla`          | built in                                    | no                  | 15–30 KB (6–11 KB gzip)   |
+| `@samline/formatter` / `/vanilla`          | built in                                    | no                  | 16–32 KB (6–12 KB gzip)   |
 | `@samline/formatter/phone`                 | shared with the root                        | bundled             | adds about 143 KB         |
 | `@samline/formatter/intl`                  | not needed                                  | no                  | about 4 KB                |
 | `@samline/formatter/date` (every function) | not needed                                  | no                  | about 26 KB (10 KB gzip)  |
-| `formatter.global.js` (IIFE, with `intl`)  | built in                                    | no                  | about 34 KB (13 KB gzip)  |
-| `formatter.phone.global.js` (IIFE)         | built in                                    | bundled             | about 177 KB (46 KB gzip) |
+| `formatter.global.js` (IIFE, with `intl`)  | built in                                    | no                  | about 36 KB (14 KB gzip)  |
+| `formatter.phone.global.js` (IIFE)         | built in                                    | bundled             | about 174 KB (46 KB gzip) |
 | `formatter.date.global.js` (add-on IIFE)   | not needed                                  | no                  | about 24 KB (9 KB gzip)   |
 
-The core has no runtime dependency; the engine started as a port of `cleave-zen` 0.0.17 (MIT) and is now maintained here. `test:package` enforces the budgets: `format` alone under 17 KB minified (7 KB gzip), which proves `regex` and the check-digit validators tree-shake away; every root export together under 32 KB (12 KB gzip); the core IIFE under 36 KB, and every date function together under 30 KB (10 KB gzip).
+The core has no runtime dependency; the engine started as a port of `cleave-zen` 0.0.17 (MIT) and is now maintained here. `test:package` enforces the budgets: `format` alone under 18 KB minified (7 KB gzip), which proves `regex` and the check-digit validators tree-shake away; every root export together under 34 KB (13 KB gzip); the core IIFE under 38 KB, and every date function together under 30 KB (10 KB gzip).
 
 ## Versioning
 

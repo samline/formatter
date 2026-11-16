@@ -4,14 +4,14 @@
   "sources": [
     {
       "source": "README.md",
-      "sha256": "a4252e708527f300082149aed3d74779614246a3082b4b37baed047770d01e61",
+      "sha256": "e1597f0f43a52c7a05e6f59649f3a20635ef4a839589b9870013a548f03887f4",
       "destination": "docs/src/content/docs/index.mdx",
       "reviewed": true,
       "reviewScope": "Package README remains the npm guide; its documentation table links to the website."
     },
     {
       "source": "CHANGELOG.md",
-      "sha256": "39259040351002488325e462cd42c7a53d43626eb1fe00b8a48c2f0674af32e5",
+      "sha256": "c45581c67b944f6390fb302bcc4abb9a6fb38d0db2ccd217f1af427b2594223f",
       "destination": "CHANGELOG.md",
       "reviewed": true,
       "reviewScope": "Single release history, loaded into the docs collection as /docs/changelog/."
@@ -532,7 +532,7 @@
   },
   "themeReview": {
     "status": "verified",
-    "source": "Maintainer requested lime green (\"verde lim\u00f3n\") in the 2026-11-05 audit and website request. Light #4d7c0f keeps text contrast on white; dark #a3e635.",
+    "source": "Maintainer requested lime green (\"verde limón\") in the 2026-11-05 audit and website request. Light #4d7c0f keeps text contrast on white; dark #a3e635.",
     "accentLight": "#4d7c0f",
     "accentDark": "#a3e635"
   },

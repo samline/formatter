@@ -121,7 +121,7 @@
   },
   "devDependencies": {
     "@playwright/test": "1.62.1",
-    "@samline/string": "^1.0.0",
+    "@samline/string": "^1.5.0",
     "@types/node": "^24.0.0",
     "@vitest/coverage-v8": "^5.1.0",
     "axe-core": "^4.14.0",
@@ -137,12 +137,12 @@
   "unpkg": "./dist/browser/formatter.global.js",
   "jsdelivr": "./dist/browser/formatter.global.js",
   "size": {
-    "dist/index.js": 11800,
-    "dist/vanilla/index.js": 11800,
+    "dist/index.js": 12700,
+    "dist/vanilla/index.js": 12700,
     "dist/phone/index.js": 33500,
     "dist/intl/index.js": 1800,
     "dist/date/index.js": 10100,
-    "dist/browser/formatter.global.js": 13500,
+    "dist/browser/formatter.global.js": 14500,
     "dist/browser/formatter.phone.global.js": 46800,
     "dist/browser/formatter.date.global.js": 9400
   }

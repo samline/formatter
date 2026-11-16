@@ -9,10 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 No API changes.
 
+### Fixed
+
+- Casing (`case` option: `title`, `sentence`, `capitalize`) and `slugify` come from `@samline/string` 1.5.0, so decomposed accents (`e` followed by U+0301) stay inside their word instead of starting a new one.
+
 ### Changed
 
 - Installs with pnpm and runs every script with Bun, with the @samline family CI, Prettier settings and gzip budgets for each public entry.
 - CDN examples use pinned jsDelivr URLs.
+- The bundled `@samline/string` grows the core by about 0.8 KB gzip; the documented budgets are now `format` alone under 18 KB minified, every root export under 34 KB (13 KB gzip) and the core IIFE under 38 KB.
 - Test toolchain upgraded to Vitest 5 and jsdom 30 (the previous Vitest had published advisories).
 
 ### Tests
