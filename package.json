@@ -13,7 +13,8 @@
   "sideEffects": false,
   "files": [
     "dist",
-    "CHANGELOG.md"
+    "CHANGELOG.md",
+    "THIRD_PARTY_NOTICES.md"
   ],
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",

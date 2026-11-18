@@ -236,4 +236,4 @@ When working from this repository, copy `skills/formatter/SKILL.md` instead. Kee
 
 ## License
 
-MIT — [LICENSE.md](LICENSE.md). The formatting engine includes code adapted from [cleave-zen](https://github.com/nosir/cleave-zen) (MIT); its notice is in LICENSE.md.
+MIT — [LICENSE.md](LICENSE.md). The formatting engine includes code adapted from [cleave-zen](https://github.com/nosir/cleave-zen) (MIT); its notice is in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
