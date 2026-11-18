@@ -345,8 +345,16 @@ const Frame = framed ? DemoStudio : 'div'
     color: var(--color-text);
   }
   .status[data-valid='true']::before {
-    content: '✓ ';
-    color: var(--color-accent);
+    /* A drawn check instead of a typed glyph, so its weight does not follow the font. */
+    content: '';
+    display: inline-block;
+    width: 0.875em;
+    height: 0.875em;
+    margin-right: 0.375em;
+    vertical-align: -0.1em;
+    background: var(--color-accent);
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7'/%3E%3C/svg%3E")
+      center / contain no-repeat;
   }
   .status[data-valid='false'] {
     color: var(--color-text-muted);

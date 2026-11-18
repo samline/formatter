@@ -297,7 +297,7 @@ This type does not consume any extra options — pass the card number and read `
 
 > Type: `'text'` (since 3.1.0)
 
-Free text with a casing mode and no mask. `raw` equals `formatted`. Title, sentence and capitalize come from [`@samline/string`](https://github.com/samline/utils/tree/main/packages/string), bundled into formatter.
+Free text with a casing mode and no mask. `raw` equals `formatted`. Title, sentence and capitalize come from [`@samline/string`](https://github.com/samline/string), bundled into formatter.
 
 | Field        | Type                                                          | Default | Notes                                                                      |
 | ------------ | ------------------------------------------------------------- | ------- | -------------------------------------------------------------------------- |
