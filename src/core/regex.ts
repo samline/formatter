@@ -235,7 +235,7 @@ const assertRange = (min: number, max: number): void => {
   }
 }
 
-function createDigits(min: number, max: number, errorMsg: string): RegexEntry {
+const createDigits = (min: number, max: number, errorMsg: string): RegexEntry => {
   assertRange(min, max)
   return {
     pattern: new RegExp(`^\\d{${min},${max}}$`),
@@ -244,7 +244,7 @@ function createDigits(min: number, max: number, errorMsg: string): RegexEntry {
 }
 
 /** Digits with only the separators people type in phone numbers. */
-function createPhone(length: number): RegexEntry {
+const createPhone = (length: number): RegexEntry => {
   assertCount('length', length)
   return {
     pattern: new RegExp(`^[\\s().+-]*(?:\\d[\\s().+-]*){${length}}$`),
@@ -253,7 +253,7 @@ function createPhone(length: number): RegexEntry {
 }
 
 /** Digits with optional single spaces or hyphens between them. */
-function createCreditCard(min: number, max: number): RegexEntry {
+const createCreditCard = (min: number, max: number): RegexEntry => {
   assertRange(min, max)
   return {
     pattern: new RegExp(`^(?=(?:[\\s-]?\\d){${min},${max}}$)\\d(?:[\\s-]?\\d)*$`),
@@ -261,7 +261,7 @@ function createCreditCard(min: number, max: number): RegexEntry {
   }
 }
 
-function createUrl(requireProtocol: 'http' | 'https' | 'ftp' | 'all'): RegexEntry {
+const createUrl = (requireProtocol: 'http' | 'https' | 'ftp' | 'all'): RegexEntry => {
   const protocol = requireProtocol === 'all' ? '(?:https?|ftp)' : requireProtocol
   const host = `(?:${DOMAIN}|localhost|${IPV4}|\\[${IPV6}\\])`
   return {
@@ -273,7 +273,7 @@ function createUrl(requireProtocol: 'http' | 'https' | 'ftp' | 'all'): RegexEntr
   }
 }
 
-function createPassword(params: PasswordParams): RegexEntry {
+const createPassword = (params: PasswordParams): RegexEntry => {
   const {
     min = 8,
     max = 128,
@@ -313,7 +313,7 @@ function createPassword(params: PasswordParams): RegexEntry {
   }
 }
 
-function createUuid(version?: number): RegexEntry {
+const createUuid = (version?: number): RegexEntry => {
   if (version !== undefined && (!Number.isInteger(version) || version < 1 || version > 8)) {
     throw new RangeError(
       `regex: \`version\` must be an integer from 1 to 8, received ${String(version)}.`
@@ -344,7 +344,7 @@ const DATE_UNIT: Record<string, { width: number; source: string; label: string }
  * width, so lookaheads anchored at each offset reject day 31 in 30-day
  * months, day 30–31 in February and 29 February outside leap years.
  */
-function createDate(params: DateParams = {}): RegexEntry {
+const createDate = (params: DateParams = {}): RegexEntry => {
   const order = params.datePattern ?? ['d', 'm', 'Y']
   const delimiter = params.delimiter ?? '/'
   const offsets: Record<string, number> = {}
@@ -381,7 +381,7 @@ function createDate(params: DateParams = {}): RegexEntry {
 }
 
 /** Two-digit time segments in the given order, as the `'time'` mask writes them. */
-function createTime(params: TimeParams = {}): RegexEntry {
+const createTime = (params: TimeParams = {}): RegexEntry => {
   const order = params.timePattern ?? ['h', 'm', 's']
   const delimiter = params.delimiter ?? ':'
   const twelve = params.timeFormat === '12'
@@ -403,7 +403,7 @@ function createTime(params: TimeParams = {}): RegexEntry {
 }
 
 /** A whole number as the `'numeral'` mask writes it, grouped or plain. */
-function createNumeral(params: NumeralParams = {}): RegexEntry {
+const createNumeral = (params: NumeralParams = {}): RegexEntry => {
   const {
     delimiter = ',',
     numeralDecimalMark = '.',
@@ -727,7 +727,7 @@ const buildStatic = () => {
  * regex.digits({ length: 7 }).pattern.test('1234567') // true
  * regex.digits({ min: 3, max: 10 }).pattern.test('12345') // true
  */
-function digits(params?: number | DigitsParams): RegexEntry {
+const digits = (params?: number | DigitsParams): RegexEntry => {
   if (typeof params === 'number') {
     return createDigits(params, params, `Please enter exactly ${params} digits.`)
   }
@@ -741,27 +741,27 @@ function digits(params?: number | DigitsParams): RegexEntry {
 }
 
 /** Phone with configurable digit count (static entry: 10 digits). */
-function _phoneFn(params?: PhoneParams): RegexEntry {
+const _phoneFn = (params?: PhoneParams): RegexEntry => {
   return createPhone(params?.length ?? 10)
 }
 
 /** Card number with configurable digit range (static entry: 12–19). */
-function _creditCardFn(params?: CreditCardParams): RegexEntry {
+const _creditCardFn = (params?: CreditCardParams): RegexEntry => {
   return createCreditCard(params?.min ?? 12, params?.max ?? 19)
 }
 
 /** URL with configurable protocol (static entry: http, https or ftp). */
-function _urlFn(params?: UrlParams): RegexEntry {
+const _urlFn = (params?: UrlParams): RegexEntry => {
   return createUrl(params?.protocol ?? 'all')
 }
 
 /** Password with configurable strength rules. */
-function _passwordFn(params?: PasswordParams): RegexEntry {
+const _passwordFn = (params?: PasswordParams): RegexEntry => {
   return createPassword(params ?? {})
 }
 
 /** UUID of one version (static entry: any version 1–8). */
-function _uuidFn(params?: UuidParams): RegexEntry {
+const _uuidFn = (params?: UuidParams): RegexEntry => {
   return createUuid(params?.version)
 }
 
@@ -771,7 +771,7 @@ function _uuidFn(params?: UuidParams): RegexEntry {
  * @example
  * regex.date({ datePattern: ['d', 'm', 'Y'] }).pattern.test('31/04/2026') // false
  */
-function _dateFn(params?: DateParams): RegexEntry {
+const _dateFn = (params?: DateParams): RegexEntry => {
   return createDate(params)
 }
 
@@ -779,12 +779,12 @@ function _dateFn(params?: DateParams): RegexEntry {
  * Time in the order and delimiter of the `'time'` mask (default `HH:MM:SS`,
  * 24-hour). Pass the same options you give `format()`.
  */
-function _timeFn(params?: TimeParams): RegexEntry {
+const _timeFn = (params?: TimeParams): RegexEntry => {
   return createTime(params)
 }
 
 /** Postal code of one country (static entry: US ZIP or ZIP+4). */
-function _postalCodeFn(params?: PostalCodeParams): RegexEntry {
+const _postalCodeFn = (params?: PostalCodeParams): RegexEntry => {
   const country = params?.country ?? 'US'
   const source = (POSTAL_CODES as Record<string, string>)[String(country).toUpperCase()]
   if (!source) {
@@ -802,7 +802,7 @@ function _postalCodeFn(params?: PostalCodeParams): RegexEntry {
  * Number as the `'numeral'` mask writes it. Pass the same options you give
  * `format()`: delimiter, decimal mark, group style, decimal scale, sign and prefix.
  */
-function _numeralFn(params?: NumeralParams): RegexEntry {
+const _numeralFn = (params?: NumeralParams): RegexEntry => {
   return createNumeral(params)
 }
 
