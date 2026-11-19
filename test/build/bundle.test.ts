@@ -229,7 +229,7 @@ describe('built package', () => {
     expect(typeof vanilla.format).toBe('function')
   })
 
-  it('publishes only the runtime, its declarations and release notes', () => {
+  it('publishes only the runtime, its declarations, release notes and third-party notices', () => {
     const packed = JSON.parse(
       execFileSync('pnpm', ['pack', '--dry-run', '--json'], {
         cwd: root,
@@ -242,6 +242,7 @@ describe('built package', () => {
       'README.md',
       'LICENSE.md',
       'CHANGELOG.md',
+      'THIRD_PARTY_NOTICES.md',
       'dist/index.js',
       'dist/index.cjs',
       'dist/index.d.ts',
@@ -260,7 +261,10 @@ describe('built package', () => {
       expect(files).toContain(required)
     expect(
       files.filter(
-        file => !/^(dist\/|package\.json$|README\.md$|LICENSE\.md$|CHANGELOG\.md$)/.test(file)
+        file =>
+          !/^(dist\/|package\.json$|README\.md$|LICENSE\.md$|CHANGELOG\.md$|THIRD_PARTY_NOTICES\.md$)/.test(
+            file
+          )
       )
     ).toEqual([])
   })
