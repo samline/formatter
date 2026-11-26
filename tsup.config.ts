@@ -1,6 +1,7 @@
-import { defineConfig } from 'tsup'
+import { rm } from 'node:fs/promises'
+import { defineConfig, type Options } from 'tsup'
 
-export default defineConfig([
+const builds: Options[] = [
   {
     // One build for every module entry so they share chunks. Phone support
     // registers into a module-level registry that must be a single instance
@@ -16,7 +17,7 @@ export default defineConfig([
     dts: true,
     target: 'es2020',
     outDir: 'dist',
-    clean: true,
+    clean: false,
     sourcemap: true,
     splitting: true,
     treeshake: true,
@@ -59,4 +60,11 @@ export default defineConfig([
     minify: true,
     sourcemap: true,
   },
-])
+]
+
+export default defineConfig(async () => {
+  // tsup builds the entries concurrently. Clean once before any entry writes
+  // to dist so the module build cannot erase the browser declarations.
+  await rm('dist', { recursive: true, force: true })
+  return builds
+})
