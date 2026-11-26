@@ -5,7 +5,7 @@ sidebar:
   order: 2
 title: 'Framework integrations'
 titleAccent: 'integrations'
-description: 'Use @samline/formatter with controlled inputs in React, Vue and Svelte, in vanilla JavaScript and in server-side pipelines.'
+description: 'Use @samline/formatter with inputs in React, Vue, Svelte, Astro, Shopify and WordPress, in vanilla JavaScript and in server-side code.'
 ---
 
 import Tabs from '../../../../../shared/components/Tabs.astro'
@@ -37,6 +37,10 @@ input.addEventListener('input', () => {
 ```
 
 That listener is the entire pattern. The rest of this page shows how each framework wraps it without losing the contract.
+
+## React, Vue and Svelte
+
+Each tab wires the same listener into a framework's state. The Vanilla and Server-side tabs cover a plain module script and code that runs without a DOM.
 
 <Tabs id="tabs-1" label="Choose a variant" items={[{ id: 'react', label: 'React' }, { id: 'vue-3', label: 'Vue 3' }, { id: 'svelte', label: 'Svelte' }, { id: 'vanilla', label: 'Vanilla' }, { id: 'server-side', label: 'Server-side' }]}>
 <TabPanel id="react" label="React">
@@ -198,6 +202,120 @@ const invoice = format('123456', 'numeral', { prefix: '$', delimiter: ',' })
 
 </TabPanel>
 </Tabs>
+
+## Astro
+
+Use a processed client `<script>` in the `.astro` file, not the frontmatter: the listener needs the input. Without client navigation, attach it once. With `<ClientRouter />`, attach on `astro:page-load` and abort on `astro:before-swap`, so listeners never outlive their page.
+
+```astro
+<input id="phone" type="text" inputmode="tel" autocomplete="tel" />
+<input id="phone_raw" type="hidden" name="phone" />
+
+<script>
+  import { format } from '@samline/formatter'
+  import { registerPhone } from '@samline/formatter/phone'
+
+  registerPhone()
+
+  let lifetime: AbortController | undefined
+
+  // astro:page-load fires only with <ClientRouter />. Without client navigation, run this setup once at the top level.
+  document.addEventListener('astro:page-load', () => {
+    lifetime = new AbortController()
+    const phone = document.querySelector<HTMLInputElement>('#phone')
+    const phoneRaw = document.querySelector<HTMLInputElement>('#phone_raw')
+    if (!phone || !phoneRaw) return
+
+    phone.addEventListener(
+      'input',
+      () => {
+        const { formatted, raw } = format(phone.value, 'phone', { country: 'MX' })
+        phone.value = formatted
+        phoneRaw.value = raw
+      },
+      { signal: lifetime.signal }
+    )
+  })
+  document.addEventListener('astro:before-swap', () => lifetime?.abort())
+</script>
+```
+
+## Shopify
+
+Copy `dist/browser/formatter.phone.global.js` of the pinned release into the theme's `assets/` folder (use `formatter.global.js` when you do not format phones) and load it once in `layout/theme.liquid`. It defines `window.Formatter` with `format`. Add `formatter.date.global.js` after it only if you need the date tools.
+
+```liquid
+<script src="{{ 'formatter.phone.global.js' | asset_url }}" defer></script>
+```
+
+The theme editor adds and removes sections without a page load, so attach the listener on `shopify:section:load` and abort it on `shopify:section:unload`. `event.target` is the section element. Run `mount` once for the sections already on the page.
+
+```js
+const lifetimes = new Map()
+
+const mount = root => {
+  const phone = root.querySelector('input[type="tel"]')
+  if (!phone) return
+  const lifetime = new AbortController()
+  lifetimes.set(root, lifetime)
+
+  phone.addEventListener(
+    'input',
+    () => {
+      const { formatted } = window.Formatter.format(phone.value, 'phone', { country: 'MX' })
+      phone.value = formatted
+    },
+    { signal: lifetime.signal }
+  )
+}
+
+document.addEventListener('shopify:section:load', event => mount(event.target))
+document.addEventListener('shopify:section:unload', event => {
+  lifetimes.get(event.target)?.abort()
+  lifetimes.delete(event.target)
+})
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.shopify-section').forEach(mount)
+})
+```
+
+Shopify's own forms post the visible value. When your backend needs the canonical number, write `raw` to a hidden input as in the Vanilla tab. See [Shopify's section events](https://shopify.dev/docs/storefronts/themes/best-practices/editor/integrate-sections-and-blocks).
+
+## WordPress
+
+Enqueue the pinned classic script from your theme or plugin, deferred, on the front end. `'strategy' => 'defer'` needs WordPress 6.3 or newer.
+
+```php
+add_action('wp_enqueue_scripts', function () {
+  wp_enqueue_script(
+    'samline-formatter',
+    'https://cdn.jsdelivr.net/npm/@samline/formatter@3.3.1/dist/browser/formatter.phone.global.js',
+    [],
+    null,
+    ['strategy' => 'defer', 'in_footer' => true]
+  );
+  wp_enqueue_script(
+    'my-phone-field',
+    get_theme_file_uri('assets/phone-field.js'),
+    ['samline-formatter'],
+    null,
+    ['strategy' => 'defer', 'in_footer' => true]
+  );
+});
+```
+
+`assets/phone-field.js` is your own file. Declaring `samline-formatter` as its dependency keeps the order, so `window.Formatter` exists when it runs:
+
+```js
+const phone = document.querySelector('input[type="tel"]')
+
+phone?.addEventListener('input', () => {
+  const { formatted } = window.Formatter.format(phone.value, 'phone', { country: 'MX' })
+  phone.value = formatted
+})
+```
+
+The script targets the content it finds on the page; widgets or AJAX-loaded forms need to run it again after they render. See [wp_enqueue_script](https://developer.wordpress.org/reference/functions/wp_enqueue_script/).
 
 ## Pairing with `@samline/forms`
 

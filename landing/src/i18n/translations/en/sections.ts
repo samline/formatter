@@ -22,7 +22,16 @@ export default {
     descriptionContinuation: 'Group a phone, price a total, or store a date as ISO.',
     footnotes: ['One pure function', 'JavaScript & TypeScript', 'MIT licensed'],
     compatibilityLabel: 'ONE SMALL SCRIPT. RIGHT AT HOME IN YOUR STACK.',
-    platforms: ['JavaScript', 'TypeScript', 'React', 'Vue', 'Svelte', 'Shopify', 'WordPress'],
+    platforms: [
+      'JavaScript',
+      'TypeScript',
+      'React',
+      'Vue',
+      'Svelte',
+      'Astro',
+      'Shopify',
+      'WordPress',
+    ],
   },
   features: {
     eyebrow: '01 / More than a mask',
