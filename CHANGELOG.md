@@ -5,6 +5,16 @@ All notable changes to `@samline/formatter` are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+
+- Docs: the README, frameworks guide and skill listener snippets skip `input` events while `event.isComposing` is true and format once on `compositionend`, so IME composition (Japanese, Chinese, Korean) is not interrupted.
+
+### Fixed
+
+- `formatDatePattern` month and weekday names (`MMMM`, `MMM`, `dddd`, `ddd`…) are always Gregorian. In locales whose default calendar is not Gregorian (`fa-IR`, `ar-SA`, `th-TH`) the names came from that calendar but were indexed as Gregorian months, so `'D MMMM YYYY'` mixed calendars. The localized tokens (`L`, `LL`…) still follow the locale's own calendar, now documented.
+
 ## [3.3.1] - 2026-11-17
 
 ### Changed

@@ -62,6 +62,8 @@ Missing parts are filled the way people expect: `'HH:mm'` alone is that time tod
 
 Localized tokens (`L`, `LL`…), week tokens and time-zone names are output only.
 
+Pattern tokens (`MMMM`, `MMM`, `dddd`, `ddd`…) are always Gregorian, whatever the locale: `'D MMMM YYYY'` with `fa-IR` writes the Gregorian month in Persian (`12 نوامبر 2026`). The localized tokens (`L`, `LL`…) are the exception, because they hand the whole date to `Intl`: they follow the locale's own calendar, so `fa-IR` prints the Persian calendar there. Pass a locale with an explicit calendar (`en-u-ca-gregory`) when those tokens must stay Gregorian.
+
 ### Matching a masked input
 
 A `date` field formatted with `datePattern: ['d', 'm', 'Y']` and the `/` delimiter shows `DD/MM/YYYY`. Read it with the same tokens:

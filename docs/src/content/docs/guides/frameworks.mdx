@@ -29,14 +29,19 @@ import { registerPhone } from '@samline/formatter/phone'
 
 registerPhone()
 
-input.addEventListener('input', () => {
+const apply = () => {
   const { formatted, raw } = format(input.value, 'phone')
   input.value = formatted // visible
   hidden.value = raw // submitted with the form
+}
+input.addEventListener('input', event => {
+  if (event.isComposing) return // an IME is composing: rewriting the value would cancel it
+  apply()
 })
+input.addEventListener('compositionend', apply) // format once the IME commits
 ```
 
-That listener is the entire pattern. The rest of this page shows how each framework wraps it without losing the contract.
+That listener pair is the entire pattern. Skip `input` events while `event.isComposing` is true and format once on `compositionend`, or Japanese, Chinese and Korean input loses its candidate text; the other snippets on this page leave that guard out for brevity, so add it to yours. The rest of this page shows how each framework wraps it without losing the contract.
 
 ## React, Vue and Svelte
 

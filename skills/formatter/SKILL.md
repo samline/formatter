@@ -60,14 +60,20 @@ registerPhone()
 const field = document.querySelector('#phone')
 const hidden = document.querySelector('input[name="phone"]')
 
-field.addEventListener('input', () => {
+const apply = () => {
   const { formatted, raw } = format(field.value, 'phone', { country: 'MX' })
   field.value = formatted
   hidden.value = raw
+}
+field.addEventListener('input', event => {
+  if (event.isComposing) return // IME composing: do not rewrite the value
+  apply()
 })
+field.addEventListener('compositionend', apply)
 ```
 
 - Use `type="text"` with `inputmode` (`tel`, `numeric`, `decimal`) and a real `autocomplete` token. `type="number"` rejects separators and decorations.
+- Skip `input` events with `event.isComposing` and format once on `compositionend`, so IME users (Japanese, Chinese, Korean) keep their candidate text.
 - Attach one listener per field. When an option changes at runtime (a country select), read it inside the listener (`{ country: select.value }`) and listen to the select's `change`; never re-attach the input listener.
 - To prefill from stored data, run the stored raw value through `format()` and assign `formatted`.
 - Assigning `field.value` moves the caret to the end. Formatter does not manage selection; for mid-string editing save `selectionStart` and restore with `setSelectionRange()`.

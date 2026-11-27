@@ -38,8 +38,8 @@ export const monthNames = (
     const format = dateTimeFormat(
       locale,
       context === 'format'
-        ? { timeZone: 'UTC', day: 'numeric', month: width }
-        : { timeZone: 'UTC', month: width }
+        ? { timeZone: 'UTC', calendar: 'gregory', day: 'numeric', month: width }
+        : { timeZone: 'UTC', calendar: 'gregory', month: width }
     )
     return Array.from({ length: 12 }, (_, month) =>
       monthPart(format.formatToParts(UTC_NOON(2021, month, 15)))
@@ -52,7 +52,7 @@ export const weekdayNames = (
   width: NameWidth | 'narrow'
 ): string[] =>
   cached('weekdays', locale, { width }, () => {
-    const format = dateTimeFormat(locale, { timeZone: 'UTC', weekday: width })
+    const format = dateTimeFormat(locale, { timeZone: 'UTC', calendar: 'gregory', weekday: width })
     // 2021-08-01 was a Sunday.
     return Array.from({ length: 7 }, (_, day) => format.format(UTC_NOON(2021, 7, 1 + day)))
   })

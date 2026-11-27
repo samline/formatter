@@ -180,6 +180,20 @@ describe('formatDatePattern', () => {
   const at = (pattern: string, options = {}) =>
     formatDatePattern(date, pattern, { ...UTC, ...options })
 
+  it('keeps pattern names Gregorian in locales with another default calendar', () => {
+    // fa-IR defaults to the Persian calendar; month and weekday names must still match the date.
+    expect(at('MMMM', { locale: 'fa-IR' })).toBe(
+      new Intl.DateTimeFormat('fa-IR-u-ca-gregory', { month: 'long', timeZone: 'UTC' }).format(date)
+    )
+    expect(at('D MMMM YYYY', { locale: 'fa-IR' })).toContain('نوامبر')
+    expect(at('D MMMM YYYY', { locale: 'fa-IR' })).not.toContain('آبان')
+    expect(at('dddd', { locale: 'fa-IR' })).toBe(
+      new Intl.DateTimeFormat('fa-IR-u-ca-gregory', { weekday: 'long', timeZone: 'UTC' }).format(
+        date
+      )
+    )
+  })
+
   it('prints numbers, names and literals', () => {
     expect(at('YYYY-MM-DD HH:mm:ss.SSS')).toBe('2026-11-12 15:04:05.678')
     expect(at('YY M D H m s S SS')).toBe('26 11 12 15 4 5 6 67')

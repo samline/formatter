@@ -117,7 +117,8 @@ ${item.choice.choices.map(([value, label]) => `    <option value="${value}"${val
   >${outputs}${
     status
       ? `
-  <p id="${field.id}-status" data-status aria-live="polite"></p>`
+  <p id="${field.id}-status" data-status></p>
+  <p class="visually-hidden" data-announce aria-live="polite"></p>`
       : ''
   }
 </div>`
@@ -161,6 +162,18 @@ export const stylesFor = (_preset?: DemoPreset) => `.formatter-field {
 }
 .formatter-field [data-status][data-valid="false"] {
   color: #9b2c2c;
+}
+/* Announced to screen readers when the user leaves the field, not on every keystroke. */
+.formatter-field .visually-hidden {
+  position: absolute;
+  clip-path: inset(50%);
+  overflow: hidden;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  white-space: nowrap;
 }`
 
 const validationScript = (preset: DemoPreset, mode: DemoMode) => {
@@ -174,6 +187,7 @@ const validationScript = (preset: DemoPreset, mode: DemoMode) => {
     `const ruleSelect = document.querySelector('#${item.choice!.id}')`,
     `const patternOutput = document.querySelector('[data-pattern]')`,
     `const status = document.querySelector('[data-status]')`,
+    `const announce = document.querySelector('[data-announce]')`,
     '',
     'const update = () => {',
     '  // Parametric entries such as password() are called for their default rule.',
@@ -185,8 +199,17 @@ const validationScript = (preset: DemoPreset, mode: DemoMode) => {
     `  status.textContent = valid ? '${demo.validLabel}' : rule.errorMessage`,
     '}',
     '',
+    '// The visible status follows every keystroke; the live region speaks on change (blur).',
+    'const announceStatus = () => {',
+    '  announce.textContent = status.textContent',
+    '}',
+    '',
     "field.addEventListener('input', update)",
-    "ruleSelect.addEventListener('change', update)",
+    "field.addEventListener('change', announceStatus)",
+    "ruleSelect.addEventListener('change', () => {",
+    '  update()',
+    '  announceStatus()',
+    '})',
     'update()',
   ].join('\n')
 }
@@ -296,7 +319,12 @@ export const javascriptFor = (preset: DemoPreset, mode: DemoMode = 'cdn') => {
     ...(select ? [`const ${select} = document.querySelector('#${item.choice!.id}')`] : []),
     ...(item.brand ? [`const brand = document.querySelector('[data-brand]')`] : []),
     ...(readout ? [`const dateOutputs = document.querySelectorAll('[data-date]')`] : []),
-    ...(check || strict ? [`const status = document.querySelector('[data-status]')`] : []),
+    ...(check || strict
+      ? [
+          `const status = document.querySelector('[data-status]')`,
+          `const announce = document.querySelector('[data-announce]')`,
+        ]
+      : []),
     `const options = ${literal(staticOptions)}`,
     ...(check && !dynamicRule ? [`const rule = ${checkExpression(check)}`] : []),
     ...(readout?.kind === 'locale'
@@ -332,8 +360,22 @@ export const javascriptFor = (preset: DemoPreset, mode: DemoMode = 'cdn') => {
         : []),
     '}',
     '',
+    ...(check || strict
+      ? [
+          '// The visible status follows every keystroke; the live region speaks on change (blur).',
+          'const announceStatus = () => {',
+          '  announce.textContent = status.textContent',
+          '}',
+          '',
+        ]
+      : []),
     `field.addEventListener('input', update)`,
-    ...(select ? [`${select}.addEventListener('change', update)`] : []),
+    ...(check || strict ? [`field.addEventListener('change', announceStatus)`] : []),
+    ...(select
+      ? check || strict
+        ? [`${select}.addEventListener('change', () => {`, '  update()', '  announceStatus()', '})']
+        : [`${select}.addEventListener('change', update)`]
+      : []),
     'update()',
   ]
   return lines.join('\n')

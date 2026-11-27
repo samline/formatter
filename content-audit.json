@@ -4,14 +4,14 @@
   "sources": [
     {
       "source": "README.md",
-      "sha256": "6557721d7aa213f9dcf13a6ca02820cd0d3c35b8d72019a636dfdc8c5e8786e6",
+      "sha256": "df76eccfae214bd2bd71ad0b45aa632346d3a330a596359653fa3a5758671d7a",
       "destination": "docs/src/content/docs/index.mdx",
       "reviewed": true,
       "reviewScope": "Package README remains the npm guide; its documentation table links to the website."
     },
     {
       "source": "CHANGELOG.md",
-      "sha256": "48c2fa297c280d8ea13dba3cf8318bbae6c6418d014a24c1d0d49fb97a7fe55e",
+      "sha256": "8b50ce0752ee832f5f80f39615e700399467bde00cea374a5ac859545c4cacd9",
       "destination": "CHANGELOG.md",
       "reviewed": true,
       "reviewScope": "Single release history, loaded into the docs collection as /docs/changelog/."

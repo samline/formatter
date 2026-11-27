@@ -51,11 +51,16 @@ registerPhone() // phones are opt-in since 3.0.0
 const field = document.querySelector('#phone')
 const hidden = document.querySelector('input[name="phone"]')
 
-field.addEventListener('input', () => {
+const apply = () => {
   const { formatted, raw } = format(field.value, 'phone', { country: 'MX' })
   field.value = formatted // '55 1234 5678'
   hidden.value = raw // '5512345678'
+}
+field.addEventListener('input', event => {
+  if (event.isComposing) return // an IME is composing: rewriting the value would cancel it
+  apply()
 })
+field.addEventListener('compositionend', apply) // format once the IME commits
 ```
 
 The same call works for every type:
